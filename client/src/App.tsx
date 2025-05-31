@@ -1,19 +1,25 @@
 import "@mantine/core/styles.css";
 import { Button } from "@mantine/core";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Subscribe from "./Subscribe.tsx";
+import ws from "./ws";
 
 const App = () => {
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3000");
-
-    return () => {
-      ws.close();
-    };
-  }, []);
+  const [show, setShow] = useState(false);
 
   return (
-    <div>
+    <div style={{ margin: "50px" }}>
       <h1>React App</h1>
+      <div>
+        <Button
+          onClick={() => {
+            setShow((prev) => !prev);
+          }}
+        >
+          Show/Hide
+        </Button>
+      </div>
+      {show && <Subscribe />}
     </div>
   );
 };

@@ -7,12 +7,15 @@
   "dependencies": {
     "@redis/json": "^5.1.1",
     "express": "^5.1.0",
+    "pubsub-js": "^1.9.5",
     "redis": "^5.1.1",
-    "ws": "^8.18.2"
+    "ws": "^8.18.2",
+    "zod": "^3.25.42"
   },
   "devDependencies": {
     "@types/express": "^5.0.2",
     "@types/node": "^22.15.21",
+    "@types/pubsub-js": "^1.8.6",
     "@types/ws": "^8.18.1",
     "nodemon": "^3.1.10",
     "prettier": "^3.5.3",

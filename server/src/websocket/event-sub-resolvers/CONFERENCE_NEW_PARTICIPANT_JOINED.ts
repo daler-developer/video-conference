@@ -1,0 +1,11 @@
+import createEventSubResolver from '../createEventSubResolver';
+
+export default createEventSubResolver({
+  eventName: 'CONFERENCE_NEW_PARTICIPANT_JOINED',
+  channelName: 'CONFERENCE_PARTICIPANT_JOINED',
+  middleware: [],
+  activate(payload, params) {},
+  format(payload) {
+    return payload;
+  },
+});

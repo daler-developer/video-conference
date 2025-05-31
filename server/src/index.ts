@@ -1,6 +1,6 @@
 import express from 'express';
 import http from 'http';
-import WebSocket from 'ws';
+import initWebsocket from './websocket/init';
 import redisClient from './redis/client';
 
 const app = express();
@@ -14,6 +14,8 @@ const runApp = async () => {
       console.log('redis error');
     })
     .connect();
+
+  await initWebsocket(server);
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
