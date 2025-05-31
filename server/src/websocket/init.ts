@@ -43,7 +43,7 @@ const init = async (server: Server) => {
 
   const wss = new WebSocket.Server({ server });
 
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, request) => {
     ws.on('message', (data: Message) => {
       // @ts-ignore
       data = JSON.parse(data);
@@ -52,7 +52,7 @@ const init = async (server: Server) => {
 
       const resolver = handlersByMessageType[data.type];
 
-      processMiddleware(resolver.middleware, ctx, data);
+      processMiddleware(resolver.middleware, { ctx, message: data, request });
 
       handlersByMessageType[data.type].execute({ ctx, msg: data, ws });
     });

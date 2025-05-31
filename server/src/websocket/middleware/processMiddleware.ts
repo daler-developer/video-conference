@@ -1,8 +1,8 @@
-import { Middleware } from './createMiddleware';
+import { Middleware, MiddlewareOptions } from './createMiddleware';
 
-const processMiddleware = (list: Middleware[], ctx: any, message: any) => {
+const processMiddleware = (list: Middleware[], options: MiddlewareOptions) => {
   for (const middleware of list) {
-    middleware({ ctx, message });
+    middleware(options);
   }
 };
 

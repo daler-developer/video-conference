@@ -5,10 +5,7 @@ const Subscribe = () => {
   useEffect(() => {
     ws.send(
       JSON.stringify({
-        type: "START_SESSION",
-        params: {
-          fullName: "Saidov Daler",
-        },
+        type: "EVENT_SUB",
       }),
     );
     // ws.send(new Blob([]));

@@ -1,11 +1,12 @@
-type Next = (error?: Error) => void;
+import { IncomingMessage } from 'node:http';
 
-type Options = {
+export type MiddlewareOptions = {
   ctx: any;
+  request: IncomingMessage;
   message: any;
 };
 
-const createMiddleware = (callback: (options: Options) => void) => {
+const createMiddleware = (callback: (options: MiddlewareOptions) => void) => {
   return callback;
 };
 

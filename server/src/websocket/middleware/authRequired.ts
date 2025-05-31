@@ -1,5 +1,10 @@
+import { parse } from 'url';
 import createMiddleware from './createMiddleware';
 
-export default createMiddleware(({ ctx }) => {
-  ctx.userId = 1234;
+export default createMiddleware(({ ctx, request }) => {
+  const { query } = parse(request.url!, true);
+
+  const token = query.token;
+
+  ctx.userId = token;
 });
