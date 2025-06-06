@@ -64,7 +64,12 @@ const App = () => {
             ws.send(
               JSON.stringify({
                 type: "EVENT_UNSUB",
-                payload: {},
+                payload: {
+                  eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
+                  eventParams: {
+                    conferenceId: "test",
+                  },
+                },
               }),
             );
           }}

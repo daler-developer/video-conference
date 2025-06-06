@@ -1,17 +1,18 @@
 import createResolverByMessageType from '../../createResolverByMessageType';
 import subscriptionManager from '../../SubscriptionManager';
-import pubsub from '../../pubsub';
 
-export default createResolverByMessageType({
+type Payload = {
+  eventName: string;
+  eventParams: Record<string, unknown>;
+};
+
+export default createResolverByMessageType<Payload>({
   messageType: 'EVENT_UNSUB',
   middleware: [],
   execute({ ws, msg }) {
-    pubsub.publish('EVENT_UNSUB', {
+    subscriptionManager.unsubscribe(msg.payload.eventName as any, {
       ws,
+      params: msg.payload.eventParams,
     });
-    // subscriptionManager.subscribe(msg.eventName, {
-    //   ws,
-    //   params:
-    // });
   },
 });

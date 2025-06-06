@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import WebSocket from 'ws';
 import { EVENT_NAME } from './types';
 
@@ -30,6 +31,15 @@ class SubscriptionManager {
     if (!this.eventSubscribersMap.has(eventName)) {
       this.eventSubscribersMap.set(eventName, []);
     }
+
+    const subscribed = this.eventSubscribersMap.get(eventName)!.find((sub) => {
+      return sub.ws === ws && _.isEqual(sub.params, params);
+    });
+
+    if (subscribed) {
+      return;
+    }
+
     this.eventSubscribersMap.get(eventName)!.push({
       ws,
       params,
@@ -41,26 +51,34 @@ class SubscriptionManager {
     // });
   }
 
-  unsubscribe(eventName: EVENT_NAME, ws: WebSocket) {
+  unsubscribe(
+    eventName: EVENT_NAME,
+    { ws, params }: { ws: WebSocket; params: Record<'string', unknown> }
+  ) {
     if (!this.eventSubscribersMap.has(eventName)) {
       return;
     }
+
     this.eventSubscribersMap.set(
       eventName,
-      this.eventSubscribersMap.get(eventName)!.filter((sub) => sub.ws !== ws)
+      this.eventSubscribersMap.get(eventName)!.filter((sub) => {
+        if (sub.ws === ws && _.isEqual(sub.params, params)) {
+          return false;
+        }
+        return true;
+      })
     );
-    // this.websocketDataMap.delete(ws);
   }
 
   getSubscribers(eventName: EVENT_NAME) {
     return this.eventSubscribersMap.get(eventName) || [];
   }
 
-  unsubscribeFromAllEvents(ws: WebSocket) {
-    for (const eventName of this.eventSubscribersMap.keys()) {
-      this.unsubscribe(eventName, ws);
-    }
-  }
+  // unsubscribeFromAllEvents(ws: WebSocket) {
+  //   for (const eventName of this.eventSubscribersMap.keys()) {
+  //     this.unsubscribe(eventName, ws);
+  //   }
+  // }
 }
 
 export default new SubscriptionManager();
