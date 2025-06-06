@@ -1,13 +1,16 @@
 import EventEmitter from 'node:events';
 
 export type CHANNEL_PAYLOAD_MAP = {
-  CONFERENCE_PARTICIPANT_JOINED: {
+  CONFERENCE_NEW_PARTICIPANT_JOINED: {
     conferenceId: string;
     participantId: string;
   };
   CONFERENCE_PARTICIPANT_LEFT: {
     conferenceId: string;
     participantId: string;
+  };
+  NEW_AUDIO_DATA: {
+    data: number;
   };
 };
 

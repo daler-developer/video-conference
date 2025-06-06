@@ -41,19 +41,25 @@ const initHandlers = async () => {
 const init = async (server: Server) => {
   const handlersByMessageType = await initHandlers();
 
+  for (let handler of Object.values(handlersByMessageType)) {
+    handler.init?.();
+  }
+
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', (ws, request) => {
-    ws.on('message', (data: Message) => {
+    ws.on('message', (data: any) => {
       // @ts-ignore
       data = JSON.parse(data);
 
       const ctx: any = {};
 
+      // @ts-ignore
       const resolver = handlersByMessageType[data.type];
 
       processMiddleware(resolver.middleware, { ctx, message: data, request });
 
+      // @ts-ignore
       handlersByMessageType[data.type].execute({ ctx, msg: data, ws });
     });
 

@@ -3,11 +3,11 @@ import ws from "./ws.ts";
 
 const Subscribe = () => {
   useEffect(() => {
-    ws.send(
-      JSON.stringify({
-        type: "EVENT_SUB",
-      }),
-    );
+    // ws.send(
+    //   JSON.stringify({
+    //     type: "EVENT_SUB",
+    //   }),
+    // );
     // ws.send(new Blob([]));
   }, []);
 

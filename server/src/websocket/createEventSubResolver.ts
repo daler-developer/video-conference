@@ -16,17 +16,6 @@ type Options<TChannelName extends CHANNEL_NAME> = {
 const createEventSubResolver = <TChannelName extends CHANNEL_NAME>(
   options: Options<TChannelName>
 ) => {
-  pubsub.subscribe(options.channelName, (payload) => {
-    const subscribers = subscriptionManager.getSubscribers(options.eventName);
-    subscribers.forEach((subscriber) => {
-      const activate = options.activate(payload, subscriber.params);
-      if (activate) {
-        const msg = options.format(payload, subscriber.params);
-        subscriber.ws.send(JSON.stringify(msg));
-      }
-    });
-  });
-
   return options;
 };
 

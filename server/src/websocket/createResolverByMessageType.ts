@@ -2,14 +2,28 @@ import { WebSocket } from 'ws';
 import { ZodObject } from 'zod';
 import { MESSAGE_TYPE } from './types';
 
-type Options = {
-  messageType: MESSAGE_TYPE;
-  middleware: any[];
-  execute: (options: { ctx: any; msg: any; ws: WebSocket }) => void;
-  validator?: any;
+type BaseMessage<TPayload extends { [key: string]: unknown }> = {
+  type: string;
+  payload: TPayload;
 };
 
-const createResolverByMessageType = (options: Options) => {
+type Options<TPayload extends { [key: string]: unknown }> = {
+  messageType: string;
+  middleware: any[];
+  execute: (options: {
+    ctx: any;
+    msg: BaseMessage<TPayload>;
+    ws: WebSocket;
+  }) => void;
+  validator?: any;
+  init?: () => void;
+};
+
+const createResolverByMessageType = <
+  TPayload extends { [key: string]: unknown },
+>(
+  options: Options<TPayload>
+) => {
   return options;
 };
 
