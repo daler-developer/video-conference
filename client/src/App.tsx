@@ -13,14 +13,14 @@ const App = () => {
     };
 
     setTimeout(() => {
-      ws.send(
-        JSON.stringify({
-          type: "EVENT_SUB",
-          payload: {
-            eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
-          },
-        }),
-      );
+      // ws.send(
+      //   JSON.stringify({
+      //     type: "EVENT_SUB",
+      //     payload: {
+      //       eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
+      //     },
+      //   }),
+      // );
     }, 1000);
   }, []);
 
@@ -38,7 +38,35 @@ const App = () => {
             );
           }}
         >
-          Show/Hide
+          Send
+        </Button>
+        <Button
+          type="button"
+          onClick={() => {
+            ws.send(
+              JSON.stringify({
+                type: "EVENT_SUB",
+                payload: {
+                  eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
+                },
+              }),
+            );
+          }}
+        >
+          Sub
+        </Button>
+        <Button
+          type="button"
+          onClick={() => {
+            ws.send(
+              JSON.stringify({
+                type: "EVENT_UNSUB",
+                payload: {},
+              }),
+            );
+          }}
+        >
+          Unsub
         </Button>
       </div>
       {show && <Subscribe />}

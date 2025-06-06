@@ -15,7 +15,7 @@ type Options<TPayload extends { [key: string]: unknown }> = {
     msg: BaseMessage<TPayload>;
     ws: WebSocket;
   }) => void;
-  validator?: any;
+  validator?: (options: { msg: BaseMessage<TPayload> }) => boolean;
   init?: () => void;
 };
 

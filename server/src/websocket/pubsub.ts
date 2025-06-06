@@ -1,4 +1,5 @@
 import EventEmitter from 'node:events';
+import WebSocket from 'ws';
 
 export type CHANNEL_PAYLOAD_MAP = {
   CONFERENCE_NEW_PARTICIPANT_JOINED: {
@@ -12,6 +13,7 @@ export type CHANNEL_PAYLOAD_MAP = {
   NEW_AUDIO_DATA: {
     data: number;
   };
+  EVENT_UNSUB: { ws: WebSocket };
 };
 
 export type CHANNEL_NAME = keyof CHANNEL_PAYLOAD_MAP;
@@ -23,9 +25,11 @@ class PubSub {
     channelName: TChannelName,
     callback: (payload: CHANNEL_PAYLOAD_MAP[TChannelName]) => void
   ) {
-    this.emitter.on(channelName, (payload) => {
-      callback(payload);
-    });
+    this.emitter.on(channelName, callback);
+
+    return () => {
+      this.emitter.off(channelName, callback);
+    };
   }
 
   public publish<TEventName extends CHANNEL_NAME>(

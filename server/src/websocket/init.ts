@@ -54,8 +54,19 @@ const init = async (server: Server) => {
 
       const ctx: any = {};
 
-      // @ts-ignore
-      const resolver = handlersByMessageType[data.type];
+      const resolver = handlersByMessageType[data.type as MESSAGE_TYPE];
+
+      const isInvalid =
+        resolver.validator && !resolver.validator({ msg: data as any });
+
+      if (isInvalid) {
+        ws.send(
+          JSON.stringify({
+            type: 'validation error',
+          })
+        );
+        return;
+      }
 
       processMiddleware(resolver.middleware, { ctx, message: data, request });
 
@@ -64,7 +75,7 @@ const init = async (server: Server) => {
     });
 
     ws.on('close', () => {
-      subscriptionManager.unsubscribeFromAllEvents(ws);
+      // subscriptionManager.unsubscribeFromAllEvents(ws);
     });
   });
 };

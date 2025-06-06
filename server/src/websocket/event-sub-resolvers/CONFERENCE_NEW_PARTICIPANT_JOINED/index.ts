@@ -5,7 +5,7 @@ export default createEventSubResolver({
   channelName: 'CONFERENCE_NEW_PARTICIPANT_JOINED',
   middleware: [],
   activate(payload, params) {
-    return false;
+    return true;
   },
   format(payload) {
     return payload;
