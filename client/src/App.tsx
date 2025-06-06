@@ -48,6 +48,9 @@ const App = () => {
                 type: "EVENT_SUB",
                 payload: {
                   eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
+                  eventParams: {
+                    conferenceId: "test",
+                  },
                 },
               }),
             );

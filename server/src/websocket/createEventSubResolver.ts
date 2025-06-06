@@ -1,8 +1,10 @@
 import pubsub, { CHANNEL_NAME, CHANNEL_PAYLOAD_MAP } from './pubsub';
 import { EVENT_NAME } from './types';
 import subscriptionManager from './SubscriptionManager';
+import { ZodObject } from 'zod';
 
 type Options<TChannelName extends CHANNEL_NAME> = {
+  eventParamsSchema?: ZodObject<any, any, any>;
   eventName: EVENT_NAME;
   channelName: TChannelName;
   middleware?: any[];
