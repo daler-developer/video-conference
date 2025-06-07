@@ -6,6 +6,7 @@ import { Message, MESSAGE_TYPE } from './types';
 import subscriptionManager from './SubscriptionManager';
 import createResolverByMessageType from './createResolverByMessageType';
 import processMiddleware from './middleware/processMiddleware';
+import parseBinaryMessage from './parseBinaryMessage';
 
 const initHandlers = async () => {
   const pluginsDir = path.resolve(__dirname, 'resolvers');
@@ -47,17 +48,23 @@ const init = async (server: Server) => {
 
   const wss = new WebSocket.Server({ server });
 
+  setInterval(() => {
+    wss.clients.forEach((ws) => {
+      ws.ping();
+    });
+  }, 3000);
+
   wss.on('connection', (ws, request) => {
-    ws.on('message', (data: any) => {
-      // @ts-ignore
-      data = JSON.parse(data);
+    ws.on('message', (data: any, isBinary) => {
+      const { message, binary } = parseBinaryMessage(data);
 
       const ctx: any = {};
 
-      const resolver = handlersByMessageType[data.type as MESSAGE_TYPE];
+      const resolver =
+        handlersByMessageType[message.messageType as MESSAGE_TYPE];
 
       const isInvalid =
-        resolver.validator && !resolver.validator({ msg: data as any });
+        resolver.validator && !resolver.validator({ msg: message });
 
       if (isInvalid) {
         ws.send(
@@ -68,14 +75,15 @@ const init = async (server: Server) => {
         return;
       }
 
-      processMiddleware(resolver.middleware, { ctx, message: data, request });
+      processMiddleware(resolver.middleware, { ctx, message, request });
 
       // @ts-ignore
-      handlersByMessageType[data.type].execute({ ctx, msg: data, ws });
-    });
-
-    ws.on('close', () => {
-      // subscriptionManager.unsubscribeFromAllEvents(ws);
+      handlersByMessageType[message.messageType].execute({
+        ctx,
+        msg: message,
+        ws,
+        binary,
+      });
     });
   });
 };

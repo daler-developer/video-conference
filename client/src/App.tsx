@@ -3,13 +3,18 @@ import { Button } from "@mantine/core";
 import { useEffect, useState } from "react";
 import Subscribe from "./Subscribe.tsx";
 import ws from "./ws";
+import RecordVideo from "./RecordVideo.tsx";
 
 const App = () => {
-  const [show, setShow] = useState(true);
-
   useEffect(() => {
     ws.onmessage = (m) => {
-      console.log(JSON.parse(m.data));
+      const blob = new Blob([m.data], { type: "video/webm;codecs=vp9,opus" });
+      const url = URL.createObjectURL(blob);
+      console.log(url);
+      // setUrl(url);
+      // const newBlob = new Blob([m.data], { type: "image/jpg" });
+      // const url = URL.createObjectURL(newBlob);
+      // setUrl(url);
     };
 
     setTimeout(() => {
@@ -77,7 +82,16 @@ const App = () => {
           Unsub
         </Button>
       </div>
-      {show && <Subscribe />}
+      <input
+        type="file"
+        onChange={(e) => {
+          const file = Array.from(e.currentTarget.files || [])[0];
+          // const url = URL.createObjectURL(file);
+          // console.log(url);
+          ws.send(file);
+        }}
+      />
+      <RecordVideo />
     </div>
   );
 };

@@ -1,6 +1,4 @@
 import { WebSocket } from 'ws';
-import { ZodObject } from 'zod';
-import { MESSAGE_TYPE } from './types';
 
 type BaseMessage<TPayload extends { [key: string]: unknown }> = {
   type: string;
@@ -14,6 +12,7 @@ type Options<TPayload extends { [key: string]: unknown }> = {
     ctx: any;
     msg: BaseMessage<TPayload>;
     ws: WebSocket;
+    binary: Buffer | null;
   }) => void;
   validator?: (options: { msg: BaseMessage<TPayload> }) => boolean;
   init?: () => void;
