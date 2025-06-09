@@ -3,7 +3,7 @@ import { z } from 'zod/v4';
 import pubsub from '../../pubsub';
 
 export default createResolverByMessageType({
-  messageType: 'JOIN_CONFERENCE',
+  type: 'JOIN_CONFERENCE',
   // validator: z.object({
   //   params: z.object({
   //     fullName: z.string(),

@@ -6,7 +6,7 @@ type BaseMessage<TPayload extends { [key: string]: unknown }> = {
 };
 
 type Options<TPayload extends { [key: string]: unknown }> = {
-  messageType: string;
+  type: string;
   middleware: any[];
   execute: (options: {
     ctx: any;

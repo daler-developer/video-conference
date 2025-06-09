@@ -1,5 +1,5 @@
 const ws = new WebSocket("ws://localhost:3000?token=DalerSaidov");
 
-ws.binaryType = "arraybuffer";
+ws.binaryType = "blob";
 
 export default ws;

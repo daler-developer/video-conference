@@ -56,12 +56,11 @@ const init = async (server: Server) => {
 
   wss.on('connection', (ws, request) => {
     ws.on('message', (data: any, isBinary) => {
-      const { message, binary } = parseBinaryMessage(data);
+      const { message, binary } = parseBinaryMessage({ data, isBinary });
 
       const ctx: any = {};
 
-      const resolver =
-        handlersByMessageType[message.messageType as MESSAGE_TYPE];
+      const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
 
       const isInvalid =
         resolver.validator && !resolver.validator({ msg: message });
@@ -78,7 +77,7 @@ const init = async (server: Server) => {
       processMiddleware(resolver.middleware, { ctx, message, request });
 
       // @ts-ignore
-      handlersByMessageType[message.messageType].execute({
+      resolver.execute({
         ctx,
         msg: message,
         ws,

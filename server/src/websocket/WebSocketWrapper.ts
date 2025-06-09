@@ -1,7 +1,9 @@
 import WebSocket from 'ws';
 
 class WebSocketWrapper {
-  constructor(ws: WebSocket) {}
+  constructor(private ws: WebSocket) {}
+
+  send(message: unknown) {}
 }
 
 export default WebSocketWrapper;

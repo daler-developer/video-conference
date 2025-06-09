@@ -31,7 +31,7 @@ const RecordVideo = () => {
       const videoBlob = new Blob(chunks, { type: "video/webm" });
 
       const msg = {
-        messageType: "SEND_MEDIA_FRAME",
+        type: "SEND_MEDIA_FRAME",
         payload: {
           foo: "bar",
         },

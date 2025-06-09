@@ -7,7 +7,7 @@ type Payload = {
 };
 
 export default createResolverByMessageType<Payload>({
-  messageType: 'EVENT_UNSUB',
+  type: 'EVENT_UNSUB',
   middleware: [],
   execute({ ws, msg }) {
     subscriptionManager.unsubscribe(msg.payload.eventName as any, {

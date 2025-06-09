@@ -3,7 +3,12 @@ import { z } from 'zod/v4';
 import pubsub from '../../pubsub';
 
 export default createResolverByMessageType({
-  messageType: 'SEND_MEDIA_FRAME',
+  type: 'SEND_MEDIA_FRAME',
   middleware: [],
-  execute({ ws, msg, ctx, binary }) {},
+  execute({ ws, msg, ctx, binary }) {
+    pubsub.publish('NEW_MEDIA_FRAME', {
+      data: binary!,
+      conferenceId: 'hello',
+    });
+  },
 });

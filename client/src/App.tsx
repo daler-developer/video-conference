@@ -52,7 +52,7 @@ const App = () => {
               JSON.stringify({
                 type: "EVENT_SUB",
                 payload: {
-                  eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
+                  eventName: "NEW_MEDIA_FRAME",
                   eventParams: {
                     conferenceId: "test",
                   },
