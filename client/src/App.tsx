@@ -7,10 +7,31 @@ import RecordVideo from "./RecordVideo.tsx";
 
 const App = () => {
   useEffect(() => {
-    ws.onmessage = (m) => {
-      const blob = new Blob([m.data], { type: "video/webm;codecs=vp9,opus" });
+    ws.onmessage = (event) => {
+      const buf = new Uint8Array(event.data);
+      const dataView = new DataView(buf.buffer);
+
+      // 1. Read string length (first 4 bytes)
+      const strLen = dataView.getUint32(0);
+      console.log("String byte length:", strLen);
+
+      // 2. Extract string bytes and decode
+      const textDecoder = new TextDecoder("utf-8");
+      const str = textDecoder.decode(buf.slice(4, 4 + strLen));
+      console.log("Decoded string:", JSON.parse(str));
+
+      // 3. Remaining binary data
+      const binaryData = buf.slice(4 + strLen);
+
+      const blob = new Blob([binaryData], { type: "video/webm" });
+
       const url = URL.createObjectURL(blob);
+
       console.log(url);
+
+      // const blob = new Blob([m.data], { type: "video/webm;codecs=vp9,opus" });
+      // const url = URL.createObjectURL(blob);
+      // console.log(url);
       // setUrl(url);
       // const newBlob = new Blob([m.data], { type: "image/jpg" });
       // const url = URL.createObjectURL(newBlob);

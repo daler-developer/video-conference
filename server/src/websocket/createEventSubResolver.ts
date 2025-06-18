@@ -8,7 +8,7 @@ type Options<TChannelName extends CHANNEL_NAME> = {
   eventName: EVENT_NAME;
   channelName: TChannelName;
   middleware?: any[];
-  format: (payload: CHANNEL_PAYLOAD_MAP[TChannelName], params: any) => void;
+  format: (payload: CHANNEL_PAYLOAD_MAP[TChannelName], params: any) => any;
   activate: (
     payload: CHANNEL_PAYLOAD_MAP[TChannelName],
     params: any

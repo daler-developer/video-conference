@@ -48,12 +48,6 @@ const init = async (server: Server) => {
 
   const wss = new WebSocket.Server({ server });
 
-  setInterval(() => {
-    wss.clients.forEach((ws) => {
-      ws.ping();
-    });
-  }, 3000);
-
   wss.on('connection', (ws, request) => {
     ws.on('message', (data: any, isBinary) => {
       const { message, binary } = parseBinaryMessage({ data, isBinary });
