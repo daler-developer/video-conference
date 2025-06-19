@@ -1,6 +1,7 @@
 import { Button } from "@mantine/core";
 import { useRef, useState } from "react";
 import ws from "./ws.ts";
+import websocketClient from "./WebsocketClient.ts";
 
 const RecordVideo = () => {
   const [recording, setRecording] = useState(false);
@@ -30,28 +31,41 @@ const RecordVideo = () => {
     recorder.onstop = async () => {
       const videoBlob = new Blob(chunks, { type: "video/webm" });
 
-      const msg = {
+      websocketClient.sendMessage({
         type: "SEND_MEDIA_FRAME",
         payload: {
-          foo: "bar",
+          data: {
+            foo: videoBlob,
+            bar: {
+              hello: videoBlob,
+            },
+          },
         },
-      };
+      });
 
-      const json = JSON.stringify(msg);
-      const jsonBytes = new TextEncoder().encode(json);
-
-      const blobBuffer = new Uint8Array(await videoBlob.arrayBuffer());
-
-      const metaLen = new Uint8Array(4);
-      new DataView(metaLen.buffer).setUint32(0, jsonBytes.length);
-
-      const full = new Uint8Array(4 + jsonBytes.length + blobBuffer.length);
-
-      full.set(metaLen, 0);
-      full.set(jsonBytes, 4);
-      full.set(blobBuffer, 4 + jsonBytes.length);
-
-      ws.send(full);
+      return;
+      // const msg = {
+      //   type: "SEND_MEDIA_FRAME",
+      //   payload: {
+      //     foo: "bar",
+      //   },
+      // };
+      //
+      // const json = JSON.stringify(msg);
+      // const jsonBytes = new TextEncoder().encode(json);
+      //
+      // const blobBuffer = new Uint8Array(await videoBlob.arrayBuffer());
+      //
+      // const metaLen = new Uint8Array(4);
+      // new DataView(metaLen.buffer).setUint32(0, jsonBytes.length);
+      //
+      // const full = new Uint8Array(4 + jsonBytes.length + blobBuffer.length);
+      //
+      // full.set(metaLen, 0);
+      // full.set(jsonBytes, 4);
+      // full.set(blobBuffer, 4 + jsonBytes.length);
+      //
+      // ws.send(full);
     };
 
     recorder.start(1000);

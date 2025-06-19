@@ -7,6 +7,7 @@ import subscriptionManager from './SubscriptionManager';
 import createResolverByMessageType from './createResolverByMessageType';
 import processMiddleware from './middleware/processMiddleware';
 import parseBinaryMessage from './parseBinaryMessage';
+import WebSocketWrapper from './WebSocketWrapper';
 
 const initHandlers = async () => {
   const pluginsDir = path.resolve(__dirname, 'resolvers');
@@ -49,35 +50,41 @@ const init = async (server: Server) => {
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', (ws, request) => {
-    ws.on('message', (data: any, isBinary) => {
-      const { message, binary } = parseBinaryMessage({ data, isBinary });
+    const client = new WebSocketWrapper(ws);
 
-      const ctx: any = {};
-
-      const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
-
-      const isInvalid =
-        resolver.validator && !resolver.validator({ msg: message });
-
-      if (isInvalid) {
-        ws.send(
-          JSON.stringify({
-            type: 'validation error',
-          })
-        );
-        return;
-      }
-
-      processMiddleware(resolver.middleware, { ctx, message, request });
-
-      // @ts-ignore
-      resolver.execute({
-        ctx,
-        msg: message,
-        ws,
-        binary,
-      });
+    client.onMessage((message) => {
+      // console.log(message);
     });
+
+    // ws.on('message', (data: any, isBinary) => {
+    // const { message, binary } = parseBinaryMessage({ data, isBinary });
+    //
+    // const ctx: any = {};
+    //
+    // const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
+    //
+    // const isInvalid =
+    //   resolver.validator && !resolver.validator({ msg: message });
+    //
+    // if (isInvalid) {
+    //   ws.send(
+    //     JSON.stringify({
+    //       type: 'validation error',
+    //     })
+    //   );
+    //   return;
+    // }
+    //
+    // processMiddleware(resolver.middleware, { ctx, message, request });
+    //
+    // // @ts-ignore
+    // resolver.execute({
+    //   ctx,
+    //   msg: message,
+    //   ws,
+    //   binary,
+    // });
+    // });
   });
 };
 
