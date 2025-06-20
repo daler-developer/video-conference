@@ -10,7 +10,62 @@ const isBlob = (obj: unknown): obj is Blob => {
   return obj instanceof Blob;
 };
 
+const isString = (value: unknown): value is string => {
+  return typeof value === "string";
+};
+
+const isSlotForBinary = (str: string): str is string => {
+  return str.startsWith("$$") && str.endsWith("$$");
+};
+
+const parseSlotForBinary = (str: string) => {
+  return str.slice(2, -2).split(":").map(Number);
+};
+
 class WebsocketClient {
+  callbacks: Array<(event: MessageEvent) => void> = [];
+
+  constructor() {
+    ws.onmessage = (event) => {
+      for (const callback of this.callbacks) {
+        callback(event);
+      }
+    };
+  }
+
+  private async parseMessage(event: MessageEvent) {
+    const buf = new Uint8Array(event.data);
+    const dataView = new DataView(buf.buffer);
+    const strLen = dataView.getUint32(0);
+    const textDecoder = new TextDecoder("utf-8");
+    const message = JSON.parse(textDecoder.decode(buf.slice(4, 4 + strLen)));
+    const parsedBinary = buf.slice(4 + strLen);
+
+    const helper = async (message: { [key: string]: unknown }) => {
+      for (const [key, value] of Object.entries(message)) {
+        if (isString(value) && isSlotForBinary(value)) {
+          const [start, end] = parseSlotForBinary(value);
+          message[key] = parsedBinary.subarray(start, end + 1).buffer;
+        }
+        if (isPlainObject(value)) {
+          await helper(value);
+        }
+      }
+    };
+
+    await helper(message);
+
+    return message;
+  }
+
+  public async onMessage(cb: (message: { [key: string]: unknown }) => void) {
+    this.callbacks.push(async (event) => {
+      const parsed = await this.parseMessage(event);
+
+      cb(parsed);
+    });
+  }
+
   public async sendMessage(message: { [key: string]: unknown }) {
     const arrayBuffers: Array<Uint8Array> = [];
     let total = 0;
@@ -33,8 +88,6 @@ class WebsocketClient {
 
     await helper(message);
 
-    console.log(total);
-
     const json = JSON.stringify(message);
     const jsonBytes = new TextEncoder().encode(json);
 
@@ -54,8 +107,6 @@ class WebsocketClient {
     }
 
     ws.send(full);
-
-    // ws.send(full);
   }
 }
 

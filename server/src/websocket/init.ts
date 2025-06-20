@@ -53,7 +53,7 @@ const init = async (server: Server) => {
     const client = new WebSocketWrapper(ws);
 
     client.onMessage((message) => {
-      // console.log(message);
+      client.sendMessage(message);
     });
 
     // ws.on('message', (data: any, isBinary) => {

@@ -65,6 +65,8 @@ class WebSocketWrapper {
     };
 
     await helper(parsedMessage);
+
+    return parsedMessage;
   }
 
   async onMessage(cb: (message: any) => void) {
@@ -77,6 +79,48 @@ class WebSocketWrapper {
 
       cb(parsed);
     });
+  }
+
+  public async sendMessage(message: { [key: string]: unknown }) {
+    const arrayBuffers: Array<Uint8Array> = [];
+    let total = 0;
+
+    const helper = async (message: { [key: string]: unknown }) => {
+      for (const [key, value] of Object.entries(message)) {
+        if (isBuffer(value)) {
+          arrayBuffers.push(value);
+          const start = total;
+          const end = start + value.length - 1;
+          total += value.length;
+          message[key] = `$$${start}:${end}$$`;
+        }
+        if (isPlainObject(value)) {
+          await helper(value);
+        }
+      }
+    };
+
+    await helper(message);
+
+    const json = JSON.stringify(message);
+    const jsonBytes = new TextEncoder().encode(json);
+
+    const metaLen = new Uint8Array(4);
+    new DataView(metaLen.buffer).setUint32(0, jsonBytes.length);
+
+    const full = new Uint8Array(4 + jsonBytes.length + total);
+
+    full.set(metaLen, 0);
+    full.set(jsonBytes, 4);
+
+    let offset = 4 + jsonBytes.length;
+
+    for (const arrayBuffer of arrayBuffers) {
+      full.set(arrayBuffer, offset);
+      offset += arrayBuffer.length;
+    }
+
+    this.ws.send(full);
   }
 }
 
