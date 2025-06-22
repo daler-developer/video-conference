@@ -49,11 +49,41 @@ const init = async (server: Server) => {
 
   const wss = new WebSocket.Server({ server });
 
+  const allClients = new Set<WebSocketWrapper>();
+
   wss.on('connection', (ws, request) => {
     const client = new WebSocketWrapper(ws);
 
+    allClients.add(client);
+
     client.onMessage((message) => {
-      client.sendMessage(message);
+      allClients.forEach((client) => {
+        client.sendMessage(message);
+      });
+      // const ctx: any = {};
+      //
+      // const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
+      //
+      // const isInvalid =
+      //   resolver.validator && !resolver.validator({ msg: message });
+      //
+      // if (isInvalid) {
+      //   ws.send(
+      //     JSON.stringify({
+      //       type: 'validation error',
+      //     })
+      //   );
+      //   return;
+      // }
+      //
+      // processMiddleware(resolver.middleware, { ctx, message, request });
+      //
+      // // @ts-ignore
+      // resolver.execute({
+      //   ctx,
+      //   msg: message,
+      //   ws,
+      // });
     });
 
     // ws.on('message', (data: any, isBinary) => {

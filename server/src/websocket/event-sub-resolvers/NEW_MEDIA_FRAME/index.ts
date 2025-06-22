@@ -12,14 +12,11 @@ export default createEventSubResolver({
     return true;
   },
   format(payload) {
-    return [
-      {
-        type: 'EVENT_SUB_RESULT',
-        payload: {
-          conferenceId: payload.conferenceId,
-        },
+    return {
+      type: 'EVENT_SUB_RESULT',
+      payload: {
+        data: payload.data,
       },
-      payload.data,
-    ];
+    };
   },
 });

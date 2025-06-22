@@ -8,15 +8,7 @@ import websocketClient from "./WebsocketClient.ts";
 
 const App = () => {
   useEffect(() => {
-    websocketClient.onMessage((message) => {
-      const blob = new Blob([message.payload.data.foo as ArrayBuffer], {
-        type: "video/webm",
-      });
-
-      const url = URL.createObjectURL(blob);
-
-      console.log(url);
-    });
+    websocketClient.onMessage((message) => {});
   }, []);
 
   return (
@@ -24,31 +16,23 @@ const App = () => {
       <h1>React App</h1>
       <div>
         <Button
-          onClick={() => {
-            ws.send(
-              JSON.stringify({
-                type: "JOIN_CONFERENCE",
-                payload: {},
-              }),
-            );
-          }}
-        >
-          Send
-        </Button>
-        <Button
           type="button"
           onClick={() => {
-            ws.send(
-              JSON.stringify({
-                type: "EVENT_SUB",
-                payload: {
-                  eventName: "NEW_MEDIA_FRAME",
-                  eventParams: {
-                    conferenceId: "test",
-                  },
-                },
-              }),
-            );
+            const str = "HelloWorld";
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(str);
+
+            const buffer = new ArrayBuffer(encoded.length);
+            const view = new Uint8Array(buffer);
+            view.set(encoded);
+
+            websocketClient.sendMessage({
+              type: "EVENT_SUB",
+              payload: {
+                eventName: "new sub",
+                temp: buffer,
+              },
+            });
           }}
         >
           Sub
@@ -56,17 +40,15 @@ const App = () => {
         <Button
           type="button"
           onClick={() => {
-            ws.send(
-              JSON.stringify({
-                type: "EVENT_UNSUB",
-                payload: {
-                  eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
-                  eventParams: {
-                    conferenceId: "test",
-                  },
+            websocketClient.sendMessage({
+              type: "EVENT_UNSUB",
+              payload: {
+                eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
+                eventParams: {
+                  conferenceId: "test",
                 },
-              }),
-            );
+              },
+            });
           }}
         >
           Unsub

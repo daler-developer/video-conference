@@ -1,4 +1,5 @@
 import WebSocket from 'ws';
+import _ from 'lodash';
 
 const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== 'object' || obj === null) return false;
@@ -29,34 +30,18 @@ const parseSlotForBinary = (str: string) => {
 class WebSocketWrapper {
   constructor(private ws: WebSocket) {}
 
-  async send(message: { [key: string]: unknown }, binary?: Buffer) {
-    const stringBuf = Buffer.from(JSON.stringify(message), 'utf8');
-    const stringLenBuf = Buffer.alloc(4);
-    stringLenBuf.writeUInt32BE(stringBuf.length, 0);
-
-    const res = [stringLenBuf, stringBuf];
-
-    if (binary) {
-      res.push(binary);
-    }
-
-    const finalBuffer = Buffer.concat(res);
-
-    this.ws.send(finalBuffer, { binary: true });
-  }
-
   private async parseMessage(raw: Buffer) {
-    const view = new DataView(raw.buffer);
-    const metaLength = view.getUint32(0);
-    const jsonBuffer = Buffer.from(raw.buffer.slice(4, 4 + metaLength));
-    const parsedMessage = JSON.parse(jsonBuffer.toString());
-    const parsedBinary = Buffer.from(raw.buffer.slice(4 + metaLength));
+    const stringLength = raw.readUInt32BE(0);
+    const stringBytes = raw.subarray(4, 4 + stringLength);
+    const parsedMessage = JSON.parse(stringBytes.toString('utf8'));
+    // const parsedBinary = Buffer.from(raw.buffer.slice(4 + stringLength));
+    const parsedBinary = raw.subarray(4 + stringLength);
 
     const helper = async (message: { [key: string]: unknown }) => {
       for (const [key, value] of Object.entries(message)) {
         if (isString(value) && isSlotForBinary(value)) {
           const [start, end] = parseSlotForBinary(value);
-          message[key] = Buffer.from(parsedBinary.subarray(start, end + 1));
+          message[key] = parsedBinary.subarray(start, end + 1);
         }
         if (isPlainObject(value)) {
           await helper(value);
@@ -82,7 +67,8 @@ class WebSocketWrapper {
   }
 
   public async sendMessage(message: { [key: string]: unknown }) {
-    const arrayBuffers: Array<Uint8Array> = [];
+    message = _.cloneDeep(message);
+    const arrayBuffers: Buffer[] = [];
     let total = 0;
 
     const helper = async (message: { [key: string]: unknown }) => {

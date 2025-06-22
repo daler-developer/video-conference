@@ -10,6 +10,10 @@ const isBlob = (obj: unknown): obj is Blob => {
   return obj instanceof Blob;
 };
 
+const isArrayBuffer = (value: unknown): value is ArrayBuffer => {
+  return value instanceof ArrayBuffer;
+};
+
 const isString = (value: unknown): value is string => {
   return typeof value === "string";
 };
@@ -64,6 +68,11 @@ class WebsocketClient {
 
       cb(parsed);
     });
+
+    return () => {
+      const idx = this.callbacks.indexOf(cb);
+      this.callbacks.splice(idx, 1);
+    };
   }
 
   public async sendMessage(message: { [key: string]: unknown }) {
@@ -72,8 +81,8 @@ class WebsocketClient {
 
     const helper = async (message: { [key: string]: unknown }) => {
       for (const [key, value] of Object.entries(message)) {
-        if (isBlob(value)) {
-          const blobBuffer = new Uint8Array(await value.arrayBuffer());
+        if (isArrayBuffer(value)) {
+          const blobBuffer = new Uint8Array(value);
           arrayBuffers.push(blobBuffer);
           const start = total;
           const end = start + blobBuffer.length - 1;

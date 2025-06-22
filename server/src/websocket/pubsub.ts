@@ -11,8 +11,7 @@ export type CHANNEL_PAYLOAD_MAP = {
     participantId: string;
   };
   NEW_MEDIA_FRAME: {
-    conferenceId: string;
-    data: Buffer;
+    data: any;
   };
   EVENT_UNSUB: { ws: WebSocket };
 };

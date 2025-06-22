@@ -34,12 +34,7 @@ const RecordVideo = () => {
       websocketClient.sendMessage({
         type: "SEND_MEDIA_FRAME",
         payload: {
-          data: {
-            foo: videoBlob,
-            bar: {
-              hello: videoBlob,
-            },
-          },
+          data: await videoBlob.arrayBuffer(),
         },
       });
 
