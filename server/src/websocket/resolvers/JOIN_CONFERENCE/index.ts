@@ -10,7 +10,7 @@ export default createResolverByMessageType({
   //   }),
   // }),
   middleware: [],
-  execute({ ws, msg, ctx }) {
+  execute({ client, message, ctx }) {
     pubsub.publish('CONFERENCE_NEW_PARTICIPANT_JOINED', {
       conferenceId: 'confid',
       participantId: 'partid',

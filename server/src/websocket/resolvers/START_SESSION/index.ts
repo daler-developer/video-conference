@@ -9,5 +9,5 @@ export default createResolverByMessageType({
   //   }),
   // }),
   middleware: [],
-  execute({ ws, msg, ctx }) {},
+  execute({ client, message, ctx }) {},
 });

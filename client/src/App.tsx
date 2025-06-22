@@ -8,7 +8,9 @@ import websocketClient from "./WebsocketClient.ts";
 
 const App = () => {
   useEffect(() => {
-    websocketClient.onMessage((message) => {});
+    websocketClient.onMessage((message) => {
+      console.log(message);
+    });
   }, []);
 
   return (
@@ -29,8 +31,10 @@ const App = () => {
             websocketClient.sendMessage({
               type: "EVENT_SUB",
               payload: {
-                eventName: "new sub",
-                temp: buffer,
+                eventName: "NEW_MEDIA_FRAME",
+                eventParams: {
+                  conferenceId: "test",
+                },
               },
             });
           }}
@@ -43,7 +47,7 @@ const App = () => {
             websocketClient.sendMessage({
               type: "EVENT_UNSUB",
               payload: {
-                eventName: "CONFERENCE_NEW_PARTICIPANT_JOINED",
+                eventName: "NEW_MEDIA_FRAME",
                 eventParams: {
                   conferenceId: "test",
                 },

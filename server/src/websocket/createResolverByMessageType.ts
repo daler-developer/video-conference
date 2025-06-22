@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import WebSocketWrapper from './WebSocketWrapper';
 
 type BaseMessage<TPayload extends { [key: string]: unknown }> = {
   type: string;
@@ -10,10 +11,10 @@ type Options<TPayload extends { [key: string]: unknown }> = {
   middleware: any[];
   execute: (options: {
     ctx: any;
-    msg: BaseMessage<TPayload>;
-    ws: WebSocket;
+    message: BaseMessage<TPayload>;
+    client: WebSocketWrapper;
   }) => void;
-  validator?: (options: { msg: BaseMessage<TPayload> }) => boolean;
+  validator?: (options: { message: BaseMessage<TPayload> }) => boolean;
   init?: () => void;
 };
 

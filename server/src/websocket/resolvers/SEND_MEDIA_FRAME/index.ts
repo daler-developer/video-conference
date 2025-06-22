@@ -5,9 +5,9 @@ import pubsub from '../../pubsub';
 export default createResolverByMessageType({
   type: 'SEND_MEDIA_FRAME',
   middleware: [],
-  execute({ ws, msg, ctx }) {
+  execute({ client, message, ctx }) {
     pubsub.publish('NEW_MEDIA_FRAME', {
-      data: msg.payload.data!,
+      data: message.payload.data!,
     });
   },
 });

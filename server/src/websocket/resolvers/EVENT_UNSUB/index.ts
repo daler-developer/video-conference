@@ -9,10 +9,10 @@ type Payload = {
 export default createResolverByMessageType<Payload>({
   type: 'EVENT_UNSUB',
   middleware: [],
-  execute({ ws, msg }) {
-    subscriptionManager.unsubscribe(msg.payload.eventName as any, {
-      ws,
-      params: msg.payload.eventParams,
+  execute({ client, message }) {
+    subscriptionManager.unsubscribe(message.payload.eventName as any, {
+      client,
+      params: message.payload.eventParams,
     });
   },
 });

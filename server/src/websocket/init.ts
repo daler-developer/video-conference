@@ -57,64 +57,32 @@ const init = async (server: Server) => {
     allClients.add(client);
 
     client.onMessage((message) => {
-      allClients.forEach((client) => {
-        client.sendMessage(message);
-      });
-      // const ctx: any = {};
-      //
-      // const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
-      //
-      // const isInvalid =
-      //   resolver.validator && !resolver.validator({ msg: message });
-      //
-      // if (isInvalid) {
-      //   ws.send(
-      //     JSON.stringify({
-      //       type: 'validation error',
-      //     })
-      //   );
-      //   return;
+      // for (const client of allClients) {
+      //   client.sendMessage(message);
       // }
-      //
-      // processMiddleware(resolver.middleware, { ctx, message, request });
-      //
-      // // @ts-ignore
-      // resolver.execute({
-      //   ctx,
-      //   msg: message,
-      //   ws,
-      // });
-    });
 
-    // ws.on('message', (data: any, isBinary) => {
-    // const { message, binary } = parseBinaryMessage({ data, isBinary });
-    //
-    // const ctx: any = {};
-    //
-    // const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
-    //
-    // const isInvalid =
-    //   resolver.validator && !resolver.validator({ msg: message });
-    //
-    // if (isInvalid) {
-    //   ws.send(
-    //     JSON.stringify({
-    //       type: 'validation error',
-    //     })
-    //   );
-    //   return;
-    // }
-    //
-    // processMiddleware(resolver.middleware, { ctx, message, request });
-    //
-    // // @ts-ignore
-    // resolver.execute({
-    //   ctx,
-    //   msg: message,
-    //   ws,
-    //   binary,
-    // });
-    // });
+      const ctx: any = {};
+
+      const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
+
+      const isInvalid = resolver.validator && !resolver.validator({ message });
+
+      if (isInvalid) {
+        client.sendMessage({
+          type: 'validation error',
+        });
+        return;
+      }
+
+      processMiddleware(resolver.middleware, { ctx, message, request });
+
+      // @ts-ignore
+      resolver.execute({
+        ctx,
+        message,
+        client,
+      });
+    });
   });
 };
 
