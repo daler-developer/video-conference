@@ -1,12 +1,6 @@
 import _ from 'lodash';
-import WebSocket from 'ws';
 import { EVENT_NAME } from './types';
 import WebSocketWrapper from './WebSocketWrapper';
-
-type MapValue = Set<{
-  params: any;
-  ctx: any;
-}>;
 
 class SubscriptionManager {
   private eventSubscribersMap = new Map<

@@ -9,5 +9,9 @@ export default createResolverByMessageType({
     pubsub.publish('NEW_MEDIA_FRAME', {
       data: message.payload.data!,
     });
+
+    return {
+      status: 'success',
+    };
   },
 });

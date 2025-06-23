@@ -2,16 +2,18 @@ import { z } from 'zod';
 import createEventSubResolver from '../../createEventSubResolver';
 
 export default createEventSubResolver({
+  eventName: 'NEW_MEDIA_FRAME',
   eventParamsSchema: z.object({
     conferenceId: z.string(),
   }),
-  eventName: 'NEW_MEDIA_FRAME',
-  channelName: 'NEW_MEDIA_FRAME',
-  middleware: [],
-  activate(payload, params) {
-    return true;
+  subscribe: {
+    channelName: 'NEW_MEDIA_FRAME',
+    filter() {
+      return true;
+    },
   },
-  format(payload) {
+  middleware: [],
+  format({ payload }) {
     return {
       type: 'EVENT_SUB_RESULT',
       payload: {

@@ -62,7 +62,7 @@ class WebsocketClient {
     return message;
   }
 
-  public async onMessage(cb: (message: { [key: string]: unknown }) => void) {
+  public onMessage(cb: (message: { [key: string]: any }) => void) {
     this.callbacks.push(async (event) => {
       const parsed = await this.parseMessage(event);
 
@@ -75,7 +75,7 @@ class WebsocketClient {
     };
   }
 
-  public async sendMessage(message: { [key: string]: unknown }) {
+  private async serializeMessage(message: { [key: string]: unknown }) {
     const arrayBuffers: Array<Uint8Array> = [];
     let total = 0;
 
@@ -115,7 +115,31 @@ class WebsocketClient {
       offset += arrayBuffer.length;
     }
 
-    ws.send(full);
+    return full;
+  }
+
+  public async sendMessage(message: { [key: string]: unknown }) {
+    const messageId = message.id;
+    const serialized = await this.serializeMessage(message);
+
+    ws.send(serialized);
+
+    return new Promise((res, rej) => {
+      const off = this.onMessage((message) => {
+        if (
+          message.type === "RESPONSE" &&
+          message.payload.messageId === messageId
+        ) {
+          off();
+          res(message);
+        }
+      });
+
+      setTimeout(() => {
+        off();
+        rej();
+      }, 5000);
+    });
   }
 }
 

@@ -56,11 +56,7 @@ const init = async (server: Server) => {
 
     allClients.add(client);
 
-    client.onMessage((message) => {
-      // for (const client of allClients) {
-      //   client.sendMessage(message);
-      // }
-
+    client.onMessage(async (message) => {
       const ctx: any = {};
 
       const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
@@ -77,11 +73,21 @@ const init = async (server: Server) => {
       processMiddleware(resolver.middleware, { ctx, message, request });
 
       // @ts-ignore
-      resolver.execute({
+      const response = await resolver.execute({
         ctx,
         message,
         client,
       });
+
+      if (response) {
+        client.sendMessage({
+          type: 'RESPONSE',
+          payload: {
+            messageId: message.id,
+            response,
+          },
+        });
+      }
     });
   });
 };

@@ -13,7 +13,7 @@ type Options<TPayload extends { [key: string]: unknown }> = {
     ctx: any;
     message: BaseMessage<TPayload>;
     client: WebSocketWrapper;
-  }) => void;
+  }) => Promise<any> | any;
   validator?: (options: { message: BaseMessage<TPayload> }) => boolean;
   init?: () => void;
 };

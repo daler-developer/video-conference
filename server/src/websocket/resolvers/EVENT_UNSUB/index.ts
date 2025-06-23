@@ -14,5 +14,9 @@ export default createResolverByMessageType<Payload>({
       client,
       params: message.payload.eventParams,
     });
+
+    return {
+      status: 'success',
+    };
   },
 });
