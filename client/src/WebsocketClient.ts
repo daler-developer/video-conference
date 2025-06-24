@@ -1,4 +1,4 @@
-import ws from "./ws.ts";
+import { v4 as uuidv4 } from "uuid";
 
 const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== "object" || obj === null) return false;
@@ -26,15 +26,32 @@ const parseSlotForBinary = (str: string) => {
   return str.slice(2, -2).split(":").map(Number);
 };
 
-class WebsocketClient {
-  callbacks: Array<(event: MessageEvent) => void> = [];
+type Callback = (event: MessageEvent) => void;
 
-  constructor() {
-    ws.onmessage = (event) => {
+class WebsocketClient {
+  private callbacks: Array<Callback> = [];
+  private ws: WebSocket | null = null;
+
+  public isWebSocketConnected() {
+    return this.ws && this.ws.readyState === WebSocket.OPEN;
+  }
+
+  public async connect() {
+    this.ws = new WebSocket("ws://localhost:3000?token=DalerSaidov");
+
+    this.ws.binaryType = "arraybuffer";
+
+    this.ws.onmessage = (event) => {
       for (const callback of this.callbacks) {
         callback(event);
       }
     };
+
+    return new Promise((res) => {
+      this.ws!.addEventListener("open", () => {
+        res("Connected");
+      });
+    });
   }
 
   private async parseMessage(event: MessageEvent) {
@@ -63,14 +80,20 @@ class WebsocketClient {
   }
 
   public onMessage(cb: (message: { [key: string]: any }) => void) {
-    this.callbacks.push(async (event) => {
+    if (!this.isWebSocketConnected()) {
+      throw new Error("not connected");
+    }
+
+    const callback: Callback = async (event) => {
       const parsed = await this.parseMessage(event);
 
       cb(parsed);
-    });
+    };
+
+    this.callbacks.push(callback);
 
     return () => {
-      const idx = this.callbacks.indexOf(cb);
+      const idx = this.callbacks.indexOf(callback);
       this.callbacks.splice(idx, 1);
     };
   }
@@ -118,13 +141,27 @@ class WebsocketClient {
     return full;
   }
 
+  private prepareMeta() {
+    return {
+      messageId: uuidv4(),
+    };
+  }
+
   public async sendMessage(message: { [key: string]: unknown }) {
-    const messageId = message.id;
-    const serialized = await this.serializeMessage(message);
+    if (!this.isWebSocketConnected()) {
+      throw new Error("not connected");
+    }
 
-    ws.send(serialized);
+    const meta = this.prepareMeta();
+    const messageId = meta.messageId;
+    const serialized = await this.serializeMessage({
+      meta,
+      body: message,
+    });
 
-    return new Promise((res, rej) => {
+    this.ws!.send(serialized);
+
+    return new Promise((res) => {
       const off = this.onMessage((message) => {
         if (
           message.type === "RESPONSE" &&
@@ -135,10 +172,10 @@ class WebsocketClient {
         }
       });
 
-      setTimeout(() => {
-        off();
-        rej();
-      }, 5000);
+      // setTimeout(() => {
+      //   off();
+      //   rej();
+      // }, 5000);
     });
   }
 }

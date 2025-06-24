@@ -15,10 +15,7 @@ export default createEventSubResolver({
   middleware: [],
   format({ payload }) {
     return {
-      type: 'EVENT_SUB_RESULT',
-      payload: {
-        data: payload.data,
-      },
+      data: payload.data,
     };
   },
 });

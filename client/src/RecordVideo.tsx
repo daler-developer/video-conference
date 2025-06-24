@@ -1,6 +1,5 @@
 import { Button } from "@mantine/core";
 import { useRef, useState } from "react";
-import ws from "./ws.ts";
 import websocketClient from "./WebsocketClient.ts";
 
 const RecordVideo = () => {
@@ -31,7 +30,7 @@ const RecordVideo = () => {
     recorder.onstop = async () => {
       const videoBlob = new Blob(chunks, { type: "video/webm" });
 
-      const response = await websocketClient.sendMessage({
+      websocketClient.sendMessage({
         type: "SEND_MEDIA_FRAME",
         payload: {
           data: await videoBlob.arrayBuffer(),
@@ -49,7 +48,14 @@ const RecordVideo = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div
+      style={{
+        marginTop: "20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+      }}
+    >
       <Button type="button" onClick={start}>
         Start
       </Button>

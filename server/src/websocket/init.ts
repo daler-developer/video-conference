@@ -72,21 +72,25 @@ const init = async (server: Server) => {
 
       processMiddleware(resolver.middleware, { ctx, message, request });
 
-      // @ts-ignore
-      const response = await resolver.execute({
-        ctx,
-        message,
-        client,
-      });
-
-      if (response) {
-        client.sendMessage({
-          type: 'RESPONSE',
-          payload: {
-            messageId: message.id,
-            response,
-          },
+      try {
+        // @ts-ignore
+        const response = await resolver.execute({
+          ctx,
+          message,
+          client,
         });
+
+        if (response) {
+          client.sendMessage({
+            type: 'RESPONSE',
+            payload: {
+              messageId: message.id,
+              response,
+            },
+          });
+        }
+      } catch (e) {
+        console.log(e);
       }
     });
   });

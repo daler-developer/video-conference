@@ -1,15 +1,12 @@
-import { useEffect } from "react";
-import ws from "./ws.ts";
+import useEventSub from "./useEventSub.ts";
 
 const Subscribe = () => {
-  useEffect(() => {
-    // ws.send(
-    //   JSON.stringify({
-    //     type: "EVENT_SUB",
-    //   }),
-    // );
-    // ws.send(new Blob([]));
-  }, []);
+  useEventSub({
+    eventName: "NEW_MEDIA_FRAME",
+    onData(message) {
+      console.log(message);
+    },
+  });
 
   return (
     <div>

@@ -1,17 +1,22 @@
 import "@mantine/core/styles.css";
 import { Button } from "@mantine/core";
 import { useEffect, useState } from "react";
-import Subscribe from "./Subscribe.tsx";
-import ws from "./ws";
 import RecordVideo from "./RecordVideo.tsx";
 import websocketClient from "./WebsocketClient.ts";
 import { v4 as uuidv4 } from "uuid";
+import useEventSub from "./useEventSub.ts";
+import Subscribe from "./Subscribe.tsx";
 
 const App = () => {
+  const [connected, setConnected] = useState(false);
+
   useEffect(() => {
-    // websocketClient.onMessage((message) => {
-    //   console.log(message);
-    // });
+    const connect = async () => {
+      await websocketClient.connect();
+      setConnected(true);
+    };
+
+    connect();
   }, []);
 
   const test = async () => {
@@ -24,22 +29,18 @@ const App = () => {
     });
   };
 
+  if (!connected) {
+    return null;
+  }
+
   return (
     <div style={{ margin: "50px" }}>
       <h1>React App</h1>
+      <Subscribe />
       <div>
-        <Button onClick={test}>Test</Button>
         <Button
           type="button"
           onClick={() => {
-            const str = "HelloWorld";
-            const encoder = new TextEncoder();
-            const encoded = encoder.encode(str);
-
-            const buffer = new ArrayBuffer(encoded.length);
-            const view = new Uint8Array(buffer);
-            view.set(encoded);
-
             websocketClient.sendMessage({
               type: "EVENT_SUB",
               payload: {
@@ -70,15 +71,6 @@ const App = () => {
           Unsub
         </Button>
       </div>
-      <input
-        type="file"
-        onChange={(e) => {
-          const file = Array.from(e.currentTarget.files || [])[0];
-          // const url = URL.createObjectURL(file);
-          // console.log(url);
-          ws.send(file);
-        }}
-      />
       <RecordVideo />
     </div>
   );
