@@ -1,6 +1,7 @@
 import { Button } from "@mantine/core";
 import { useRef, useState } from "react";
 import websocketClient from "./WebsocketClient.ts";
+import { sendMediaFrameMessage } from "./websocket/sendMessage/sendMessageFrameMessage.ts";
 
 const RecordVideo = () => {
   const [recording, setRecording] = useState(false);
@@ -30,8 +31,7 @@ const RecordVideo = () => {
     recorder.onstop = async () => {
       const videoBlob = new Blob(chunks, { type: "video/webm" });
 
-      websocketClient.sendMessage({
-        type: "SEND_MEDIA_FRAME",
+      sendMediaFrameMessage({
         payload: {
           data: await videoBlob.arrayBuffer(),
         },

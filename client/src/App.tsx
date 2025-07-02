@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import RecordVideo from "./RecordVideo.tsx";
 import websocketClient from "./WebsocketClient.ts";
 import { v4 as uuidv4 } from "uuid";
-import useEventSub from "./useEventSub.ts";
+import useEventSub from "./websocket/useEventSub.ts";
 import Subscribe from "./Subscribe.tsx";
+import { sendEventSubMessage } from "./websocket/sendMessage/sendEventSubMessage.ts";
+import { sendEventUnsubMessage } from "./websocket/sendMessage/sendEventUnsubMessage.ts";
 
 const App = () => {
   const [connected, setConnected] = useState(false);
@@ -20,11 +22,12 @@ const App = () => {
   }, []);
 
   const test = async () => {
-    const response = await websocketClient.sendMessage({
-      id: uuidv4(),
-      type: "JOIN_CONFERENCE",
+    sendEventSubMessage({
       payload: {
-        foo: "bar",
+        eventName: "NEW_MEDIA_FRAME",
+        eventParams: {
+          conferenceId: "test1",
+        },
       },
     });
   };
@@ -36,17 +39,19 @@ const App = () => {
   return (
     <div style={{ margin: "50px" }}>
       <h1>React App</h1>
+      {/*<Button type="button" onClick={test}>*/}
+      {/*  Test*/}
+      {/*</Button>*/}
       <Subscribe />
       <div>
         <Button
           type="button"
           onClick={() => {
-            websocketClient.sendMessage({
-              type: "EVENT_SUB",
+            sendEventSubMessage({
               payload: {
                 eventName: "NEW_MEDIA_FRAME",
                 eventParams: {
-                  conferenceId: "test",
+                  conferenceId: "test1",
                 },
               },
             });
@@ -57,12 +62,11 @@ const App = () => {
         <Button
           type="button"
           onClick={() => {
-            websocketClient.sendMessage({
-              type: "EVENT_UNSUB",
+            sendEventUnsubMessage({
               payload: {
                 eventName: "NEW_MEDIA_FRAME",
                 eventParams: {
-                  conferenceId: "test",
+                  conferenceId: "test1",
                 },
               },
             });

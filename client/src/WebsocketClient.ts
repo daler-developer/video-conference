@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-
 const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== "object" || obj === null) return false;
   const proto = Object.getPrototypeOf(obj);
@@ -141,42 +139,14 @@ class WebsocketClient {
     return full;
   }
 
-  private prepareMeta() {
-    return {
-      messageId: uuidv4(),
-    };
-  }
-
   public async sendMessage(message: { [key: string]: unknown }) {
     if (!this.isWebSocketConnected()) {
       throw new Error("not connected");
     }
 
-    const meta = this.prepareMeta();
-    const messageId = meta.messageId;
-    const serialized = await this.serializeMessage({
-      meta,
-      body: message,
-    });
+    const serialized = await this.serializeMessage(message);
 
     this.ws!.send(serialized);
-
-    return new Promise((res) => {
-      const off = this.onMessage((message) => {
-        if (
-          message.type === "RESPONSE" &&
-          message.payload.messageId === messageId
-        ) {
-          off();
-          res(message);
-        }
-      });
-
-      // setTimeout(() => {
-      //   off();
-      //   rej();
-      // }, 5000);
-    });
   }
 }
 

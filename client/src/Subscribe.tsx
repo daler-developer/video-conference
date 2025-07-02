@@ -1,12 +1,17 @@
-import useEventSub from "./useEventSub.ts";
+import { useEffect } from "react";
+import { listenNewMediaFrameMessage } from "./websocket/listenMessage/listenNewMediaFrameMessage.ts";
 
 const Subscribe = () => {
-  useEventSub({
-    eventName: "NEW_MEDIA_FRAME",
-    onData(message) {
-      console.log(message);
-    },
-  });
+  useEffect(() => {
+    listenNewMediaFrameMessage({
+      eventParams: {
+        conferenceId: "test1",
+      },
+      callback({ message }) {
+        console.log(message);
+      },
+    });
+  }, []);
 
   return (
     <div>

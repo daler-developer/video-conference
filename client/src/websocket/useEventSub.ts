@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import websocketClient from "./WebsocketClient.ts";
-import useLatest from "../shared/hooks/useLatest.ts";
+import websocketClient from "../WebsocketClient.ts";
+import useLatest from "../../shared/hooks/useLatest.ts";
 
 type Options = {
   eventName: string;

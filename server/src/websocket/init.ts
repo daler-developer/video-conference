@@ -80,15 +80,15 @@ const init = async (server: Server) => {
           client,
         });
 
-        if (response) {
-          client.sendMessage({
-            type: 'RESPONSE',
-            payload: {
-              messageId: message.id,
-              response,
-            },
-          });
-        }
+        // if (response) {
+        //   client.sendMessage({
+        //     type: 'RESPONSE',
+        //     payload: {
+        //       messageId: message.id,
+        //       response,
+        //     },
+        //   });
+        // }
       } catch (e) {
         console.log(e);
       }
