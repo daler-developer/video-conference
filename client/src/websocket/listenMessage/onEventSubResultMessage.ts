@@ -1,5 +1,4 @@
 import { createMessageListener } from "../createMessageListener.ts";
-import type { EventName } from "../sendMessage/sendEventSubMessage.ts";
 import type { BaseIncomingMessage } from "../types.ts";
 
 export type BaseEventSubResultMessage<
@@ -15,31 +14,12 @@ export type BaseEventSubResultMessage<
   }
 >;
 
-export type Mapping = {
-  NEW_MEDIA_FRAME: {
-    eventName: string;
-    eventParams: unknown;
-    eventData: {
-      data: ArrayBuffer;
-    };
-  };
-  CONFERENCE_NEW_PARTICIPANT_JOINED: {
-    eventName: string;
-    eventParams: unknown;
-    eventData: {
-      userId: number;
-    };
-  };
+type Payload = {
+  eventName: string;
+  eventParams: { [key: string]: unknown };
 };
 
-type Payload = {
-  [K in EventName]: {
-    eventName: K;
-    eventParams: Mapping[K];
-  };
-}[EventName];
-
-export const listenEventSubResultMessage = createMessageListener<
+export const onEventSubResultMessage = createMessageListener<
   Payload,
   "EVENT_SUB_RESULT"
 >({

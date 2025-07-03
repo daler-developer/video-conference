@@ -10,6 +10,7 @@ import { sendEventSubMessage } from "./websocket/sendMessage/sendEventSubMessage
 import { sendEventUnsubMessage } from "./websocket/sendMessage/sendEventUnsubMessage.ts";
 
 const App = () => {
+  const [isSub, setIsSub] = useState(false);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
@@ -42,19 +43,12 @@ const App = () => {
       {/*<Button type="button" onClick={test}>*/}
       {/*  Test*/}
       {/*</Button>*/}
-      <Subscribe />
+      {isSub && <Subscribe />}
       <div>
         <Button
           type="button"
           onClick={() => {
-            sendEventSubMessage({
-              payload: {
-                eventName: "NEW_MEDIA_FRAME",
-                eventParams: {
-                  conferenceId: "test1",
-                },
-              },
-            });
+            setIsSub(true);
           }}
         >
           Sub
@@ -62,14 +56,7 @@ const App = () => {
         <Button
           type="button"
           onClick={() => {
-            sendEventUnsubMessage({
-              payload: {
-                eventName: "NEW_MEDIA_FRAME",
-                eventParams: {
-                  conferenceId: "test1",
-                },
-              },
-            });
+            setIsSub(false);
           }}
         >
           Unsub

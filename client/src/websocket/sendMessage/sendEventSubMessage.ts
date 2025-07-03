@@ -13,11 +13,9 @@ export type Mapping = {
 export type EventName = keyof Mapping;
 
 type Payload = {
-  [K in EventName]: {
-    eventName: K;
-    eventParams: Mapping[K];
-  };
-}[EventName];
+  eventName: string;
+  eventParams: { [key: string]: unknown };
+};
 
 export const sendEventSubMessage = createMessageSender<Payload>({
   type: "EVENT_SUB",

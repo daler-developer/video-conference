@@ -1,4 +1,4 @@
-import { createEventSubResultListener } from "../createEventSubResultListener.ts";
+import { createEventSub } from "../createEventSub.ts";
 
 type EventParams = {
   conferenceId: string;
@@ -8,7 +8,7 @@ type EventData = {
   data: ArrayBuffer;
 };
 
-export const listenNewMediaFrameMessage = createEventSubResultListener<
+export const [newMediaFrameSub, useNewMediaFrameSub] = createEventSub<
   EventParams,
   EventData,
   "NEW_MEDIA_FRAME"
