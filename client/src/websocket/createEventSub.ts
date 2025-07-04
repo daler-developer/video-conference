@@ -85,5 +85,7 @@ export const createEventSub = <
     }, []);
   };
 
-  return [eventSub, useHook] as const;
+  return {
+    hook: useHook,
+  };
 };

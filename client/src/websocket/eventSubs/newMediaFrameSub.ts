@@ -10,7 +10,7 @@ type EventData = {
 
 const EVENT_NAME = "NEW_MEDIA_FRAME";
 
-export const [newMediaFrameSub, useNewMediaFrameSub] = createEventSub<
+export const { hook: useNewMediaFrameSub } = createEventSub<
   EventParams,
   EventData,
   typeof EVENT_NAME

@@ -1,4 +1,4 @@
 import { connect } from "./connection";
-import { useNewMediaFrameSub } from "./listenMessage/newMediaFrameSub";
+import { useNewMediaFrameSub } from "./eventSubs/newMediaFrameSub.ts";
 
 export { connect, useNewMediaFrameSub };
