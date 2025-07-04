@@ -1,8 +1,8 @@
-import { createMessageSender } from "../utils.ts";
+import { createMessageSender } from "../createMessageSender.ts";
 
 type Payload = {
   eventName: string;
-  eventParams: { [key: string]: unknown };
+  eventParams: { [key: string]: any };
 };
 
 export const sendEventUnsubMessage = createMessageSender<Payload>({

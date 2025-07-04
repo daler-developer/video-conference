@@ -8,10 +8,12 @@ type EventData = {
   data: ArrayBuffer;
 };
 
+const EVENT_NAME = "NEW_MEDIA_FRAME";
+
 export const [newMediaFrameSub, useNewMediaFrameSub] = createEventSub<
   EventParams,
   EventData,
-  "NEW_MEDIA_FRAME"
+  typeof EVENT_NAME
 >({
-  eventName: "NEW_MEDIA_FRAME",
+  eventName: EVENT_NAME,
 });

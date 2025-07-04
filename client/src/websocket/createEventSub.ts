@@ -9,16 +9,19 @@ import { useEffect } from "react";
 import { sendEventUnsubMessage } from "./sendMessage/sendEventUnsubMessage.ts";
 
 type HookOptions<
-  TEventParams extends { [key: string]: unknown },
-  TEventData extends { [key: string]: unknown },
+  TEventName extends string,
+  TEventParams extends { [key: string]: any },
+  TEventData extends { [key: string]: any },
 > = {
   eventParams: TEventParams;
-  onData: (onDataOptions: { message: any }) => void;
+  onData: (onDataOptions: {
+    message: BaseEventSubResultMessage<TEventName, TEventParams, TEventData>;
+  }) => void;
 };
 
 export const createEventSub = <
-  TEventParams extends { [key: string]: unknown },
-  TEventData extends { [key: string]: unknown },
+  TEventParams extends { [key: string]: any },
+  TEventData extends { [key: string]: any },
   TEventName extends string,
 >({
   eventName,
@@ -66,7 +69,7 @@ export const createEventSub = <
   const useHook = ({
     eventParams,
     onData,
-  }: HookOptions<TEventParams, TEventData, TEventName>) => {
+  }: HookOptions<TEventName, TEventParams, TEventData>) => {
     const latestOnData = useLatest(onData);
     const latestEventParams = useLatest(eventParams);
 

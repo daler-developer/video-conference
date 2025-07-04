@@ -2,12 +2,9 @@ import "@mantine/core/styles.css";
 import { Button } from "@mantine/core";
 import { useEffect, useState } from "react";
 import RecordVideo from "./RecordVideo.tsx";
-import websocketClient from "./WebsocketClient.ts";
-import { v4 as uuidv4 } from "uuid";
-import useEventSub from "./websocket/useEventSub.ts";
+import { connect as websocketConnect } from "./websocket";
 import Subscribe from "./Subscribe.tsx";
 import { sendEventSubMessage } from "./websocket/sendMessage/sendEventSubMessage.ts";
-import { sendEventUnsubMessage } from "./websocket/sendMessage/sendEventUnsubMessage.ts";
 
 const App = () => {
   const [isSub, setIsSub] = useState(false);
@@ -15,7 +12,7 @@ const App = () => {
 
   useEffect(() => {
     const connect = async () => {
-      await websocketClient.connect();
+      await websocketConnect();
       setConnected(true);
     };
 

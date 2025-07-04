@@ -3,8 +3,8 @@ import type { BaseIncomingMessage } from "../types.ts";
 
 export type BaseEventSubResultMessage<
   TEventName extends string,
-  TEventParams extends { [key: string]: unknown },
-  TEventData extends { [key: string]: unknown },
+  TEventParams extends { [key: string]: any },
+  TEventData extends { [key: string]: any },
 > = BaseIncomingMessage<
   "EVENT_SUB_RESULT",
   {
@@ -16,7 +16,7 @@ export type BaseEventSubResultMessage<
 
 type Payload = {
   eventName: string;
-  eventParams: { [key: string]: unknown };
+  eventParams: { [key: string]: any };
 };
 
 export const onEventSubResultMessage = createMessageListener<

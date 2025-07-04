@@ -1,4 +1,4 @@
-import { createMessageSender } from "../utils.ts";
+import { createMessageSender } from "../createMessageSender.ts";
 
 type Payload = {
   data: ArrayBuffer;

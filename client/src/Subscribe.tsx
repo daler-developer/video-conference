@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useNewMediaFrameSub } from "./websocket/listenMessage/newMediaFrameSub.ts";
+import { useNewMediaFrameSub } from "./websocket";
 
 const Subscribe = () => {
   useNewMediaFrameSub({

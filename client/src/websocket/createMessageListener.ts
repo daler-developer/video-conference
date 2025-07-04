@@ -1,22 +1,25 @@
-import websocketClient from "../WebsocketClient.ts";
-import type { BaseIncomingMessage } from "./types.ts";
+import { onMessage } from "./connection.ts";
+import type {
+  BaseIncomingMessage,
+  BaseIncomingMessagePayload,
+} from "./types.ts";
 
 type Options<TMessageType extends string> = {
   type: TMessageType;
 };
 
 export const createMessageListener = <
-  TPayload extends { [key: string]: any },
+  TMessagePayload extends BaseIncomingMessagePayload,
   TMessageType extends string,
 >({
   type,
 }: Options<TMessageType>) => {
   return (
-    cb: (message: BaseIncomingMessage<TMessageType, TPayload>) => void,
+    cb: (message: BaseIncomingMessage<TMessageType, TMessagePayload>) => void,
   ) => {
-    return websocketClient.onMessage((message) => {
+    return onMessage((message) => {
       if (message.type === type) {
-        cb(message as BaseIncomingMessage<TMessageType, TPayload>);
+        cb(message as BaseIncomingMessage<TMessageType, TMessagePayload>);
       }
     });
   };

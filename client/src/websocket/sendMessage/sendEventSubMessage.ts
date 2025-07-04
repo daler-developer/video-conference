@@ -1,20 +1,8 @@
-import { createMessageSender } from "../utils.ts";
-
-export type Mapping = {
-  NEW_MEDIA_FRAME: {
-    conferenceId: string;
-  };
-  CONFERENCE_NEW_PARTICIPANT_JOINED: {
-    conferenceId: string;
-    userId: number;
-  };
-};
-
-export type EventName = keyof Mapping;
+import { createMessageSender } from "../createMessageSender.ts";
 
 type Payload = {
   eventName: string;
-  eventParams: { [key: string]: unknown };
+  eventParams: { [key: string]: any };
 };
 
 export const sendEventSubMessage = createMessageSender<Payload>({
