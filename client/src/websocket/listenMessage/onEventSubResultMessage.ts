@@ -17,6 +17,7 @@ export type BaseEventSubResultMessage<
 type Payload = {
   eventName: string;
   eventParams: { [key: string]: any };
+  eventData: { [key: string]: any };
 };
 
 export const onEventSubResultMessage = createMessageListener<

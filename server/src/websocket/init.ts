@@ -20,7 +20,7 @@ const initHandlers = async () => {
 
   // @ts-ignore
   const result: Record<
-    MESSAGE_TYPE,
+    string,
     ReturnType<typeof createResolverByMessageType>
   > = {};
 
@@ -59,7 +59,7 @@ const init = async (server: Server) => {
     client.onMessage(async (message) => {
       const ctx: any = {};
 
-      const resolver = handlersByMessageType[message.type as MESSAGE_TYPE];
+      const resolver = handlersByMessageType[message.type];
 
       const isInvalid = resolver.validator && !resolver.validator({ message });
 
@@ -73,22 +73,15 @@ const init = async (server: Server) => {
       processMiddleware(resolver.middleware, { ctx, message, request });
 
       try {
-        // @ts-ignore
         const response = await resolver.execute({
           ctx,
           message,
           client,
         });
 
-        // if (response) {
-        //   client.sendMessage({
-        //     type: 'RESPONSE',
-        //     payload: {
-        //       messageId: message.id,
-        //       response,
-        //     },
-        //   });
-        // }
+        if (response) {
+          client.sendMessage(response);
+        }
       } catch (e) {
         console.log(e);
       }

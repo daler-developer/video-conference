@@ -1,27 +1,26 @@
-import { WebSocket } from 'ws';
 import WebSocketWrapper from './WebSocketWrapper';
+import { BaseIncomingMessage, BaseOutgoingMessage } from './types';
 
-type BaseMessage<TPayload extends { [key: string]: unknown }> = {
-  type: string;
-  payload: TPayload;
-};
-
-type Options<TPayload extends { [key: string]: unknown }> = {
-  type: string;
+type Options<
+  TIncomingMessage extends BaseIncomingMessage,
+  TOutgoingMessage extends BaseOutgoingMessage,
+> = {
+  type: TIncomingMessage['type'];
   middleware: any[];
   execute: (options: {
     ctx: any;
-    message: BaseMessage<TPayload>;
+    message: TIncomingMessage;
     client: WebSocketWrapper;
-  }) => Promise<any> | any;
-  validator?: (options: { message: BaseMessage<TPayload> }) => boolean;
+  }) => Promise<TOutgoingMessage['payload']>;
+  validator?: (options: { message: TIncomingMessage }) => boolean;
   init?: () => void;
 };
 
 const createResolverByMessageType = <
-  TPayload extends { [key: string]: unknown },
+  TIncomingMessage extends BaseIncomingMessage,
+  TOutgoingMessage extends BaseOutgoingMessage,
 >(
-  options: Options<TPayload>
+  options: Options<TIncomingMessage, TOutgoingMessage>
 ) => {
   return options;
 };

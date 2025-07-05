@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import _ from 'lodash';
+import { BaseIncomingMessage } from './types';
 
 const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== 'object' || obj === null) return false;
@@ -54,7 +55,7 @@ class WebSocketWrapper {
     return parsedMessage;
   }
 
-  async onMessage(cb: (message: any) => void) {
+  async onMessage(cb: (message: BaseIncomingMessage) => void) {
     this.ws.on('message', async (message: Buffer, isBinary) => {
       if (!isBinary) {
         throw new Error('only binary');

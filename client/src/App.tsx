@@ -5,6 +5,7 @@ import RecordVideo from "./RecordVideo.tsx";
 import { connect as websocketConnect } from "./websocket";
 import Subscribe from "./Subscribe.tsx";
 import { sendEventSubMessage } from "./websocket/sendMessage/sendEventSubMessage.ts";
+import { sendStartSessionMessage } from "./websocket/sendMessage/sendStartSessionMessage.ts";
 
 const App = () => {
   const [isSub, setIsSub] = useState(false);
@@ -20,14 +21,13 @@ const App = () => {
   }, []);
 
   const test = async () => {
-    sendEventSubMessage({
+    const { response } = await sendStartSessionMessage({
       payload: {
-        eventName: "NEW_MEDIA_FRAME",
-        eventParams: {
-          conferenceId: "test1",
-        },
+        fullName: "Saidov Daler",
       },
     });
+
+    console.log("response", response);
   };
 
   if (!connected) {
@@ -37,9 +37,9 @@ const App = () => {
   return (
     <div style={{ margin: "50px" }}>
       <h1>React App</h1>
-      {/*<Button type="button" onClick={test}>*/}
-      {/*  Test*/}
-      {/*</Button>*/}
+      <Button type="button" onClick={test}>
+        Test
+      </Button>
       {isSub && <Subscribe />}
       <div>
         <Button

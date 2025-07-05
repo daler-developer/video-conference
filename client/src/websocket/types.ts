@@ -31,6 +31,6 @@ export type BaseIncomingMessage<
   type: TMessageType;
   payload: TMessagePayload;
   meta: {
-    responseTo?: string;
+    messageId?: string;
   };
 };

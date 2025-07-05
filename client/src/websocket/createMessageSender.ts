@@ -1,40 +1,65 @@
 import { sendMessage, onMessage } from "./connection";
-import type { BaseOutgoingMessagePayload } from "./types.ts";
+import type { BaseIncomingMessage, BaseOutgoingMessage } from "./types.ts";
 import { prepareMeta } from "./utils.ts";
 
-type Options = {
-  type: string;
+type Options<
+  TOutgoingMessage extends BaseOutgoingMessage,
+  TIncomingMessage extends BaseIncomingMessage,
+> = {
+  outgoingMessageType: TOutgoingMessage["type"];
+  incomingMessageType: TIncomingMessage["type"];
 };
 
+type MessageSenderResult<TIncomingMessage extends BaseIncomingMessage> =
+  Promise<{
+    response: TIncomingMessage;
+  }>;
+
 export const createMessageSender = <
-  TMessagePayload extends BaseOutgoingMessagePayload,
+  TOutgoingMessage extends BaseOutgoingMessage,
+  TIncomingMessage extends BaseIncomingMessage,
 >({
-  type,
-}: Options) => {
-  return ({ payload }: { payload: TMessagePayload }) => {
-    const message = {
-      type,
+  outgoingMessageType,
+  incomingMessageType,
+}: Options<TOutgoingMessage, TIncomingMessage>) => {
+  return async ({
+    payload,
+  }: {
+    payload: TOutgoingMessage["payload"];
+  }): MessageSenderResult<TIncomingMessage> => {
+    const outgoingMessage = {
+      type: outgoingMessageType,
       payload,
       meta: prepareMeta(),
     };
 
-    sendMessage(message);
+    sendMessage(outgoingMessage);
 
     // return new Promise((res) => {
-    //   const off = onMessage((message) => {
-    //     if (
-    //       message.type === "RESPONSE" &&
-    //       message.payload.messageId === messageId
-    //     ) {
-    //       off();
-    //       res(message);
-    //     }
-    //   });
-    //
-    //   // setTimeout(() => {
-    //   //   off();
-    //   //   rej();
-    //   // }, 5000);
+    //   setTimeout(() => {
+    //     res({
+    //       response: { foo: "bar" }
+    //     });
+    //   }, 2000);
     // });
+
+    return new Promise((res) => {
+      const unsubscribe = onMessage((message) => {
+        if (
+          message.type === incomingMessageType &&
+          message.meta.messageId === outgoingMessage.meta.messageId
+        ) {
+          unsubscribe();
+          res({
+            response: message as TIncomingMessage,
+          });
+        }
+      });
+
+      // setTimeout(() => {
+      //   off();
+      //   rej();
+      // }, 5000);
+    });
   };
 };

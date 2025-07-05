@@ -1,19 +1,15 @@
 import { createEventSub } from "../createEventSub.ts";
-
-type EventParams = {
-  conferenceId: string;
-};
-
-type EventData = {
-  data: ArrayBuffer;
-};
+import type { BaseEventSubOutgoingMessage } from "../sendMessage/sendEventSubMessage.ts";
 
 const EVENT_NAME = "NEW_MEDIA_FRAME";
 
-export const { hook: useNewMediaFrameSub } = createEventSub<
-  EventParams,
-  EventData,
-  typeof EVENT_NAME
->({
+type OutgoingMessage = BaseEventSubOutgoingMessage<
+  typeof EVENT_NAME,
+  {
+    conferenceId: string;
+  }
+>;
+
+export const { hook: useNewMediaFrameSub } = createEventSub<OutgoingMessage>({
   eventName: EVENT_NAME,
 });

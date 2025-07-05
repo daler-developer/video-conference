@@ -1,26 +1,25 @@
 import { createMessageSender } from "../createMessageSender.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "../types.ts";
 
-const OUTGOING_MESSAGE_TYPE = "EVENT_UNSUB";
+const OUTGOING_MESSAGE_TYPE = "START_SESSION";
 
 type OutgoingMessage = BaseOutgoingMessage<
   typeof OUTGOING_MESSAGE_TYPE,
   {
-    eventName: string;
-    eventParams: Record<string, any>;
+    fullName: string;
   }
 >;
 
-const INCOMING_MESSAGE_TYPE = "EVENT_SUB";
+const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
 
 type IncomingMessage = BaseIncomingMessage<
   typeof INCOMING_MESSAGE_TYPE,
   {
-    foo: number;
+    accessToken: string;
   }
 >;
 
-export const sendEventUnsubMessage = createMessageSender<
+export const sendStartSessionMessage = createMessageSender<
   OutgoingMessage,
   IncomingMessage
 >({

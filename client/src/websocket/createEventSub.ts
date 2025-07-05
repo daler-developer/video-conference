@@ -3,39 +3,33 @@ import {
   type BaseEventSubResultMessage,
   onEventSubResultMessage,
 } from "./listenMessage/onEventSubResultMessage.ts";
-import { sendEventSubMessage } from "./sendMessage/sendEventSubMessage.ts";
+import {
+  type BaseEventSubOutgoingMessage,
+  sendEventSubMessage,
+} from "./sendMessage/sendEventSubMessage.ts";
 import useLatest from "../../shared/hooks/useLatest.ts";
 import { useEffect } from "react";
 import { sendEventUnsubMessage } from "./sendMessage/sendEventUnsubMessage.ts";
+import type { BaseOutgoingMessage } from "./types.ts";
 
-type HookOptions<
-  TEventName extends string,
-  TEventParams extends { [key: string]: any },
-  TEventData extends { [key: string]: any },
-> = {
-  eventParams: TEventParams;
-  onData: (onDataOptions: {
-    message: BaseEventSubResultMessage<TEventName, TEventParams, TEventData>;
-  }) => void;
+type HookOptions<TOutgoingMessage extends BaseEventSubOutgoingMessage> = {
+  eventParams: TOutgoingMessage["payload"]["eventParams"];
+  onData: (onDataOptions: { message: any }) => void;
 };
 
 export const createEventSub = <
-  TEventParams extends { [key: string]: any },
-  TEventData extends { [key: string]: any },
-  TEventName extends string,
+  TOutgoingMessage extends BaseEventSubOutgoingMessage,
 >({
   eventName,
 }: {
-  eventName: TEventName;
+  eventName: TOutgoingMessage["payload"]["eventName"];
 }) => {
   const eventSub = ({
     eventParams,
     callback,
   }: {
-    eventParams: TEventParams;
-    callback: (callbackArg: {
-      message: BaseEventSubResultMessage<TEventName, TEventParams, TEventData>;
-    }) => void;
+    eventParams: TOutgoingMessage["payload"]["eventParams"];
+    callback: (callbackArg: { message: any }) => void;
   }) => {
     sendEventSubMessage({
       payload: {
@@ -66,10 +60,7 @@ export const createEventSub = <
     };
   };
 
-  const useHook = ({
-    eventParams,
-    onData,
-  }: HookOptions<TEventName, TEventParams, TEventData>) => {
+  const useHook = ({ eventParams, onData }: HookOptions<TOutgoingMessage>) => {
     const latestOnData = useLatest(onData);
     const latestEventParams = useLatest(eventParams);
 
