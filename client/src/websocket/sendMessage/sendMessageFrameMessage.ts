@@ -5,6 +5,7 @@ import {
 } from "../types.ts";
 
 const OUTGOING_MESSAGE_TYPE = "NEW_MEDIA_FRAME";
+const INCOMING_MESSAGE_TYPE = "OUTGOING_MESSAGE_TYPE";
 
 type OutgoingMessage = BaseOutgoingMessage<
   typeof OUTGOING_MESSAGE_TYPE,
@@ -13,12 +14,10 @@ type OutgoingMessage = BaseOutgoingMessage<
   }
 >;
 
-const INCOMING_MESSAGE_TYPE = "OUTGOING_MESSAGE_TYPE";
-
 type IncomingMessage = BaseIncomingMessage<
   typeof INCOMING_MESSAGE_TYPE,
   {
-    foo: any;
+    message: string;
   }
 >;
 

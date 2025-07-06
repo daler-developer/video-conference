@@ -1,25 +1,19 @@
 import { onMessage } from "./connection.ts";
-import type {
-  BaseIncomingMessage,
-  BaseIncomingMessagePayload,
-} from "./types.ts";
+import type { BaseIncomingMessage } from "./types.ts";
 
-type Options<TMessageType extends string> = {
-  type: TMessageType;
+type Options<TIncomingMessage extends BaseIncomingMessage> = {
+  type: TIncomingMessage["type"];
 };
 
 export const createMessageListener = <
-  TMessagePayload extends BaseIncomingMessagePayload,
-  TMessageType extends string,
+  TIncomingMessage extends BaseIncomingMessage,
 >({
   type,
-}: Options<TMessageType>) => {
-  return (
-    cb: (message: BaseIncomingMessage<TMessageType, TMessagePayload>) => void,
-  ) => {
+}: Options<TIncomingMessage>) => {
+  return (cb: (message: TIncomingMessage) => void) => {
     return onMessage((message) => {
       if (message.type === type) {
-        cb(message as BaseIncomingMessage<TMessageType, TMessagePayload>);
+        cb(message as TIncomingMessage);
       }
     });
   };

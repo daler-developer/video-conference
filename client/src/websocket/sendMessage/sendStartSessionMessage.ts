@@ -2,6 +2,7 @@ import { createMessageSender } from "../createMessageSender.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "../types.ts";
 
 const OUTGOING_MESSAGE_TYPE = "START_SESSION";
+const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
 
 type OutgoingMessage = BaseOutgoingMessage<
   typeof OUTGOING_MESSAGE_TYPE,
@@ -9,8 +10,6 @@ type OutgoingMessage = BaseOutgoingMessage<
     fullName: string;
   }
 >;
-
-const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
 
 type IncomingMessage = BaseIncomingMessage<
   typeof INCOMING_MESSAGE_TYPE,

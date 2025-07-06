@@ -21,7 +21,7 @@ export type BaseOutgoingMessage<
   meta: BaseOutgoingMessageMeta;
 };
 
-export type BaseIncomingMessagePayload = { [key: string]: JsonValue };
+type BaseIncomingMessagePayload = { [key: string]: JsonValue };
 
 export type BaseIncomingMessage<
   TMessageType extends string = string,

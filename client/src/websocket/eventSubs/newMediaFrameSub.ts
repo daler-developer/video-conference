@@ -1,8 +1,6 @@
 import { createEventSub } from "../createEventSub.ts";
-import {
-  type BaseEventSubOutgoingMessage,
-  type BaseEventSubIncomingMessage,
-} from "../sendMessage/sendEventSubMessage.ts";
+import { type BaseEventSubOutgoingMessage } from "../sendMessage/sendEventSubMessage.ts";
+import type { BaseEventSubDataIncomingMessage } from "../listenMessage/onEventSubDataMessage.ts";
 
 const EVENT_NAME = "NEW_MEDIA_FRAME";
 
@@ -13,7 +11,7 @@ type OutgoingMessage = BaseEventSubOutgoingMessage<
   }
 >;
 
-type IncomingMessage = BaseEventSubIncomingMessage<
+type EventSubDataIncomingMessage = BaseEventSubDataIncomingMessage<
   typeof EVENT_NAME,
   {
     conferenceId: string;
@@ -25,7 +23,7 @@ type IncomingMessage = BaseEventSubIncomingMessage<
 
 export const { hook: useNewMediaFrameSub } = createEventSub<
   OutgoingMessage,
-  IncomingMessage
+  EventSubDataIncomingMessage
 >({
   eventName: EVENT_NAME,
 });

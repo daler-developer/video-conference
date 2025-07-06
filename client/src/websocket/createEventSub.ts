@@ -1,10 +1,9 @@
 import _ from "lodash";
 import {
-  type BaseEventSubResultMessage,
-  onEventSubResultMessage,
-} from "./listenMessage/onEventSubResultMessage.ts";
+  type BaseEventSubDataIncomingMessage,
+  onEventSubDataMessage,
+} from "./listenMessage/onEventSubDataMessage.ts";
 import {
-  type BaseEventSubIncomingMessage,
   type BaseEventSubOutgoingMessage,
   sendEventSubMessage,
 } from "./sendMessage/sendEventSubMessage.ts";
@@ -14,15 +13,15 @@ import { sendEventUnsubMessage } from "./sendMessage/sendEventUnsubMessage.ts";
 
 type HookOptions<
   TOutgoingMessage extends BaseEventSubOutgoingMessage,
-  TIncomingMessage extends BaseEventSubIncomingMessage,
+  TEventSubDataIncomingMessage extends BaseEventSubDataIncomingMessage,
 > = {
   eventParams: TOutgoingMessage["payload"]["eventParams"];
-  onData: (onDataOptions: { message: TIncomingMessage }) => void;
+  onData: (onDataOptions: { message: TEventSubDataIncomingMessage }) => void;
 };
 
 export const createEventSub = <
   TOutgoingMessage extends BaseEventSubOutgoingMessage,
-  TIncomingMessage extends BaseEventSubIncomingMessage,
+  TEventSubDataIncomingMessage extends BaseEventSubDataIncomingMessage,
 >({
   eventName,
 }: {
@@ -33,7 +32,7 @@ export const createEventSub = <
     callback,
   }: {
     eventParams: TOutgoingMessage["payload"]["eventParams"];
-    callback: (callbackArg: { message: TIncomingMessage }) => void;
+    callback: (callbackArg: { message: TEventSubDataIncomingMessage }) => void;
   }) => {
     sendEventSubMessage({
       payload: {
@@ -42,12 +41,12 @@ export const createEventSub = <
       },
     });
 
-    const unsubscribe = onEventSubResultMessage((message) => {
+    const unsubscribe = onEventSubDataMessage((message) => {
       if (
         message.payload.eventName === eventName &&
         _.isEqual(eventParams, message.payload.eventParams)
       ) {
-        callback({ message });
+        callback({ message: message as TEventSubDataIncomingMessage });
       }
     });
 
@@ -67,7 +66,7 @@ export const createEventSub = <
   const useHook = ({
     eventParams,
     onData,
-  }: HookOptions<TOutgoingMessage, TIncomingMessage>) => {
+  }: HookOptions<TOutgoingMessage, TEventSubDataIncomingMessage>) => {
     const latestOnData = useLatest(onData);
     const latestEventParams = useLatest(eventParams);
 

@@ -15,25 +15,12 @@ export type BaseEventSubOutgoingMessage<
   }
 >;
 
-export type BaseEventSubIncomingMessage<
-  TEventName extends string = string,
-  TEventParams extends Record<string, any> = Record<string, any>,
-  TEventData extends Record<string, any> = Record<string, any>,
-> = BaseIncomingMessage<
-  typeof INCOMING_MESSAGE_TYPE,
-  {
-    eventName: TEventName;
-    eventParams: TEventParams;
-    eventData: TEventData;
-  }
->;
-
 type OutgoingMessage = BaseEventSubOutgoingMessage;
 
 type IncomingMessage = BaseIncomingMessage<
   typeof INCOMING_MESSAGE_TYPE,
   {
-    foo: number;
+    message: string;
   }
 >;
 
@@ -44,3 +31,16 @@ export const sendEventSubMessage = createMessageSender<
   outgoingMessageType: OUTGOING_MESSAGE_TYPE,
   incomingMessageType: INCOMING_MESSAGE_TYPE,
 });
+
+// export type BaseEventSubIncomingMessage<
+//   TEventName extends string = string,
+//   TEventParams extends Record<string, any> = Record<string, any>,
+//   TEventData extends Record<string, any> = Record<string, any>,
+// > = BaseIncomingMessage<
+//   typeof INCOMING_MESSAGE_TYPE,
+//   {
+//     eventName: TEventName;
+//     eventParams: TEventParams;
+//     eventData: TEventData;
+//   }
+// >;
