@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import _ from 'lodash';
-import { BaseIncomingMessage } from './types';
+import { BaseIncomingMessage, BaseOutgoingMessage } from './types';
 
 const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== 'object' || obj === null) return false;
@@ -67,7 +67,7 @@ class WebSocketWrapper {
     });
   }
 
-  public async sendMessage(message: { [key: string]: unknown }) {
+  public async sendMessage(message: BaseOutgoingMessage) {
     message = _.cloneDeep(message);
     const arrayBuffers: Buffer[] = [];
     let total = 0;

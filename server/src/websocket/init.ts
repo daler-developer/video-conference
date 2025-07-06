@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import WebSocket from 'ws';
 import { Server } from 'http';
-import { Message, MESSAGE_TYPE } from './types';
 import subscriptionManager from './SubscriptionManager';
 import createResolverByMessageType from './createResolverByMessageType';
 import processMiddleware from './middleware/processMiddleware';
@@ -63,12 +62,12 @@ const init = async (server: Server) => {
 
       const isInvalid = resolver.validator && !resolver.validator({ message });
 
-      if (isInvalid) {
-        client.sendMessage({
-          type: 'validation error',
-        });
-        return;
-      }
+      // if (isInvalid) {
+      //   client.sendMessage({
+      //     type: 'validation error',
+      //   });
+      //   return;
+      // }
 
       processMiddleware(resolver.middleware, { ctx, message, request });
 
@@ -80,7 +79,13 @@ const init = async (server: Server) => {
         });
 
         if (response) {
-          client.sendMessage(response);
+          client.sendMessage({
+            type: resolver.outgoingMessageType,
+            meta: {
+              messageId: message.meta.messageId,
+            },
+            payload: response,
+          });
         }
       } catch (e) {
         console.log(e);

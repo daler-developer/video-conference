@@ -5,7 +5,8 @@ type Options<
   TIncomingMessage extends BaseIncomingMessage,
   TOutgoingMessage extends BaseOutgoingMessage,
 > = {
-  type: TIncomingMessage['type'];
+  incomingMessageType: TIncomingMessage['type'];
+  outgoingMessageType: TOutgoingMessage['type'];
   middleware: any[];
   execute: (options: {
     ctx: any;

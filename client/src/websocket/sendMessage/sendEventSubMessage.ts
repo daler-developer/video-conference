@@ -2,6 +2,7 @@ import { createMessageSender } from "../createMessageSender.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "../types.ts";
 
 const OUTGOING_MESSAGE_TYPE = "EVENT_SUB";
+const INCOMING_MESSAGE_TYPE = "EVENT_SUB_RESULT";
 
 export type BaseEventSubOutgoingMessage<
   TEventName extends string = string,
@@ -14,9 +15,20 @@ export type BaseEventSubOutgoingMessage<
   }
 >;
 
-type OutgoingMessage = BaseEventSubOutgoingMessage;
+export type BaseEventSubIncomingMessage<
+  TEventName extends string = string,
+  TEventParams extends Record<string, any> = Record<string, any>,
+  TEventData extends Record<string, any> = Record<string, any>,
+> = BaseIncomingMessage<
+  typeof INCOMING_MESSAGE_TYPE,
+  {
+    eventName: TEventName;
+    eventParams: TEventParams;
+    eventData: TEventData;
+  }
+>;
 
-const INCOMING_MESSAGE_TYPE = "EVENT_SUB";
+type OutgoingMessage = BaseEventSubOutgoingMessage;
 
 type IncomingMessage = BaseIncomingMessage<
   typeof INCOMING_MESSAGE_TYPE,

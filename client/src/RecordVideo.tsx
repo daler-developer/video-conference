@@ -30,11 +30,13 @@ const RecordVideo = () => {
     recorder.onstop = async () => {
       const videoBlob = new Blob(chunks, { type: "video/webm" });
 
-      sendMediaFrameMessage({
+      const response = await sendMediaFrameMessage({
         payload: {
           data: await videoBlob.arrayBuffer(),
         },
       });
+
+      console.log("response", response);
     };
 
     recorder.start(1000);

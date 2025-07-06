@@ -4,21 +4,25 @@ import {
   onEventSubResultMessage,
 } from "./listenMessage/onEventSubResultMessage.ts";
 import {
+  type BaseEventSubIncomingMessage,
   type BaseEventSubOutgoingMessage,
   sendEventSubMessage,
 } from "./sendMessage/sendEventSubMessage.ts";
 import useLatest from "../../shared/hooks/useLatest.ts";
 import { useEffect } from "react";
 import { sendEventUnsubMessage } from "./sendMessage/sendEventUnsubMessage.ts";
-import type { BaseOutgoingMessage } from "./types.ts";
 
-type HookOptions<TOutgoingMessage extends BaseEventSubOutgoingMessage> = {
+type HookOptions<
+  TOutgoingMessage extends BaseEventSubOutgoingMessage,
+  TIncomingMessage extends BaseEventSubIncomingMessage,
+> = {
   eventParams: TOutgoingMessage["payload"]["eventParams"];
-  onData: (onDataOptions: { message: any }) => void;
+  onData: (onDataOptions: { message: TIncomingMessage }) => void;
 };
 
 export const createEventSub = <
   TOutgoingMessage extends BaseEventSubOutgoingMessage,
+  TIncomingMessage extends BaseEventSubIncomingMessage,
 >({
   eventName,
 }: {
@@ -29,7 +33,7 @@ export const createEventSub = <
     callback,
   }: {
     eventParams: TOutgoingMessage["payload"]["eventParams"];
-    callback: (callbackArg: { message: any }) => void;
+    callback: (callbackArg: { message: TIncomingMessage }) => void;
   }) => {
     sendEventSubMessage({
       payload: {
@@ -60,7 +64,10 @@ export const createEventSub = <
     };
   };
 
-  const useHook = ({ eventParams, onData }: HookOptions<TOutgoingMessage>) => {
+  const useHook = ({
+    eventParams,
+    onData,
+  }: HookOptions<TOutgoingMessage, TIncomingMessage>) => {
     const latestOnData = useLatest(onData);
     const latestEventParams = useLatest(eventParams);
 

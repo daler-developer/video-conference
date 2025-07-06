@@ -20,7 +20,8 @@ type OutgoingMessage = BaseOutgoingMessage<
 >;
 
 export default createResolverByMessageType<IncomingMessage, OutgoingMessage>({
-  type: INCOMING_MESSAGE_TYPE,
+  incomingMessageType: INCOMING_MESSAGE_TYPE,
+  outgoingMessageType: OUTGOING_MESSAGE_TYPE,
   // validator: z.object({
   //   params: z.object({
   //     fullName: z.string(),
@@ -29,7 +30,7 @@ export default createResolverByMessageType<IncomingMessage, OutgoingMessage>({
   middleware: [],
   async execute({ client, message, ctx }) {
     return {
-      accessToken: 'test_accessToken',
+      accessToken: 'test_accessToken2',
     };
   },
 });
