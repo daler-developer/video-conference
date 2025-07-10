@@ -4,7 +4,7 @@ import WebSocketWrapper from './WebSocketWrapper';
 
 class SubscriptionManager {
   private eventSubscribersMap = new Map<
-    EVENT_NAME,
+    string,
     Array<{
       client: WebSocketWrapper;
       params: any;
@@ -19,10 +19,7 @@ class SubscriptionManager {
     }
   >();
 
-  subscribe(
-    eventName: EVENT_NAME,
-    { client, params, ctx }: { client: WebSocketWrapper; params: any; ctx: any }
-  ) {
+  subscribe(eventName: string, { client, params, ctx }: { client: WebSocketWrapper; params: any; ctx: any }) {
     if (!this.eventSubscribersMap.has(eventName)) {
       this.eventSubscribersMap.set(eventName, []);
     }
@@ -46,13 +43,7 @@ class SubscriptionManager {
     // });
   }
 
-  unsubscribe(
-    eventName: EVENT_NAME,
-    {
-      client,
-      params,
-    }: { client: WebSocketWrapper; params: Record<'string', unknown> }
-  ) {
+  unsubscribe(eventName: string, { client, params }: { client: WebSocketWrapper; params: Record<'string', unknown> }) {
     if (!this.eventSubscribersMap.has(eventName)) {
       return;
     }
@@ -68,7 +59,7 @@ class SubscriptionManager {
     );
   }
 
-  getSubscribers(eventName: EVENT_NAME) {
+  getSubscribers(eventName: string) {
     return this.eventSubscribersMap.get(eventName) || [];
   }
 

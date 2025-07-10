@@ -27,19 +27,23 @@ export const createEventSub = <
 }: {
   eventName: TOutgoingMessage["payload"]["eventName"];
 }) => {
-  const eventSub = ({
+  const eventSub = async ({
     eventParams,
     callback,
   }: {
     eventParams: TOutgoingMessage["payload"]["eventParams"];
     callback: (callbackArg: { message: TEventSubDataIncomingMessage }) => void;
   }) => {
-    sendEventSubMessage({
-      payload: {
-        eventName,
-        eventParams,
-      },
-    });
+    try {
+      const { response } = await sendEventSubMessage({
+        payload: {
+          eventName,
+          eventParams,
+        },
+      });
+    } catch (e) {
+      console.dir(e.incomingMessage);
+    }
 
     const unsubscribe = onEventSubDataMessage((message) => {
       if (

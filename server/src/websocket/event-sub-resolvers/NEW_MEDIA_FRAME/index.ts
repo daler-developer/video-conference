@@ -1,13 +1,25 @@
 import { z } from 'zod';
-import createEventSubResolver from '../../createEventSubResolver';
+import createEventSubResolver, { BaseEventSubDataOutgoingMessage } from '../../createEventSubResolver';
 
-export default createEventSubResolver({
-  eventName: 'NEW_MEDIA_FRAME',
+const CHANNEL_NAME = 'NEW_MEDIA_FRAME';
+const EVENT_NAME = 'NEW_MEDIA_FRAME';
+
+type EventSubDataOutgoingMessage = BaseEventSubDataOutgoingMessage<
+  typeof EVENT_NAME,
+  {
+    conferenceId: string;
+  },
+  {
+    data: Buffer;
+  }
+>;
+
+export default createEventSubResolver<typeof CHANNEL_NAME, EventSubDataOutgoingMessage>(EVENT_NAME, {
   eventParamsSchema: z.object({
     conferenceId: z.string(),
   }),
   subscribe: {
-    channelName: 'NEW_MEDIA_FRAME',
+    channelName: CHANNEL_NAME,
     filter() {
       return true;
     },

@@ -35,8 +35,6 @@ const RecordVideo = () => {
           data: await videoBlob.arrayBuffer(),
         },
       });
-
-      console.log("response", response);
     };
 
     recorder.start(1000);

@@ -27,8 +27,6 @@ const App = () => {
           fullName: "Saidov Daler",
         },
       });
-
-      console.log("response", response);
     } catch (e) {
       console.dir(e);
     }

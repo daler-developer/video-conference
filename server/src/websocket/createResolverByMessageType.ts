@@ -3,6 +3,7 @@ import { BaseIncomingMessage, BaseOutgoingMessage } from './types';
 import { createOutgoingValidationErrorMessage } from './outgoing-message-creators/createOutgoingValidationErrorMessage';
 import processMiddleware from './middleware/processMiddleware';
 import { wss } from './init';
+import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
 
 type Options<TIncomingMessage extends BaseIncomingMessage> = {
   middleware: any[];
