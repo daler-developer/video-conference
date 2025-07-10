@@ -5,12 +5,9 @@ const MESSAGE_TYPE = 'ERROR';
 
 export type BaseOutgoingErrorMessage<
   TErrorType extends string = string,
-  TMessageMeta extends
-    BaseOutgoingMessage['meta'] = BaseOutgoingMessage['meta'],
   TDetails extends BaseOutgoingMessage['meta'] = BaseOutgoingMessage['meta'],
 > = BaseOutgoingMessage<
   typeof MESSAGE_TYPE,
-  TMessageMeta,
   {
     errorType: TErrorType;
     message: string;
@@ -23,7 +20,6 @@ type Options<TOutgoingMessage extends BaseOutgoingErrorMessage> = {
 };
 
 type CallbackOptions<TOutgoingMessage extends BaseOutgoingErrorMessage> = {
-  meta: TOutgoingMessage['meta'];
   message: TOutgoingMessage['payload']['message'];
   details: TOutgoingMessage['payload']['details'];
 };
@@ -37,9 +33,8 @@ export const createOutgoingErrorMessageCreator = <
     type: MESSAGE_TYPE,
   });
 
-  return ({ message, details, meta }: CallbackOptions<TOutgoingMessage>) => {
+  return ({ message, details }: CallbackOptions<TOutgoingMessage>) => {
     return createMessage({
-      meta,
       payload: {
         errorType,
         message,

@@ -3,11 +3,11 @@ import { z } from 'zod/v4';
 import pubsub from '../../pubsub';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
 
-const INCOMING_MESSAGE_TYPE = 'NEW_MEDIA_FRAME';
+const MESSAGE_TYPE = 'NEW_MEDIA_FRAME';
 const OUTGOING_MESSAGE_TYPE = 'NEW_MEDIA_FRAME_RESULT';
 
 type IncomingMessage = BaseIncomingMessage<
-  typeof INCOMING_MESSAGE_TYPE,
+  typeof MESSAGE_TYPE,
   {
     data: Buffer;
   }
@@ -20,9 +20,7 @@ type OutgoingMessage = BaseOutgoingMessage<
   }
 >;
 
-export default createResolverByMessageType<IncomingMessage, OutgoingMessage>({
-  incomingMessageType: INCOMING_MESSAGE_TYPE,
-  outgoingMessageType: OUTGOING_MESSAGE_TYPE,
+export default createResolverByMessageType<IncomingMessage>(MESSAGE_TYPE, {
   middleware: [],
   async execute({ client, message, ctx }) {
     pubsub.publish('NEW_MEDIA_FRAME', {

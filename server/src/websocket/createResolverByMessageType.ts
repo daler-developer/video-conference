@@ -4,12 +4,7 @@ import { createOutgoingValidationErrorMessage } from './outgoing-message-creator
 import processMiddleware from './middleware/processMiddleware';
 import { wss } from './init';
 
-type Options<
-  TIncomingMessage extends BaseIncomingMessage,
-  TOutgoingMessage extends BaseOutgoingMessage,
-> = {
-  incomingMessageType: TIncomingMessage['type'];
-  outgoingMessageType: TOutgoingMessage['type'];
+type Options<TIncomingMessage extends BaseIncomingMessage> = {
   middleware: any[];
   execute: (options: {
     ctx: any;
@@ -22,9 +17,9 @@ type Options<
 
 const createResolverByMessageType = <
   TIncomingMessage extends BaseIncomingMessage,
-  TOutgoingMessage extends BaseOutgoingMessage,
 >(
-  options: Options<TIncomingMessage, TOutgoingMessage>
+  messageType: TIncomingMessage['type'],
+  options: Options<TIncomingMessage>
 ) => {
   options.init?.();
 
@@ -32,7 +27,7 @@ const createResolverByMessageType = <
     const client = new WebSocketWrapper(ws);
 
     client.onMessage(async (message) => {
-      const messageTypeMatch = message.type === options.incomingMessageType;
+      const messageTypeMatch = message.type === messageType;
 
       if (!messageTypeMatch) {
         return;
@@ -45,11 +40,9 @@ const createResolverByMessageType = <
         !options.validator({ message: message as TIncomingMessage });
 
       if (isInvalid) {
-        client.sendMessage(
+        client.respondTo(
+          message,
           createOutgoingValidationErrorMessage({
-            meta: {
-              messageId: message.meta.messageId,
-            },
             message: 'Validation Errors',
             details: {},
           })

@@ -6,7 +6,7 @@ const Subscribe = () => {
       conferenceId: "test1",
     },
     onData({ message }) {
-      console.log("onData", message.payload.eventData.data);
+      console.log("onData", message);
     },
   });
 

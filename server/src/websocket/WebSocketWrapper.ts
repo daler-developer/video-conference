@@ -67,7 +67,35 @@ class WebSocketWrapper {
     });
   }
 
-  public async sendMessage(message: BaseOutgoingMessage) {
+  public sendMessage({
+    type,
+    payload,
+  }: Pick<BaseOutgoingMessage, 'payload' | 'type'>) {
+    const fullMessage: BaseOutgoingMessage = {
+      type,
+      payload,
+      meta: {},
+    };
+
+    return this.baseSendMessage(fullMessage);
+  }
+
+  public async respondTo(
+    incomingMessage: BaseIncomingMessage,
+    { type, payload }: Pick<BaseOutgoingMessage, 'payload' | 'type'>
+  ) {
+    const fullMessage: BaseOutgoingMessage = {
+      type,
+      payload,
+      meta: {
+        messageId: incomingMessage.meta.messageId,
+      },
+    };
+
+    return this.baseSendMessage(fullMessage);
+  }
+
+  private async baseSendMessage(message: BaseOutgoingMessage) {
     message = _.cloneDeep(message);
     const arrayBuffers: Buffer[] = [];
     let total = 0;

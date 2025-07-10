@@ -9,16 +9,9 @@ export const createOutgoingMessageCreator = <
 >({
   type,
 }: Options<TOutgoingMessage>) => {
-  return ({
-    payload,
-    meta,
-  }: {
-    payload: TOutgoingMessage['payload'];
-    meta: TOutgoingMessage['meta'];
-  }) => {
+  return ({ payload }: { payload: TOutgoingMessage['payload'] }) => {
     return {
       type,
-      meta,
       payload,
     };
   };

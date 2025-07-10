@@ -5,13 +5,7 @@ import {
 
 const ERROR_TYPE = 'VALIDATION';
 
-type OutgoingMessage = BaseOutgoingErrorMessage<
-  typeof ERROR_TYPE,
-  {
-    messageId: string;
-  },
-  object
->;
+type OutgoingMessage = BaseOutgoingErrorMessage<typeof ERROR_TYPE, object>;
 
 export const createOutgoingValidationErrorMessage =
   createOutgoingErrorMessageCreator<OutgoingMessage>({

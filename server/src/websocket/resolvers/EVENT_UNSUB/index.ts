@@ -2,11 +2,11 @@ import createResolverByMessageType from '../../createResolverByMessageType';
 import subscriptionManager from '../../SubscriptionManager';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
 
-const INCOMING_MESSAGE_TYPE = 'EVENT_UNSUB';
+const MESSAGE_TYPE = 'EVENT_UNSUB';
 const OUTGOING_MESSAGE_TYPE = 'EVENT_UNSUB_RESULT';
 
 type IncomingMessage = BaseIncomingMessage<
-  typeof INCOMING_MESSAGE_TYPE,
+  typeof MESSAGE_TYPE,
   {
     eventName: string;
     eventParams: Record<string, unknown>;
@@ -20,9 +20,7 @@ type OutgoingMessage = BaseOutgoingMessage<
   }
 >;
 
-export default createResolverByMessageType<IncomingMessage, OutgoingMessage>({
-  incomingMessageType: INCOMING_MESSAGE_TYPE,
-  outgoingMessageType: OUTGOING_MESSAGE_TYPE,
+export default createResolverByMessageType<IncomingMessage>(MESSAGE_TYPE, {
   middleware: [],
   async execute({ client, message }) {
     subscriptionManager.unsubscribe(message.payload.eventName as any, {
