@@ -21,13 +21,17 @@ const App = () => {
   }, []);
 
   const test = async () => {
-    const { response } = await sendStartSessionMessage({
-      payload: {
-        fullName: "Saidov Daler",
-      },
-    });
+    try {
+      const { response } = await sendStartSessionMessage({
+        payload: {
+          fullName: "Saidov Daler",
+        },
+      });
 
-    console.log("response", response);
+      console.log("response", response);
+    } catch (e) {
+      console.dir(e);
+    }
   };
 
   if (!connected) {

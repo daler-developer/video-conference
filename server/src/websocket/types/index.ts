@@ -17,11 +17,10 @@ export type BaseIncomingMessage<
 
 export type BaseOutgoingMessage<
   TMessageType extends string = string,
+  TMessageMeta extends Record<string, any> = Record<string, any>,
   TMessagePayload extends Record<string, any> = Record<string, any>,
 > = {
   type: TMessageType;
   payload: TMessagePayload;
-  meta: {
-    messageId: string | null;
-  };
+  meta: TMessageMeta;
 };

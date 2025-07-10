@@ -1,6 +1,7 @@
 import { sendMessage, onMessage } from "./connection";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "./types.ts";
 import { prepareMeta } from "./utils.ts";
+import { BaseError, incomingMessageIsOfTypeError } from "./BaseError.ts";
 
 type Options<
   TOutgoingMessage extends BaseOutgoingMessage,
@@ -35,15 +36,7 @@ export const createMessageSender = <
 
     sendMessage(outgoingMessage);
 
-    // return new Promise((res) => {
-    //   setTimeout(() => {
-    //     res({
-    //       response: { foo: "bar" }
-    //     });
-    //   }, 2000);
-    // });
-
-    return new Promise((res) => {
+    return new Promise((res, rej) => {
       const unsubscribe = onMessage((message) => {
         if (
           message.type === incomingMessageType &&
@@ -53,6 +46,14 @@ export const createMessageSender = <
           res({
             response: message as TIncomingMessage,
           });
+        }
+
+        if (
+          incomingMessageIsOfTypeError(message) &&
+          message.meta.messageId === outgoingMessage.meta.messageId
+        ) {
+          unsubscribe();
+          rej(new BaseError(message));
         }
       });
 
