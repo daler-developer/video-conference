@@ -1,3 +1,7 @@
+import type { BaseIncomingMessage, BaseOutgoingMessage } from "./types.ts";
+import { onMessage } from "./connection.ts";
+import { BaseError, incomingMessageIsOfTypeError } from "./BaseError.ts";
+
 const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== "object" || obj === null) return false;
   const proto = Object.getPrototypeOf(obj);
@@ -77,7 +81,7 @@ class WebsocketClient {
     return message;
   }
 
-  public onMessage(cb: (message: { [key: string]: any }) => void) {
+  public onMessage(cb: (message: BaseIncomingMessage) => void) {
     if (!this.isWebSocketConnected()) {
       throw new Error("not connected");
     }
@@ -139,14 +143,30 @@ class WebsocketClient {
     return full;
   }
 
-  public async sendMessage(message: { [key: string]: unknown }) {
+  public async sendMessage(outgoingMessage: BaseOutgoingMessage) {
     if (!this.isWebSocketConnected()) {
       throw new Error("not connected");
     }
 
-    const serialized = await this.serializeMessage(message);
+    const serialized = await this.serializeMessage(outgoingMessage);
 
     this.ws!.send(serialized);
+
+    return new Promise((res, rej) => {
+      const unsubscribe = onMessage((message) => {
+        if (message.meta.messageId === outgoingMessage.meta.messageId) {
+          unsubscribe();
+          res({
+            response: message as any,
+          });
+        }
+      });
+
+      // setTimeout(() => {
+      //   off();
+      //   rej();
+      // }, 5000);
+    });
   }
 }
 
