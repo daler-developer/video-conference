@@ -13,23 +13,26 @@ type IncomingMessage = BaseIncomingMessage<
   }
 >;
 
-type OutgoingMessage = BaseOutgoingMessage<
+type ResponseOutgoingMessage = BaseOutgoingMessage<
   typeof OUTGOING_MESSAGE_TYPE,
   {
     message: string;
   }
 >;
 
-export default createResolverByMessageType<IncomingMessage>(MESSAGE_TYPE, {
+export default createResolverByMessageType<IncomingMessage, ResponseOutgoingMessage>(MESSAGE_TYPE, {
+  responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
   middleware: [],
-  async execute({ client, message }) {
+  async execute({ client, message, respond }) {
     subscriptionManager.unsubscribe(message.payload.eventName as any, {
       client,
       params: message.payload.eventParams,
     });
 
-    return {
-      message: 'Success',
-    };
+    respond({
+      payload: {
+        message: 'Success',
+      },
+    });
   },
 });

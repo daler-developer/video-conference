@@ -14,31 +14,24 @@ type IncomingMessage = BaseIncomingMessage<
   }
 >;
 
-type OutgoingMessage = BaseOutgoingMessage<
+type OutgoingResponseMessage = BaseOutgoingMessage<
   typeof OUTGOING_MESSAGE_TYPE,
   {
     accessToken: string;
   }
 >;
 
-const createStartMessageResultMessage =
-  createOutgoingMessageCreator<OutgoingMessage>({
-    type: OUTGOING_MESSAGE_TYPE,
-  });
-
-export default createResolverByMessageType<IncomingMessage>(MESSAGE_TYPE, {
+export default createResolverByMessageType<IncomingMessage, OutgoingResponseMessage>(MESSAGE_TYPE, {
+  responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
   validator() {
     return true;
   },
   middleware: [],
-  execute({ client, message, ctx }) {
-    client.respondTo(
-      message,
-      createStartMessageResultMessage({
-        payload: {
-          accessToken: 'Hello World',
-        },
-      })
-    );
+  execute({ client, message, respond }) {
+    respond({
+      payload: {
+        accessToken: 'Hello World',
+      },
+    });
   },
 });

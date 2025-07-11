@@ -5,22 +5,30 @@ import processMiddleware from './middleware/processMiddleware';
 import { wss } from './init';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
 
-type Options<TIncomingMessage extends BaseIncomingMessage> = {
+type Options<
+  TIncomingMessage extends BaseIncomingMessage,
+  TResponseOutgoingMessage extends BaseOutgoingMessage,
+  TContext extends Record<string, any>,
+> = {
+  responseOutgoingMessageType: TResponseOutgoingMessage['type'];
   middleware: any[];
   execute: (options: {
-    ctx: any;
+    ctx: TContext;
     message: TIncomingMessage;
     client: WebSocketWrapper;
-  }) => any;
+    respond: (options: Pick<TResponseOutgoingMessage, 'payload'>) => void;
+  }) => unknown;
   validator?: (options: { message: TIncomingMessage }) => boolean;
   init?: () => void;
 };
 
 const createResolverByMessageType = <
   TIncomingMessage extends BaseIncomingMessage,
+  TResponseOutgoingMessage extends BaseOutgoingMessage,
+  TContext extends Record<string, any> = Record<string, any>,
 >(
   messageType: TIncomingMessage['type'],
-  options: Options<TIncomingMessage>
+  options: Options<TIncomingMessage, TResponseOutgoingMessage, TContext>
 ) => {
   options.init?.();
 
@@ -34,11 +42,7 @@ const createResolverByMessageType = <
         return;
       }
 
-      const ctx: any = {};
-
-      const isInvalid =
-        options.validator &&
-        !options.validator({ message: message as TIncomingMessage });
+      const isInvalid = options.validator && !options.validator({ message: message as TIncomingMessage });
 
       if (isInvalid) {
         client.respondTo(
@@ -51,12 +55,26 @@ const createResolverByMessageType = <
         return;
       }
 
+      const ctx: TContext = {} as TContext;
+
       processMiddleware(options.middleware, { ctx, message, request });
+
+      const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
+        type: options.responseOutgoingMessageType,
+      });
 
       options.execute({
         ctx,
         message: message as TIncomingMessage,
         client,
+        respond({ payload }) {
+          client.respondTo(
+            message,
+            createResponseOutgoingMessage({
+              payload,
+            })
+          );
+        },
       });
     });
   });

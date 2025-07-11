@@ -4,7 +4,7 @@ import pubsub from '../../pubsub';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
 
 const MESSAGE_TYPE = 'NEW_MEDIA_FRAME';
-const OUTGOING_MESSAGE_TYPE = 'NEW_MEDIA_FRAME_RESULT';
+const RESPONSE_OUTGOING_MESSAGE_TYPE = 'NEW_MEDIA_FRAME_RESULT';
 
 type IncomingMessage = BaseIncomingMessage<
   typeof MESSAGE_TYPE,
@@ -13,22 +13,25 @@ type IncomingMessage = BaseIncomingMessage<
   }
 >;
 
-type OutgoingMessage = BaseOutgoingMessage<
-  typeof OUTGOING_MESSAGE_TYPE,
+type ResponseOutgoingMessage = BaseOutgoingMessage<
+  typeof RESPONSE_OUTGOING_MESSAGE_TYPE,
   {
     message: string;
   }
 >;
 
-export default createResolverByMessageType<IncomingMessage>(MESSAGE_TYPE, {
+export default createResolverByMessageType<IncomingMessage, ResponseOutgoingMessage>(MESSAGE_TYPE, {
+  responseOutgoingMessageType: RESPONSE_OUTGOING_MESSAGE_TYPE,
   middleware: [],
-  async execute({ client, message, ctx }) {
+  async execute({ client, message, respond }) {
     pubsub.publish('NEW_MEDIA_FRAME', {
       data: message.payload.data!,
     });
 
-    return {
-      message: 'Success',
-    };
+    respond({
+      payload: {
+        message: 'Success',
+      },
+    });
   },
 });
