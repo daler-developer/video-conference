@@ -4,8 +4,8 @@ import { prepareMeta } from "./utils.ts";
 import { BaseError, incomingMessageIsOfTypeError } from "./BaseError.ts";
 
 type Options<
-  TOutgoingMessage extends BaseOutgoingMessage,
-  TIncomingMessage extends BaseIncomingMessage,
+  TOutgoingMessage extends BaseOutgoingMessage = BaseOutgoingMessage,
+  TIncomingMessage extends BaseIncomingMessage = BaseIncomingMessage,
 > = {
   outgoingMessageType: TOutgoingMessage["type"];
   incomingMessageType: TIncomingMessage["type"];
@@ -17,8 +17,8 @@ type MessageSenderResult<TIncomingMessage extends BaseIncomingMessage> =
   }>;
 
 export const createMessageSender = <
-  TOutgoingMessage extends BaseOutgoingMessage,
-  TIncomingMessage extends BaseIncomingMessage,
+  TOutgoingMessage extends BaseOutgoingMessage = BaseOutgoingMessage,
+  TIncomingMessage extends BaseIncomingMessage = BaseIncomingMessage,
 >({
   outgoingMessageType,
   incomingMessageType,

@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import RecordVideo from "./RecordVideo.tsx";
 import { connect as websocketConnect } from "./websocket";
 import Subscribe from "./Subscribe.tsx";
-import { sendEventSubMessage } from "./websocket/sendMessage/sendEventSubMessage.ts";
-import { sendStartSessionMessage } from "./websocket/sendMessage/sendStartSessionMessage.ts";
+import { sendStartSessionMessage, useStartSession } from "@/entity";
 
 const App = () => {
   const [isSub, setIsSub] = useState(false);
   const [connected, setConnected] = useState(false);
+
+  const mutations = {
+    startSession: useStartSession(),
+  };
 
   useEffect(() => {
     const connect = async () => {
@@ -22,13 +25,21 @@ const App = () => {
 
   const test = async () => {
     try {
-      const { response } = await sendStartSessionMessage({
+      const { data } = await mutations.startSession.mutate({
         payload: {
           fullName: "Saidov Daler",
         },
       });
 
-      console.log(response);
+      console.log("data", data);
+
+      // const { response } = await sendStartSessionMessage({
+      //   payload: {
+      //     fullName: "Saidov Daler",
+      //   },
+      // });
+      //
+      // console.log(response);
     } catch (e) {
       console.dir(e);
     }

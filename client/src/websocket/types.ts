@@ -5,7 +5,7 @@ type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
-export type BaseOutgoingMessagePayload = { [key: string]: unknown };
+export type BaseOutgoingMessagePayload = { [key: string]: JsonValue };
 
 export type BaseOutgoingMessageMeta = {
   messageId: string;
