@@ -5,3 +5,14 @@ import { createMutationAdapterFromWebsocket } from "@/entity/createMutationAdapt
 export const { useMutationHook: useStartSession } = createMutation(
   createMutationAdapterFromWebsocket(sendStartSessionMessage),
 );
+
+const { callback } = createMutationAdapterFromWebsocket(
+  sendStartSessionMessage,
+);
+
+//
+// callback({
+//   payload: {
+//     fullName: 'Hello'
+//   },
+// });

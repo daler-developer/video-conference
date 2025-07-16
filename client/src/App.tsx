@@ -26,9 +26,7 @@ const App = () => {
   const test = async () => {
     try {
       const { data } = await mutations.startSession.mutate({
-        payload: {
-          fullName: "Saidov Daler",
-        },
+        payload: {},
       });
 
       console.log("data", data);

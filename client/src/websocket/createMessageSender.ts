@@ -16,13 +16,25 @@ type MessageSenderResult<TIncomingMessage extends BaseIncomingMessage> =
     response: TIncomingMessage;
   }>;
 
+export type MessageSender<
+  TOutgoingMessage extends BaseOutgoingMessage = BaseOutgoingMessage,
+  TIncomingMessage extends BaseIncomingMessage = BaseIncomingMessage,
+> = ({
+  payload,
+}: {
+  payload: TOutgoingMessage["payload"];
+}) => Promise<{ response: TIncomingMessage }>;
+
 export const createMessageSender = <
   TOutgoingMessage extends BaseOutgoingMessage = BaseOutgoingMessage,
   TIncomingMessage extends BaseIncomingMessage = BaseIncomingMessage,
 >({
   outgoingMessageType,
   incomingMessageType,
-}: Options<TOutgoingMessage, TIncomingMessage>) => {
+}: Options<TOutgoingMessage, TIncomingMessage>): MessageSender<
+  TOutgoingMessage,
+  TIncomingMessage
+> => {
   return async ({
     payload,
   }: {

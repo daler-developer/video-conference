@@ -1,22 +1,25 @@
-import { createMessageSender } from "@/websocket";
+import {
+  type BaseIncomingMessage,
+  type BaseOutgoingMessage,
+  createMessageSender,
+} from "@/websocket";
+import type { MessageSender } from "@/websocket/createMessageSender.ts";
 
 export type MutationAdapter<
-  TOutgoingMessageSender extends ReturnType<
-    typeof createMessageSender
-  > = ReturnType<typeof createMessageSender>,
+  TMessageSender extends MessageSender = MessageSender,
 > = {
   callback: (args: {
-    payload: Parameters<TOutgoingMessageSender>[0];
+    payload: Parameters<TMessageSender>[0]["payload"];
   }) => Promise<{
-    data: Awaited<ReturnType<TOutgoingMessageSender>>["response"];
+    data: Awaited<ReturnType<TMessageSender>>["response"];
   }>;
 };
 
 export const createMutationAdapterFromWebsocket = <
-  TOutgoingMessageSender extends ReturnType<typeof createMessageSender>,
+  TMessageSender extends MessageSender,
 >(
-  outgoingMessageSender: TOutgoingMessageSender,
-): MutationAdapter<TOutgoingMessageSender> => {
+  outgoingMessageSender: TMessageSender,
+): MutationAdapter<TMessageSender> => {
   return {
     async callback({ payload }) {
       try {
