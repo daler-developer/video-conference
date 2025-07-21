@@ -1,22 +1,39 @@
 import { useState } from "react";
-import { BaseError } from "@/websocket/BaseError.ts";
 import type { MutationAdapter } from "@/entity/createMutationAdapterForWebsocket.ts";
+import { ApiError } from "./ApiError.ts";
 
 type Status = "pending" | "idle" | "success" | "error";
 
-const createMutation = <TMutationAdapter extends MutationAdapter>({
+type Mutate<TMutationAdapter extends MutationAdapter<any, any, any>> =
+  (options: {
+    payload: Parameters<TMutationAdapter["callback"]>[0]["payload"];
+    handleError?: (
+      e: NonNullable<
+        Awaited<ReturnType<TMutationAdapter["callback"]>>["error"]
+      >,
+    ) => void;
+  }) => Promise<{
+    data: NonNullable<
+      Awaited<ReturnType<TMutationAdapter["callback"]>>["data"]
+    >;
+  }>;
+
+const createMutation = <
+  TMutationAdapter extends MutationAdapter<any, any, any>,
+>({
   callback,
-}: MutationAdapter) => {
+}: TMutationAdapter) => {
   const useMutationHook = () => {
-    const [error, setError] = useState<BaseError | null>(null);
+    const [error, setError] = useState<ApiError | null>(null);
     const [data, setData] = useState<
       Awaited<ReturnType<TMutationAdapter["callback"]>>["data"] | null
     >(null);
     const [status, setStatus] = useState<Status>("idle");
 
-    const mutate = async ({
+    const mutate: Mutate<TMutationAdapter> = async ({
       payload,
-    }: Parameters<TMutationAdapter["callback"]>["0"]) => {
+      handleError,
+    }) => {
       try {
         setStatus("pending");
         const { data } = await callback({
@@ -28,13 +45,15 @@ const createMutation = <TMutationAdapter extends MutationAdapter>({
           data,
         };
       } catch (e) {
-        setStatus("error");
-        if (e instanceof BaseError) {
+        if (e instanceof ApiError) {
+          setStatus("error");
           setError(e);
+          handleError?.(e);
+          throw e;
         } else {
           alert("test");
+          throw e;
         }
-        throw e;
       }
     };
 
