@@ -1,4 +1,13 @@
 import { sendStartSessionMessage } from "./message-senders/sendStartSessionMessage";
-import { startMutation, useStartSession } from "./mutations/startSession.ts";
+import {
+  startMutation,
+  useStartSession,
+  StartSessionError,
+} from "./mutations/startSession.ts";
 
-export { sendStartSessionMessage, startMutation, useStartSession };
+export {
+  sendStartSessionMessage,
+  startMutation,
+  useStartSession,
+  StartSessionError,
+};

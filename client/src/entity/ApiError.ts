@@ -1,11 +1,12 @@
 export class ApiError<
   TShape extends Record<string, object> = Record<string, object>,
-> extends Error {
+> {
+  message: string;
   type: keyof TShape;
   details: TShape[keyof TShape];
 
   constructor(message: string, type: keyof TShape, details: TShape[string]) {
-    super(message);
+    this.message = message;
     this.type = type;
     this.details = details;
   }

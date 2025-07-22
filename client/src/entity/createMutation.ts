@@ -7,11 +7,7 @@ type Status = "pending" | "idle" | "success" | "error";
 type Mutate<TMutationAdapter extends MutationAdapter<any, any, any>> =
   (options: {
     payload: Parameters<TMutationAdapter["callback"]>[0]["payload"];
-    handleError?: (
-      e: NonNullable<
-        Awaited<ReturnType<TMutationAdapter["callback"]>>["error"]
-      >,
-    ) => void;
+    handleError?: (e: InstanceType<TMutationAdapter["Error"]>) => void;
   }) => Promise<{
     data: NonNullable<
       Awaited<ReturnType<TMutationAdapter["callback"]>>["data"]
@@ -22,6 +18,7 @@ const createMutation = <
   TMutationAdapter extends MutationAdapter<any, any, any>,
 >({
   callback,
+  Error,
 }: TMutationAdapter) => {
   const useMutationHook = () => {
     const [error, setError] = useState<ApiError | null>(null);
@@ -45,7 +42,7 @@ const createMutation = <
           data,
         };
       } catch (e) {
-        if (e instanceof ApiError) {
+        if (e instanceof Error) {
           setStatus("error");
           setError(e);
           handleError?.(e);
@@ -75,6 +72,7 @@ const createMutation = <
   };
 
   return {
+    Error,
     useMutationHook,
   };
 };

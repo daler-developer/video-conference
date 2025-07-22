@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { type BaseIncomingMessage, type IncomingErrorMessage } from "./types";
 
 export const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== "object" || obj === null) return false;
@@ -98,4 +99,10 @@ export const prepareMeta = () => {
   return {
     messageId: uuidv4(),
   };
+};
+
+export const incomingMessageIsOfTypeError = (
+  message: BaseIncomingMessage,
+): message is IncomingErrorMessage => {
+  return message.type === "ERROR";
 };

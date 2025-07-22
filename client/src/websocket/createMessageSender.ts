@@ -1,7 +1,7 @@
-import { sendMessage, onMessage } from "./connection";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "./types.ts";
 import { prepareMeta } from "./utils.ts";
-import { BaseError, incomingMessageIsOfTypeError } from "./BaseError.ts";
+import { incomingMessageIsOfTypeError } from "@/websocket";
+import websocketClient from "./WebsocketClient.ts";
 
 type Options<
   TOutgoingMessage extends BaseOutgoingMessage = BaseOutgoingMessage,
@@ -40,16 +40,13 @@ export const createMessageSender = <
   }: {
     payload: TOutgoingMessage["payload"];
   }): MessageSenderResult<TIncomingMessage> => {
-    const outgoingMessage = {
+    const outgoingMessage = await websocketClient.sendMessage({
       type: outgoingMessageType,
       payload,
-      meta: prepareMeta(),
-    };
-
-    sendMessage(outgoingMessage);
+    });
 
     return new Promise((res, rej) => {
-      const unsubscribe = onMessage((message) => {
+      const unsubscribe = websocketClient.onMessage((message) => {
         if (
           message.type === incomingMessageType &&
           message.meta.messageId === outgoingMessage.meta.messageId
@@ -65,7 +62,7 @@ export const createMessageSender = <
           message.meta.messageId === outgoingMessage.meta.messageId
         ) {
           unsubscribe();
-          rej(new BaseError(message));
+          // rej(new BaseError(message));
         }
       });
 

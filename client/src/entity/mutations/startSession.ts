@@ -44,11 +44,12 @@ export const { useMutationHook: useStartSession } = createMutation(
   }),
 );
 
-export const { callback: startMutation } = createMutationAdapterFromWebsocket<
-  OutgoingMessage,
-  IncomingResponseMessage,
-  ErrorDetailsMap
->({
-  incomingMessageType: INCOMING_MESSAGE_TYPE,
-  outgoingMessageType: OUTGOING_MESSAGE_TYPE,
-});
+export const { callback: startMutation, Error: StartSessionError } =
+  createMutationAdapterFromWebsocket<
+    OutgoingMessage,
+    IncomingResponseMessage,
+    ErrorDetailsMap
+  >({
+    incomingMessageType: INCOMING_MESSAGE_TYPE,
+    outgoingMessageType: OUTGOING_MESSAGE_TYPE,
+  });

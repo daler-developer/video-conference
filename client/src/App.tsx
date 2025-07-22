@@ -2,9 +2,9 @@ import "@mantine/core/styles.css";
 import { Button } from "@mantine/core";
 import { useEffect, useState } from "react";
 import RecordVideo from "./RecordVideo.tsx";
-import { connect as websocketConnect } from "./websocket";
+import { websocketClient } from "@/websocket";
 import Subscribe from "./Subscribe.tsx";
-import { useStartSession, startMutation } from "@/entity";
+import { useStartSession, startMutation, StartSessionError } from "@/entity";
 
 const App = () => {
   const [isSub, setIsSub] = useState(false);
@@ -16,7 +16,7 @@ const App = () => {
 
   useEffect(() => {
     const connect = async () => {
-      await websocketConnect();
+      await websocketClient.connect();
       setConnected(true);
     };
 
@@ -43,13 +43,15 @@ const App = () => {
         payload: {
           fullName: "test",
         },
-        handleError(e) {},
+        handleError(e) {
+          // if (e.errorIs("VALIDATION")) {
+          //   console.log(e.details.foo);
+          // }
+        },
       });
 
       console.log("data", data);
-    } catch (e) {
-      console.dir(e);
-    }
+    } catch (e) {}
   };
 
   if (!connected) {

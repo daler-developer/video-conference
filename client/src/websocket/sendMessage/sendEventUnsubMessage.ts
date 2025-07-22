@@ -1,4 +1,4 @@
-import { createMessageSender } from "../createMessageSender.ts";
+import { createMessageSender } from "@/websocket";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "../types.ts";
 
 const OUTGOING_MESSAGE_TYPE = "EVENT_UNSUB";

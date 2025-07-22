@@ -34,3 +34,15 @@ export type BaseIncomingMessage<
     messageId?: string;
   };
 };
+
+export type IncomingErrorMessage<
+  TErrorType extends string = string,
+  TErrorDetails extends Record<string, any> = Record<string, any>,
+> = BaseIncomingMessage<
+  "ERROR",
+  {
+    message: string;
+    errorType: TErrorType;
+    details: TErrorDetails;
+  }
+>;

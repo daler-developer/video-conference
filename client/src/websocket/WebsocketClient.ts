@@ -1,6 +1,5 @@
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "./types.ts";
-import { onMessage } from "./connection.ts";
-import { BaseError, incomingMessageIsOfTypeError } from "./BaseError.ts";
+import { v4 as uuidv4 } from "uuid";
 
 const isPlainObject = (obj: unknown): obj is any => {
   if (typeof obj !== "object" || obj === null) return false;
@@ -143,30 +142,31 @@ class WebsocketClient {
     return full;
   }
 
-  public async sendMessage(outgoingMessage: BaseOutgoingMessage) {
+  private prepareMeta() {
+    return {
+      messageId: uuidv4(),
+    };
+  }
+
+  public async sendMessage({
+    type,
+    payload,
+  }: Pick<BaseOutgoingMessage, "type" | "payload">) {
     if (!this.isWebSocketConnected()) {
       throw new Error("not connected");
     }
 
-    const serialized = await this.serializeMessage(outgoingMessage);
+    const fullMessage: BaseOutgoingMessage = {
+      type,
+      payload,
+      meta: this.prepareMeta(),
+    };
+
+    const serialized = await this.serializeMessage(fullMessage);
 
     this.ws!.send(serialized);
 
-    return new Promise((res, rej) => {
-      const unsubscribe = onMessage((message) => {
-        if (message.meta.messageId === outgoingMessage.meta.messageId) {
-          unsubscribe();
-          res({
-            response: message as any,
-          });
-        }
-      });
-
-      // setTimeout(() => {
-      //   off();
-      //   rej();
-      // }, 5000);
-    });
+    return fullMessage;
   }
 }
 

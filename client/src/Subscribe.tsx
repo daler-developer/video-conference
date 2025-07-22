@@ -1,14 +1,14 @@
-import { useNewMediaFrameSub } from "./websocket";
+// import { useNewMediaFrameSub } from "./websocket";
 
 const Subscribe = () => {
-  useNewMediaFrameSub({
-    eventParams: {
-      conferenceId: "test1",
-    },
-    onData({ message }) {
-      console.log("onData", message);
-    },
-  });
+  // useNewMediaFrameSub({
+  //   eventParams: {
+  //     conferenceId: "test1",
+  //   },
+  //   onData({ message }) {
+  //     console.log("onData", message);
+  //   },
+  // });
 
   return (
     <div>

@@ -1,24 +1,20 @@
 import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
+  websocketClient,
 } from "@/websocket";
-import type { MessageSender } from "@/websocket/createMessageSender.ts";
 import { prepareMeta } from "@/websocket/utils.ts";
-import { onMessage, sendMessage } from "@/websocket/connection.ts";
-import {
-  BaseError,
-  incomingMessageIsOfTypeError,
-} from "@/websocket/BaseError.ts";
+
+import { incomingMessageIsOfTypeError } from "@/websocket";
 import { ApiError } from "./ApiError";
 
 export type MutationAdapter<
   TPayload extends Record<string, unknown> = Record<string, unknown>,
   TData extends Record<string, unknown> = Record<string, unknown>,
-  TError extends ApiError<any> = ApiError<any>,
+  TErrorDetailsMap extends Record<string, object> = Record<string, object>,
 > = {
-  callback: (o: {
-    payload: TPayload;
-  }) => Promise<{ data: TData | null; error: TError | null }>;
+  Error: typeof ApiError<TErrorDetailsMap>;
+  callback: (o: { payload: TPayload }) => Promise<{ data: TData }>;
 };
 
 type Options<
@@ -39,20 +35,20 @@ export const createMutationAdapterFromWebsocket = <
 }: Options<TOutgoingMessage, TIncomingMessage>): MutationAdapter<
   TOutgoingMessage["payload"],
   TIncomingMessage["payload"],
-  ApiError<TErrorDetailsMap>
+  TErrorDetailsMap
 > => {
+  const MutationError = class extends ApiError<TErrorDetailsMap> {};
+
   return {
+    Error: MutationError,
     async callback({ payload }) {
-      const outgoingMessage = {
+      const outgoingMessage = await websocketClient.sendMessage({
         type: outgoingMessageType,
         payload,
-        meta: prepareMeta(),
-      };
-
-      sendMessage(outgoingMessage);
+      });
 
       return new Promise((res, rej) => {
-        const unsubscribe = onMessage((message) => {
+        const unsubscribe = websocketClient.onMessage((message) => {
           if (
             message.type === incomingMessageType &&
             message.meta.messageId === outgoingMessage.meta.messageId
@@ -60,7 +56,6 @@ export const createMutationAdapterFromWebsocket = <
             unsubscribe();
             res({
               data: message.payload,
-              error: null,
             });
           }
 
@@ -69,17 +64,13 @@ export const createMutationAdapterFromWebsocket = <
             message.meta.messageId === outgoingMessage.meta.messageId
           ) {
             unsubscribe();
-            res({
-              data: null,
-              error: new ApiError<TErrorDetailsMap>(
-                "test message",
-                "test_type",
-                {
-                  first: "second",
-                  age: 20,
-                },
+            rej(
+              new MutationError(
+                message.payload.message,
+                message.payload.errorType,
+                message.payload.details as any,
               ),
-            });
+            );
           }
         });
 
