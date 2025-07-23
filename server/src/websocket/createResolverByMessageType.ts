@@ -49,7 +49,13 @@ const createResolverByMessageType = <
           message,
           createOutgoingValidationErrorMessage({
             message: 'Validation Errors',
-            details: {},
+            details: {
+              foo: 'bar',
+              age: 20,
+              inner: {
+                name: false,
+              },
+            },
           })
         );
         return;

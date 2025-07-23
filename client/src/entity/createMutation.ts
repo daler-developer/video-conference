@@ -40,7 +40,7 @@ const createMutation = <
           data,
         };
       } catch (e) {
-        if (e instanceof Error) {
+        if (e instanceof ApiError) {
           setStatus("error");
           setError(e);
           handleError?.(e);

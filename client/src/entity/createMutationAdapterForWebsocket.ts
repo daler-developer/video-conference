@@ -3,10 +3,8 @@ import {
   type BaseOutgoingMessage,
   websocketClient,
 } from "@/websocket";
-import { prepareMeta } from "@/websocket/utils.ts";
-
-import { incomingMessageIsOfTypeError } from "@/websocket";
 import { ApiError } from "./ApiError";
+import type { IncomingErrorMessage } from "@/websocket/types.ts";
 
 export type MutationAdapter<
   TPayload extends Record<string, unknown> = Record<string, unknown>,
@@ -31,7 +29,6 @@ export const createMutationAdapterFromWebsocket = <
   TErrorDetailsMap extends Record<string, object> = Record<string, object>,
 >({
   outgoingMessageType,
-  incomingMessageType,
 }: Options<TOutgoingMessage, TIncomingMessage>): MutationAdapter<
   TOutgoingMessage["payload"],
   TIncomingMessage["payload"],
@@ -42,43 +39,24 @@ export const createMutationAdapterFromWebsocket = <
   return {
     Error: MutationError,
     async callback({ payload }) {
-      const outgoingMessage = await websocketClient.sendMessage({
-        type: outgoingMessageType,
-        payload,
-      });
-
-      return new Promise((res, rej) => {
-        const unsubscribe = websocketClient.onMessage((message) => {
-          if (
-            message.type === incomingMessageType &&
-            message.meta.messageId === outgoingMessage.meta.messageId
-          ) {
-            unsubscribe();
-            res({
-              data: message.payload,
-            });
-          }
-
-          if (
-            incomingMessageIsOfTypeError(message) &&
-            message.meta.messageId === outgoingMessage.meta.messageId
-          ) {
-            unsubscribe();
-            rej(
-              new MutationError(
-                message.payload.message,
-                message.payload.errorType,
-                message.payload.details as any,
-              ),
-            );
-          }
+      try {
+        const incomingResponseMessage = await websocketClient.sendMessage({
+          type: outgoingMessageType,
+          payload,
         });
 
-        // setTimeout(() => {
-        //   off();
-        //   rej();
-        // }, 5000);
-      });
+        return {
+          data: incomingResponseMessage.payload,
+        };
+      } catch (e) {
+        const incomingErrorResponseMessage = e as IncomingErrorMessage;
+
+        throw new MutationError(
+          incomingErrorResponseMessage.payload.message,
+          incomingErrorResponseMessage.payload.errorType,
+          incomingErrorResponseMessage.payload.details as any,
+        );
+      }
     },
   };
 };

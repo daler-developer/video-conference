@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import RecordVideo from "./RecordVideo.tsx";
 import { websocketClient } from "@/websocket";
 import Subscribe from "./Subscribe.tsx";
-import { useStartSession, startMutation, StartSessionError } from "@/entity";
+import {
+  useStartSession,
+  startMutation,
+  StartSessionError,
+  useNewMediaFrameSub,
+} from "@/entity";
 
 const App = () => {
   const [isSub, setIsSub] = useState(false);
@@ -44,7 +49,6 @@ const App = () => {
           fullName: "test",
         },
         handleError(e) {
-          console.log(e);
           // if (e.errorIs("VALIDATION")) {
           //   console.log(e.details.foo);
           // }
