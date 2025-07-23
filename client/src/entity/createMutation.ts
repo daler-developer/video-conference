@@ -9,9 +9,7 @@ type Mutate<TMutationAdapter extends MutationAdapter<any, any, any>> =
     payload: Parameters<TMutationAdapter["callback"]>[0]["payload"];
     handleError?: (e: InstanceType<TMutationAdapter["Error"]>) => void;
   }) => Promise<{
-    data: NonNullable<
-      Awaited<ReturnType<TMutationAdapter["callback"]>>["data"]
-    >;
+    data: Awaited<ReturnType<TMutationAdapter["callback"]>>["data"];
   }>;
 
 const createMutation = <
@@ -72,7 +70,7 @@ const createMutation = <
   };
 
   return {
-    Error,
+    Error: Error as TMutationAdapter["Error"],
     useMutationHook,
   };
 };

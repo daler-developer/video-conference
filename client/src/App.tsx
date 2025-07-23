@@ -44,6 +44,7 @@ const App = () => {
           fullName: "test",
         },
         handleError(e) {
+          console.log(e);
           // if (e.errorIs("VALIDATION")) {
           //   console.log(e.details.foo);
           // }
@@ -51,7 +52,14 @@ const App = () => {
       });
 
       console.log("data", data);
-    } catch (e) {}
+    } catch (e) {
+      if (e instanceof StartSessionError) {
+        const startSessionError = e as InstanceType<typeof StartSessionError>;
+
+        if (startSessionError.errorIs("VALIDATION")) {
+        }
+      }
+    }
   };
 
   if (!connected) {

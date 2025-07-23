@@ -33,18 +33,19 @@ type ErrorDetailsMap = {
   };
 };
 
-export const { useMutationHook: useStartSession } = createMutation(
-  createMutationAdapterFromWebsocket<
-    OutgoingMessage,
-    IncomingResponseMessage,
-    ErrorDetailsMap
-  >({
-    incomingMessageType: INCOMING_MESSAGE_TYPE,
-    outgoingMessageType: OUTGOING_MESSAGE_TYPE,
-  }),
-);
+export const { useMutationHook: useStartSession, Error: StartSessionError } =
+  createMutation(
+    createMutationAdapterFromWebsocket<
+      OutgoingMessage,
+      IncomingResponseMessage,
+      ErrorDetailsMap
+    >({
+      incomingMessageType: INCOMING_MESSAGE_TYPE,
+      outgoingMessageType: OUTGOING_MESSAGE_TYPE,
+    }),
+  );
 
-export const { callback: startMutation, Error: StartSessionError } =
+export const { callback: startMutation, Error: asdf } =
   createMutationAdapterFromWebsocket<
     OutgoingMessage,
     IncomingResponseMessage,
@@ -53,3 +54,9 @@ export const { callback: startMutation, Error: StartSessionError } =
     incomingMessageType: INCOMING_MESSAGE_TYPE,
     outgoingMessageType: OUTGOING_MESSAGE_TYPE,
   });
+
+//
+// const e = new StartSessionError();
+//
+// if (e.errorIs("VALIDATION")) {
+// }
