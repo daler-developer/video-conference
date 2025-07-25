@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { MutationAdapter } from "@/entity/createMutationAdapterForWebsocket.ts";
-import { ApiError } from "./ApiError.ts";
+import type { MutationAdapter } from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
+import { ApiError } from "../ApiError.ts";
 
 type Status = "pending" | "idle" | "success" | "error";
 

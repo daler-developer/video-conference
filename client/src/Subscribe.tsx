@@ -3,10 +3,10 @@ import { useNewMediaFrameSub } from "@/entity";
 const Subscribe = () => {
   useNewMediaFrameSub({
     params: {
-      conferenceId: "hello",
+      conferenceId: "hello_world",
     },
     onData({ data }) {
-      // console.log(data.data);
+      console.log("event", data.data);
     },
   });
 

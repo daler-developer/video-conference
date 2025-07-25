@@ -1,6 +1,7 @@
 import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
+  createOutgoingMessageCreator,
   websocketClient,
 } from "@/websocket";
 import { type EventSubAdapter } from "../utils/createEventSub";
@@ -10,6 +11,7 @@ type Options<TEventName extends string = string> = {
 };
 
 const EVENT_SUB = "EVENT_SUB";
+const EVENT_UNSUB = "EVENT_UNSUB";
 const EVENT_SUB_DATA = "EVENT_SUB_DATA";
 
 export type BaseEventSubOutgoingMessage<
@@ -51,19 +53,20 @@ export const createEventSubAdapterForWebsocket = <
 }: Options<TEventName>): EventSubAdapter<TEventParams, TEventData> => {
   return {
     subscribe({ params, onData }) {
-      // const out: BaseEventSubOutgoingMessage<TEventName, TEventParams> ={
-      //
-      // }
-
-      websocketClient.sendMessage({
+      const createEventSubMessage = createOutgoingMessageCreator({
         type: EVENT_SUB,
-        payload: {
-          eventName,
-          eventParams: params,
-        },
       });
 
-      websocketClient.onMessage((message) => {
+      websocketClient.sendMessage(
+        createEventSubMessage({
+          payload: {
+            eventName,
+            eventParams: params,
+          },
+        }),
+      );
+
+      const off = websocketClient.onMessage((message) => {
         if (incomingMessageIsOfTypeEventSubData(message)) {
           if (message.payload.eventName === eventName) {
             onData({
@@ -75,13 +78,19 @@ export const createEventSubAdapterForWebsocket = <
 
       return {
         unsubscribe() {
-          websocketClient.sendMessage({
-            type: "EVENT_UNSUB",
-            payload: {
-              eventName,
-              eventParams: params,
-            },
+          const createEventUnsubMessage = createOutgoingMessageCreator({
+            type: EVENT_UNSUB,
           });
+
+          off();
+          websocketClient.sendMessage(
+            createEventUnsubMessage({
+              payload: {
+                eventName,
+                eventParams: params,
+              },
+            }),
+          );
         },
       };
     },

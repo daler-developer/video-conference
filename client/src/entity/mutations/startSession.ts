@@ -1,9 +1,9 @@
-import createMutation from "../createMutation";
+import createMutation from "../utils/createMutation.ts";
 import { sendStartSessionMessage } from "../message-senders/sendStartSessionMessage";
 import {
   createMutationAdapterFromWebsocket,
   type MutationAdapter,
-} from "@/entity/createMutationAdapterForWebsocket.ts";
+} from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "@/websocket";
 
 const OUTGOING_MESSAGE_TYPE = "START_SESSION";

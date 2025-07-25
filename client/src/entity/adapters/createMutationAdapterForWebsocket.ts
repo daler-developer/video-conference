@@ -1,9 +1,10 @@
 import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
+  createOutgoingMessageCreator,
   websocketClient,
 } from "@/websocket";
-import { ApiError } from "./ApiError";
+import { ApiError } from "../ApiError.ts";
 import type { IncomingErrorMessage } from "@/websocket/types.ts";
 
 export type MutationAdapter<
@@ -40,10 +41,15 @@ export const createMutationAdapterFromWebsocket = <
     Error: MutationError,
     async callback({ payload }) {
       try {
-        const incomingResponseMessage = await websocketClient.sendMessage({
+        const createOutgoingMessage = createOutgoingMessageCreator({
           type: outgoingMessageType,
-          payload,
         });
+
+        const incomingResponseMessage = await websocketClient.sendMessage(
+          createOutgoingMessage({
+            payload,
+          }),
+        );
 
         return {
           data: incomingResponseMessage.payload,

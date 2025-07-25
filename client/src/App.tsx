@@ -55,7 +55,7 @@ const App = () => {
         },
       });
 
-      console.log("data", data);
+      console.log(data);
     } catch (e) {
       if (e instanceof StartSessionError) {
         const startSessionError = e as InstanceType<typeof StartSessionError>;
@@ -72,7 +72,6 @@ const App = () => {
 
   return (
     <div style={{ margin: "50px" }}>
-      <h1>React App</h1>
       <Button type="button" onClick={test}>
         Test
       </Button>

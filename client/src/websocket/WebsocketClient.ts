@@ -150,27 +150,10 @@ class WebsocketClient {
     return full;
   }
 
-  private prepareMeta() {
-    return {
-      messageId: uuidv4(),
-    };
-  }
-
-  public async sendMessage({
-    type,
-    payload,
-  }: Pick<BaseOutgoingMessage, "type" | "payload">) {
+  public async sendMessage(outgoingMessage: BaseOutgoingMessage) {
     if (!this.isWebSocketConnected()) {
       throw new Error("not connected");
     }
-
-    const outgoingMessage: BaseOutgoingMessage = {
-      type,
-      payload,
-      meta: this.prepareMeta(),
-    };
-
-    console.log("outgoingMessage", outgoingMessage);
 
     const serialized = await this.serializeMessage(outgoingMessage);
 

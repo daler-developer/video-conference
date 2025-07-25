@@ -24,7 +24,7 @@ type OutgoingResponseMessage = BaseOutgoingMessage<
 export default createResolverByMessageType<IncomingMessage, OutgoingResponseMessage>(MESSAGE_TYPE, {
   responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
   validator() {
-    return false;
+    return true;
   },
   middleware: [],
   execute({ client, message, respond }) {

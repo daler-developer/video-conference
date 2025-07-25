@@ -1,11 +1,16 @@
 import { Button } from "@mantine/core";
 import { useRef, useState } from "react";
+import { useSendMediaFrame } from "@/entity";
 import { sendMediaFrameMessage } from "./websocket/sendMessage/sendMessageFrameMessage.ts";
 
 const RecordVideo = () => {
   const [recording, setRecording] = useState(false);
   const video = useRef<HTMLVideoElement>(null!);
   const mediaRecorder = useRef<MediaRecorder>(null);
+
+  const mutations = {
+    sendMediaFrame: useSendMediaFrame(),
+  };
 
   const start = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -30,11 +35,13 @@ const RecordVideo = () => {
     recorder.onstop = async () => {
       const videoBlob = new Blob(chunks, { type: "video/webm" });
 
-      const response = await sendMediaFrameMessage({
+      const { data } = await mutations.sendMediaFrame.mutate({
         payload: {
           data: await videoBlob.arrayBuffer(),
         },
       });
+
+      console.log(data);
     };
 
     recorder.start(1000);

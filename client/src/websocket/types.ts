@@ -2,6 +2,7 @@ type JsonValue =
   | string
   | number
   | boolean
+  | ArrayBuffer
   | JsonValue[]
   | { [key: string]: JsonValue };
 
