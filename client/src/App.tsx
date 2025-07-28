@@ -9,11 +9,14 @@ import {
   startMutation,
   StartSessionError,
   useNewMediaFrameSub,
+  useGetUsersQuery,
 } from "@/entity";
 
 const App = () => {
+  const [show, setShow] = useState(false);
   const [isSub, setIsSub] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [count, setCount] = useState(0);
 
   const mutations = {
     startSession: useStartSession(),
@@ -29,6 +32,17 @@ const App = () => {
   }, []);
 
   const test = async () => {
+    // const incomingMessage = await websocketClient.sendMessage({
+    //   meta: {
+    //     messageId: String(Date.now()),
+    //   },
+    //   type: "GET_USERS",
+    //   payload: {
+    //     limit: 10,
+    //     search: "Hello",
+    //   },
+    // });
+    // console.log(incomingMessage);
     // startMutation({
     //   payload: {
     //     fullName: "Saidov Daler",
@@ -72,10 +86,23 @@ const App = () => {
 
   return (
     <div style={{ margin: "50px" }}>
-      <Button type="button" onClick={test}>
+      <Button
+        type="button"
+        onClick={() => {
+          test();
+        }}
+      >
         Test
       </Button>
-      {isSub && <Subscribe />}
+      <Button
+        type="button"
+        onClick={() => {
+          setShow(true);
+        }}
+      >
+        Show
+      </Button>
+      {show && <Subscribe />}
       <div>
         <Button
           type="button"

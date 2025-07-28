@@ -1,6 +1,10 @@
 import { useState } from "react";
 import type { MutationAdapter } from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
 import { ApiError } from "../ApiError.ts";
+import {
+  type EntityManager,
+  entityManager,
+} from "../entity-manager/EntityManager.ts";
 
 type Status = "pending" | "idle" | "success" | "error";
 
@@ -12,12 +16,20 @@ type Mutate<TMutationAdapter extends MutationAdapter<any, any, any>> =
     data: Awaited<ReturnType<TMutationAdapter["callback"]>>["data"];
   }>;
 
+type UpdateOptions = {
+  entityManager: EntityManager;
+};
+
+type Options = {
+  update?: (updateOptions: UpdateOptions) => void;
+};
+
 const createMutation = <
   TMutationAdapter extends MutationAdapter<any, any, any>,
->({
-  callback,
-  Error,
-}: TMutationAdapter) => {
+>(
+  { callback, Error }: TMutationAdapter,
+  options?: Options,
+) => {
   const useMutationHook = () => {
     const [error, setError] = useState<ApiError | null>(null);
     const [data, setData] = useState<
@@ -34,6 +46,7 @@ const createMutation = <
         const { data } = await callback({
           payload,
         });
+        options?.update?.({ entityManager });
         setData(data);
         setStatus("success");
         return {

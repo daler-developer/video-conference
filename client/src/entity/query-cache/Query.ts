@@ -29,20 +29,22 @@ export class Query<
   TData extends Record<string, any>,
 > {
   private state: QueryState<TData>;
+  public options: QueryOptions<TParams, TData>;
   private consumersCount: number;
-  private name: string;
-  private params: TParams;
-  private fn: QueryFn<TParams, TData>;
+  private observers: Array<(state: QueryState<TData>) => void>;
 
   constructor({ name, params, fn }: QueryOptions<TParams, TData>) {
-    this.name = name;
-    this.params = params;
-    this.fn = fn;
+    this.options = {
+      name,
+      params,
+      fn,
+    };
     this.consumersCount = 0;
     this.state = {
       status: "idle",
       data: null,
     };
+    this.observers = [];
   }
 
   private updateState(newState: Partial<QueryState<TData>>) {
@@ -50,6 +52,10 @@ export class Query<
       ...this.state,
       ...newState,
     };
+
+    this.observers.forEach((callback) => {
+      callback(this.state);
+    });
   }
 
   public async triggerFetch() {
@@ -58,7 +64,7 @@ export class Query<
     });
 
     try {
-      const data = await this.fn({ params: this.params });
+      const data = await this.options.fn({ params: this.options.params });
 
       this.updateState({
         status: "success",
@@ -84,7 +90,22 @@ export class Query<
     return `${name}|${JSON.stringify(params)}`;
   }
 
+  public getState() {
+    return this.state;
+  }
+
   public getHash() {
-    return Query.hashQuery({ name: this.name, params: this.params });
+    return Query.hashQuery({
+      name: this.options.name,
+      params: this.options.params,
+    });
+  }
+
+  public subscribe(callback: (state: QueryState<TData>) => void) {
+    this.observers.push(callback);
+
+    return () => {
+      this.observers = this.observers.filter((c) => c !== callback);
+    };
   }
 }

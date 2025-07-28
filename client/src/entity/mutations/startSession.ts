@@ -43,6 +43,17 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       incomingMessageType: INCOMING_MESSAGE_TYPE,
       outgoingMessageType: OUTGOING_MESSAGE_TYPE,
     }),
+    {
+      update({ entityManager }) {
+        console.log("update");
+        // entityManager.updateEntity('users', {
+        //   id: 1,
+        //   changes: {
+        //
+        //   }
+        // })
+      },
+    },
   );
 
 export const { callback: startMutation, Error: asdf } =

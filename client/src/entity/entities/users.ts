@@ -1,5 +1,5 @@
 import createNormalizedEntityStore from "../createNormalizedEntityStore.ts";
 
-export default createNormalizedEntityStore({
+export const { entitySchema: UserEntity } = createNormalizedEntityStore({
   nameInPlural: "users",
 });

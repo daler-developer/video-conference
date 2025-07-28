@@ -9,6 +9,7 @@ import {
   SendMediaFrameError,
 } from "./mutations/sendMediaFrame.ts";
 import { useNewMediaFrameSub } from "./event-subs/newMediaFrameSub.ts";
+import { useGetUsersQuery } from "./queries/getUsers.ts";
 
 export {
   sendStartSessionMessage,
@@ -18,4 +19,5 @@ export {
   useStartSession,
   StartSessionError,
   useNewMediaFrameSub,
+  useGetUsersQuery,
 };

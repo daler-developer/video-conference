@@ -1,20 +1,53 @@
-import { useNewMediaFrameSub } from "@/entity";
+import { useGetUsersQuery, useNewMediaFrameSub } from "@/entity";
 
 const Subscribe = () => {
-  useNewMediaFrameSub({
-    params: {
-      conferenceId: "hello_world",
-    },
-    onData({ data }) {
-      console.log("event", data.data);
-    },
-  });
+  const queries = {
+    getUsers: useGetUsersQuery({
+      params: {
+        limit: 23,
+        search: "adf",
+      },
+    }),
+  };
 
-  return (
-    <div>
-      <div>Hello World</div>
-    </div>
-  );
+  // useNewMediaFrameSub({
+  //   params: {
+  //     conferenceId: "hello_world",
+  //   },
+  //   onData({ data }) {
+  //     console.log("event", data.data);
+  //   },
+  // });
+
+  if (queries.getUsers.status === "fetching") {
+    return (
+      <div>
+        <h1>Loading</h1>
+      </div>
+    );
+  }
+
+  if (queries.getUsers.status === "error") {
+    return (
+      <div>
+        <h1>Error</h1>
+      </div>
+    );
+  }
+
+  if (queries.getUsers.status === "success") {
+    return (
+      <div>
+        <ul>
+          {queries.getUsers.data!.list.map((user) => (
+            <li key={user.id}>
+              Name {user.name}; Age: {user.age}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 };
 
 export default Subscribe;

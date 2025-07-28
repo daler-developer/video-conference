@@ -1,30 +1,69 @@
-import { create } from "zustand/index";
-import { devtools } from "zustand/middleware";
+import { useEffect, useSyncExternalStore } from "react";
+import { normalize, schema } from "normalizr";
+import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
+import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 
-type Options<TQueryName extends string, TQueryParams, TQueryData> = {
-  name: TQueryName;
+type HookOptions<TParams extends Record<string, any> = Record<string, any>> = {
+  params: TParams;
 };
 
-type StoreValues<TQueryName extends string> = {
-  first: {
-    [key: string]: any;
-  };
-};
+type UpdateDateCallbackOptions = {};
 
-const generateHash = (name: string, params: Record<string, any>) => {
-  return `${name}|${JSON.stringify(params)}`;
-};
+const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
-const createQuery = <TQueryName extends string, TQueryParams, TQueryData>({
+const createQuery = <
+  TParams extends Record<string, any> = Record<string, any>,
+  TData extends Record<string, any> = Record<string, any>,
+  TQueryName extends string = string,
+>({
   name,
-}: Options<TQueryName, TQueryParams, TQueryData>) => {
-  const useStore = create<StoreValues<TQueryName>>()(() => ({
-    [name]: {
-      age: 20,
-    },
-  }));
+  callback,
+}: QueryAdapter<TQueryName, TParams, TData>) => {
+  const hook = function useHook({ params }: HookOptions<TParams>) {
+    useEffect(() => {
+      queryCache.initQuery({
+        name,
+        params,
+        async fn({ params }) {
+          await sleep();
+          const { data } = await callback({ params });
 
-  const hook = function useHook() {};
+          return data;
+        },
+      });
+
+      return () => {
+        queryCache.destroyQuery({
+          name,
+          params,
+        });
+      };
+    }, []);
+
+    const state = useSyncExternalStore(
+      (callback) => {
+        return queryCache.subscribe({ name, params }, callback);
+      },
+      () => {
+        return queryCache.getQueryState<TParams, TData>({ name, params });
+      },
+    );
+
+    return {
+      ...state,
+    };
+  };
+
+  const updateData = (
+    callback: (options: UpdateDateCallbackOptions) => void,
+  ) => {
+    callback();
+  };
+
+  return {
+    hook,
+    updateData,
+  };
 };
 
 export { createQuery };
