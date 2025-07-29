@@ -1,9 +1,20 @@
 import { type QueryOptions } from "./Query";
-import { queryRepository } from "./QueryRepository";
+import { QueryRepository } from "./QueryRepository";
+import { Subscribable } from "./Subscribable";
+import { EntityManager } from "../entity-manager/EntityManager";
 
-class QueryCache {
+type QueryCacheNotifyEvent = {
+  type: "query-state-updated";
+};
+
+type Listener = (event: QueryCacheNotifyEvent) => void;
+
+export class QueryCache extends Subscribable<Listener> {
+  #queryRepository = new QueryRepository(this);
+  entityManager = new EntityManager();
+
   public initQuery(queryOptions: QueryOptions<any, any>) {
-    const existingQuery = queryRepository.get({
+    const existingQuery = this.#queryRepository.get({
       name: queryOptions.name,
       params: queryOptions.params,
     });
@@ -13,7 +24,7 @@ class QueryCache {
       return;
     }
 
-    const newQuery = queryRepository.add(queryOptions);
+    const newQuery = this.#queryRepository.add(queryOptions);
     void newQuery.triggerFetch();
     newQuery.updateConsumersCount((prev) => prev + 1);
   }
@@ -22,22 +33,29 @@ class QueryCache {
     name,
     params,
   }: Pick<QueryOptions<any, any>, "name" | "params">) {
-    const query = queryRepository.get({ name, params });
+    const query = this.#queryRepository.get({ name, params });
 
     if (query) {
       query.updateConsumersCount((prev) => prev - 1);
 
       if (query.getConsumersCount() === 0) {
-        queryRepository.delete({ name, params });
+        this.#queryRepository.delete({ name, params });
       }
     }
+  }
+
+  public getQuery<
+    TParams extends Record<string, any>,
+    TData extends Record<string, any>,
+  >({ name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {
+    return this.#queryRepository.get<TParams, TData>({ name, params });
   }
 
   public getQueryState<
     TParams extends Record<string, any>,
     TData extends Record<string, any>,
   >({ name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {
-    const query = queryRepository.get<TParams, TData>({ name, params });
+    const query = this.#queryRepository.get<TParams, TData>({ name, params });
 
     if (query) {
       return query.getState();
@@ -46,17 +64,15 @@ class QueryCache {
     }
   }
 
-  public subscribe(
-    { name, params }: Pick<QueryOptions<any, any>, "name" | "params">,
-    callback: () => void,
+  public setQueryData<
+    TParams extends Record<string, any>,
+    TData extends Record<string, any>,
+  >(
+    { name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">,
+    data: TData,
   ) {
-    const query = queryRepository.get({ name, params });
-
-    if (query) {
-      return query.subscribe(callback);
-    }
-
-    throw new Error("test");
+    const query = this.#queryRepository.get<TParams, TData>({ name, params });
+    query.updateData(data);
   }
 }
 

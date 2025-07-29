@@ -23,7 +23,13 @@ type IncomingMessage = BaseIncomingMessage<
   }
 >;
 
-export const { hook: useGetUsersQuery } = createQuery(
+const user = schema;
+
+const schema = {
+  list: [],
+};
+
+export const { hook: useGetUsersQuery, updateData } = createQuery(
   createEventSubAdapterForWebsocket<OutgoingMessage, IncomingMessage>({
     name: GET_USERS,
     outgoingMessageType: GET_USERS,

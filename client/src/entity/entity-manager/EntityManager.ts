@@ -19,6 +19,14 @@ export class EntityManager {
     messages: createEntityState(),
   };
 
+  getAllEntities() {
+    const res = {};
+    for (const entityName of Object.keys(this.state)) {
+      res[entityName] = this.state[entityName].byId;
+    }
+    return res;
+  }
+
   public updateEntity(entityName: EntityName, update: Update) {
     const oldEntity = this.state[entityName][update.id];
 

@@ -60,6 +60,7 @@ const createMutation = <
           throw e;
         } else {
           alert("test");
+          console.log(e);
           throw e;
         }
       }

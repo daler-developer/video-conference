@@ -1,3 +1,7 @@
+import { type Schema, normalize, denormalize } from "normalizr";
+import { Subscribable } from "./Subscribable.ts";
+import { QueryCache } from "./QueryCache.ts";
+
 export type QueryStatus = "idle" | "fetching" | "success" | "error";
 
 export type QueryFn<
@@ -12,6 +16,7 @@ export type QueryOptions<
   name: string;
   params: Record<string, any>;
   fn: QueryFn<TParams, TData>;
+  schema: Schema;
 };
 
 export type QueryState<TData extends Record<string, any>> = {
@@ -24,27 +29,59 @@ type HashQueryOptions = {
   params: Record<string, any>;
 };
 
+type QueryNotifyEvent = {
+  type: "state-updated";
+};
+
+type Listener = (event: QueryNotifyEvent) => void;
+
 export class Query<
   TParams extends Record<string, any>,
   TData extends Record<string, any>,
-> {
+> extends Subscribable<Listener> {
+  #queryCache: QueryCache;
   private state: QueryState<TData>;
   public options: QueryOptions<TParams, TData>;
   private consumersCount: number;
-  private observers: Array<(state: QueryState<TData>) => void>;
 
-  constructor({ name, params, fn }: QueryOptions<TParams, TData>) {
+  constructor(
+    queryCache: QueryCache,
+    { name, params, fn, schema }: QueryOptions<TParams, TData>,
+  ) {
+    super();
+    this.#queryCache = queryCache;
     this.options = {
       name,
       params,
       fn,
+      schema,
     };
     this.consumersCount = 0;
     this.state = {
       status: "idle",
       data: null,
     };
-    this.observers = [];
+  }
+
+  public setData(newDate: TData) {
+    this.updateState({
+      data: newDate,
+    });
+  }
+
+  public getData() {
+    const denormalized = denormalize(
+      this.state.data,
+      this.options.schema,
+      this.#queryCache.entityManager.getAllEntities(),
+    );
+    return denormalized;
+  }
+
+  public updateData(newDate: TData) {
+    this.updateState({
+      data: newDate,
+    });
   }
 
   private updateState(newState: Partial<QueryState<TData>>) {
@@ -53,9 +90,7 @@ export class Query<
       ...newState,
     };
 
-    this.observers.forEach((callback) => {
-      callback(this.state);
-    });
+    this.notify({ type: "state-updated" });
   }
 
   public async triggerFetch() {
@@ -66,9 +101,11 @@ export class Query<
     try {
       const data = await this.options.fn({ params: this.options.params });
 
+      const normalizedData = normalize(data, this.options.schema);
+
       this.updateState({
         status: "success",
-        data,
+        data: normalizedData,
       });
     } catch {
       this.updateState({
@@ -101,11 +138,13 @@ export class Query<
     });
   }
 
-  public subscribe(callback: (state: QueryState<TData>) => void) {
-    this.observers.push(callback);
+  public notify(event: QueryNotifyEvent) {
+    this.listeners.forEach((listener) => {
+      listener(event);
+    });
+  }
 
-    return () => {
-      this.observers = this.observers.filter((c) => c !== callback);
-    };
+  public getStatus() {
+    return this.state.status;
   }
 }

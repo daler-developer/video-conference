@@ -5,6 +5,7 @@ import {
   type MutationAdapter,
 } from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "@/websocket";
+import { updateData } from "../queries/getUsers.ts";
 
 const OUTGOING_MESSAGE_TYPE = "START_SESSION";
 const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
@@ -45,13 +46,25 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
     }),
     {
       update({ entityManager }) {
-        console.log("update");
-        // entityManager.updateEntity('users', {
-        //   id: 1,
+        updateData({ limit: 23, search: "adf" }, (prev) => {
+          return {
+            ...prev,
+            list: [
+              ...prev.list,
+              {
+                id: 23,
+                name: "a1",
+                age: 20,
+              },
+            ],
+          };
+        });
+        // entityManager.updateEntity("users", {
+        //   id: 2,
         //   changes: {
-        //
-        //   }
-        // })
+        //     name: "Aziz test",
+        //   },
+        // });
       },
     },
   );
