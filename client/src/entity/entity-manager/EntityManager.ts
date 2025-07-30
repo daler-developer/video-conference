@@ -6,7 +6,7 @@ type State = {
   messages: EntityState;
 };
 
-type EntityName = keyof State;
+export type EntityName = keyof State;
 
 type Update = {
   id: number;
@@ -37,25 +37,7 @@ export class EntityManager {
   }
 
   public addEntity(entityName: EntityName, entity: any) {
-    this.state[entityName][entity.id] = entity;
-  }
-
-  public normalize(data: any, schema: Schema) {
-    const { result, entities } = normalize(data, schema);
-
-    for (const entityName of Object.keys(entities)) {
-      for (const entity of entities[entityName]) {
-        this.addEntity(entityName, entity);
-      }
-    }
-
-    return result;
-  }
-
-  public denormalize(normalizedData: any, schema: Schema) {
-    const denormalized = denormalize(normalizedData, schema, this.state);
-
-    return denormalized;
+    this.state[entityName].byId[entity.id] = entity;
   }
 }
 

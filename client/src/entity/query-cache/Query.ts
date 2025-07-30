@@ -1,6 +1,7 @@
 import { type Schema, normalize, denormalize } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
+import { type EntityName } from "../entity-manager/EntityManager.ts";
 
 export type QueryStatus = "idle" | "fetching" | "success" | "error";
 
@@ -63,19 +64,20 @@ export class Query<
     };
   }
 
-  public setData(newDate: TData) {
+  public setData(data: TData) {
+    const normalizedData = this.#queryCache
+      .getEntityManager()
+      .processData(data, this.options.schema);
+
     this.updateState({
-      data: newDate,
+      data: normalizedData,
     });
   }
 
   public getData() {
-    const denormalized = denormalize(
-      this.state.data,
-      this.options.schema,
-      this.#queryCache.entityManager.getAllEntities(),
-    );
-    return denormalized;
+    return this.#queryCache
+      .getEntityManager()
+      .denormalizeData(this.state.data, this.options.schema);
   }
 
   public updateData(newDate: TData) {
@@ -101,13 +103,16 @@ export class Query<
     try {
       const data = await this.options.fn({ params: this.options.params });
 
-      const normalizedData = normalize(data, this.options.schema);
+      const normalizedData = this.#queryCache
+        .getEntityManager()
+        .processData(data, this.options.schema);
 
       this.updateState({
         status: "success",
         data: normalizedData,
       });
-    } catch {
+    } catch (e) {
+      console.log(e);
       this.updateState({
         status: "error",
         data: null,
@@ -129,13 +134,6 @@ export class Query<
 
   public getState() {
     return this.state;
-  }
-
-  public getHash() {
-    return Query.hashQuery({
-      name: this.options.name,
-      params: this.options.params,
-    });
   }
 
   public notify(event: QueryNotifyEvent) {

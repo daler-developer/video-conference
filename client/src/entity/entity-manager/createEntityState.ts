@@ -1,5 +1,5 @@
 export type EntityState = {
-  byIds: Record<string, any>;
+  byId: Record<string, any>;
   allIds: string[];
 };
 

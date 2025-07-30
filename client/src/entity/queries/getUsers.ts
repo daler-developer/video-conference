@@ -1,3 +1,4 @@
+import { schema } from "normalizr";
 import { createEventSubAdapterForWebsocket } from "../adapters/createQueryAdapterForWebsocket";
 import { createQuery } from "../utils/createQuery";
 import {
@@ -23,17 +24,16 @@ type IncomingMessage = BaseIncomingMessage<
   }
 >;
 
-const user = schema;
-
-const schema = {
-  list: [],
-};
+const user = new schema.Entity("users");
 
 export const { hook: useGetUsersQuery, updateData } = createQuery(
   createEventSubAdapterForWebsocket<OutgoingMessage, IncomingMessage>({
     name: GET_USERS,
     outgoingMessageType: GET_USERS,
   }),
+  {
+    list: [user],
+  },
 );
 
 // const adapter = createEventSubAdapterForWebsocket<

@@ -34,6 +34,8 @@ type ErrorDetailsMap = {
   };
 };
 
+let counter = 3;
+
 export const { useMutationHook: useStartSession, Error: StartSessionError } =
   createMutation(
     createMutationAdapterFromWebsocket<
@@ -46,25 +48,25 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
     }),
     {
       update({ entityManager }) {
-        updateData({ limit: 23, search: "adf" }, (prev) => {
-          return {
-            ...prev,
-            list: [
-              ...prev.list,
-              {
-                id: 23,
-                name: "a1",
-                age: 20,
-              },
-            ],
-          };
-        });
-        // entityManager.updateEntity("users", {
-        //   id: 2,
-        //   changes: {
-        //     name: "Aziz test",
-        //   },
+        // updateData({ limit: 23, search: "adf" }, (prev) => {
+        //   return {
+        //     ...prev,
+        //     list: [
+        //       ...prev.list,
+        //       {
+        //         id: counter++,
+        //         name: "a1",
+        //         age: 20,
+        //       },
+        //     ],
+        //   };
         // });
+        entityManager.updateEntity("users", {
+          id: 2,
+          changes: {
+            name: "Aziz test",
+          },
+        });
       },
     },
   );

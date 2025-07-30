@@ -1,7 +1,7 @@
 import { type QueryOptions } from "./Query";
 import { QueryRepository } from "./QueryRepository";
 import { Subscribable } from "./Subscribable";
-import { EntityManager } from "../entity-manager/EntityManager";
+import { EntityManager } from "./entity-manager/EntityManager";
 
 type QueryCacheNotifyEvent = {
   type: "query-state-updated";
@@ -11,9 +11,13 @@ type Listener = (event: QueryCacheNotifyEvent) => void;
 
 export class QueryCache extends Subscribable<Listener> {
   #queryRepository = new QueryRepository(this);
-  entityManager = new EntityManager();
+  #entityManager = new EntityManager();
 
-  public initQuery(queryOptions: QueryOptions<any, any>) {
+  getEntityManager(): EntityManager {
+    return this.#entityManager;
+  }
+
+  public buildQueryOrUseExisting(queryOptions: QueryOptions<any, any>) {
     const existingQuery = this.#queryRepository.get({
       name: queryOptions.name,
       params: queryOptions.params,
@@ -21,12 +25,13 @@ export class QueryCache extends Subscribable<Listener> {
 
     if (existingQuery) {
       existingQuery.updateConsumersCount((prev) => prev + 1);
-      return;
+      return existingQuery;
     }
 
     const newQuery = this.#queryRepository.add(queryOptions);
     void newQuery.triggerFetch();
     newQuery.updateConsumersCount((prev) => prev + 1);
+    return newQuery;
   }
 
   public destroyQuery({

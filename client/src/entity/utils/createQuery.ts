@@ -1,7 +1,8 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { normalize, type Schema, schema } from "normalizr";
 import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
+import { useForceRender } from "@/shared/hooks";
 
 type HookOptions<TParams extends Record<string, any> = Record<string, any>> = {
   params: TParams;
@@ -22,8 +23,10 @@ const createQuery = <
   schema: Schema,
 ) => {
   const hook = function useHook({ params }: HookOptions<TParams>) {
-    useEffect(() => {
-      queryCache.initQuery({
+    const forceRender = useForceRender();
+
+    const [query] = useState(() => {
+      return queryCache.buildQueryOrUseExisting({
         schema,
         name,
         params,
@@ -34,34 +37,80 @@ const createQuery = <
           return data;
         },
       });
+    });
+
+    useEffect(() => {
+      const unsubscribe = query.subscribe((event) => {
+        if (event.type === "state-updated") {
+          forceRender();
+        }
+      });
 
       return () => {
-        queryCache.destroyQuery({
-          name,
-          params,
-        });
+        unsubscribe();
       };
-    }, []);
+    }, [query, forceRender]);
+    // useEffect(() => {
+    //   queryCache.initQuery({
+    //     schema,
+    //     name,
+    //     params,
+    //     async fn({ params }) {
+    //       await sleep();
+    //       const { data } = await callback({ params });
+    //
+    //       return data;
+    //     },
+    //   });
+    //
+    //   return () => {
+    //     queryCache.destroyQuery({
+    //       name,
+    //       params,
+    //     });
+    //   };
+    // }, []);
 
-    const state = useSyncExternalStore(
-      (callback) => {
-        const query = queryCache.getQuery<TParams, TData>({ name, params });
+    // queryCache.initQuery({
+    //   schema,
+    //   name,
+    //   params,
+    //   async fn({ params }) {
+    //     await sleep();
+    //     const { data } = await callback({ params });
+    //
+    //     return data;
+    //   },
+    // });
 
-        return query.subscribe((event) => {
-          if (event.type === "state-updated") {
-            callback();
-          }
-        });
-      },
-      () => {
-        return queryCache
-          .getQuery<TParams, TData>({ name, params })
-          ?.getState();
-      },
-    );
+    // const state = useSyncExternalStore(
+    //   useCallback((callback) => {
+    //     const query = queryCache.getQuery<TParams, TData>({ name, params });
+    //
+    //     return query.subscribe((event) => {
+    //       if (event.type === "state-updated") {
+    //         callback();
+    //       }
+    //     });
+    //   }, []),
+    //   () => {
+    //     const query = queryCache.getQuery<TParams, TData>({ name, params });
+    //
+    //     console.log(query);
+    //
+    //     return {
+    //       status: query.getStatus(),
+    //       data: query.getData(),
+    //     };
+    //   },
+    // );
+
+    const data = query.getData();
+    const status = query.getStatus();
 
     return {
-      ...state,
+      data,
+      status,
     };
   };
 
