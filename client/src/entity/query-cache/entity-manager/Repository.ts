@@ -1,3 +1,5 @@
+import { schema } from "normalizr";
+
 type BaseEntity = {
   id: number;
 };

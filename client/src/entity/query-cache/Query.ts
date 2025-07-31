@@ -112,11 +112,11 @@ export class Query<
         data: normalizedData,
       });
     } catch (e) {
-      console.log(e);
       this.updateState({
         status: "error",
         data: null,
       });
+      throw e;
     }
   }
 

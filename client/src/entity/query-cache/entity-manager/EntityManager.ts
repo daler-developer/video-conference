@@ -1,44 +1,61 @@
 import { denormalize, normalize, type Schema } from "normalizr";
-import { Repository } from "./Repository.ts";
-import { UserRepository } from "./UserRepository.ts";
-import { MessageRepository } from "./MessageRepository.ts";
+import { UserRepository, type NormalizedUserEntity } from "./UserRepository.ts";
+import {
+  MessageRepository,
+  type NormalizedMessageEntity,
+} from "./MessageRepository.ts";
 
-type RepositoryName = "users" | "messages";
+type EntityName =
+  | typeof UserRepository.entityName
+  | typeof MessageRepository.entityName;
+
+type Entities = {
+  users: Record<number, NormalizedUserEntity>;
+  messages: Record<number, NormalizedMessageEntity>;
+};
 
 export class EntityManager {
-  #repositories: Record<RepositoryName, Repository<any>> = {
-    users: new UserRepository(),
-    messages: new MessageRepository(),
+  #repositories = {
+    [UserRepository.entityName]: new UserRepository(),
+    [MessageRepository.entityName]: new MessageRepository(),
   };
 
   private getAllEntities() {
-    const res = {};
-    for (const repositoryName of Object.keys(this.#repositories)) {
-      res[repositoryName] = this.getRepository(repositoryName).getAllById();
+    const res: Entities = {} as any;
+    for (const entityName of Object.keys(this.#repositories) as EntityName[]) {
+      res[entityName] = this.getRepository(entityName).getAllById();
     }
     return res;
   }
 
-  getRepository(repositoryName: RepositoryName) {
+  getRepository(repositoryName: EntityName) {
     return this.#repositories[repositoryName];
   }
 
-  processData<TData>(data: TData, schema: Schema) {
-    const { result, entities } = normalize(data, schema);
+  processData<TResult, TData, TSchema extends Schema>(
+    data: TData,
+    schema: TSchema,
+  ) {
+    const { result, entities } = normalize<any, Entities, TResult>(
+      data,
+      schema,
+    );
 
-    for (const entityName of Object.keys(entities) as RepositoryName[]) {
+    for (const entityName of Object.keys(entities) as EntityName[]) {
       const allEntities = Object.values(entities[entityName]);
       for (const entity of allEntities) {
         this.getRepository(entityName).addOne(entity);
       }
     }
 
-    return result;
+    return result as any;
   }
 
-  denormalizeData<TData>(data: TData, schema: Schema) {
-    const denormalized = denormalize(data, schema, this.getAllEntities());
-
-    return denormalized;
+  denormalizeData<TResult>(normalizedData: unknown, schema: Schema) {
+    return denormalize(
+      normalizedData,
+      schema,
+      this.getAllEntities(),
+    ) as TResult;
   }
 }

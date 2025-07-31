@@ -1,10 +1,8 @@
 import { useState } from "react";
 import type { MutationAdapter } from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
 import { ApiError } from "../ApiError.ts";
-import {
-  type EntityManager,
-  entityManager,
-} from "../entity-manager/EntityManager.ts";
+import { type EntityManager } from "../query-cache/entity-manager/EntityManager.ts";
+import { queryCache } from "../query-cache/QueryCache.ts";
 
 type Status = "pending" | "idle" | "success" | "error";
 
@@ -46,7 +44,7 @@ const createMutation = <
         const { data } = await callback({
           payload,
         });
-        options?.update?.({ entityManager });
+        options?.update?.({ entityManager: queryCache.getEntityManager() });
         setData(data);
         setStatus("success");
         return {

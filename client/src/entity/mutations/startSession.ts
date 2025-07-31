@@ -61,10 +61,10 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
         //     ],
         //   };
         // });
-        entityManager.updateEntity("users", {
+        entityManager.getRepository("users").updateOne({
           id: 2,
           changes: {
-            name: "Aziz test",
+            name: "Aziz Test",
           },
         });
       },

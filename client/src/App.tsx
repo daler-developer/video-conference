@@ -10,7 +10,12 @@ import {
   StartSessionError,
   useNewMediaFrameSub,
   useGetUsersQuery,
+  updateData,
 } from "@/entity";
+import { useForceRender } from "@/shared/hooks";
+import TestButton from "@/TestButton.tsx";
+
+let counter = 3;
 
 const App = () => {
   const [show, setShow] = useState(false);
@@ -18,9 +23,7 @@ const App = () => {
   const [connected, setConnected] = useState(false);
   const [count, setCount] = useState(0);
 
-  const mutations = {
-    startSession: useStartSession(),
-  };
+  const forceRender = useForceRender();
 
   useEffect(() => {
     const connect = async () => {
@@ -31,67 +34,13 @@ const App = () => {
     connect();
   }, []);
 
-  const test = async () => {
-    // const incomingMessage = await websocketClient.sendMessage({
-    //   meta: {
-    //     messageId: String(Date.now()),
-    //   },
-    //   type: "GET_USERS",
-    //   payload: {
-    //     limit: 10,
-    //     search: "Hello",
-    //   },
-    // });
-    // console.log(incomingMessage);
-    // startMutation({
-    //   payload: {
-    //     fullName: "Saidov Daler",
-    //   },
-    // }).then(({ data, error }) => {
-    //   if (data) {
-    //     console.log(data.accessToken);
-    //   }
-    //   if (error) {
-    //     if (error.errorIs("SECOND")) {
-    //       console.log(error.details.age);
-    //     }
-    //   }
-    // });
-    try {
-      const { data } = await mutations.startSession.mutate({
-        payload: {
-          fullName: "test",
-        },
-        handleError(e) {
-          // if (e.errorIs("VALIDATION")) {
-          //   console.log(e.details.foo);
-          // }
-        },
-      });
-    } catch (e) {
-      if (e instanceof StartSessionError) {
-        const startSessionError = e as InstanceType<typeof StartSessionError>;
-
-        if (startSessionError.errorIs("VALIDATION")) {
-        }
-      }
-    }
-  };
-
   if (!connected) {
     return null;
   }
 
   return (
     <div style={{ margin: "50px" }}>
-      <Button
-        type="button"
-        onClick={() => {
-          test();
-        }}
-      >
-        Test
-      </Button>
+      <TestButton />
       <Button
         type="button"
         onClick={() => {

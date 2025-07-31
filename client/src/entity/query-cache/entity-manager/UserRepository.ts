@@ -1,12 +1,13 @@
 import { schema } from "normalizr";
 import { Repository } from "./Repository";
+import { type UserEntity } from "../../types";
 
-type NormalizedUser = {
-  id: number;
-  name: string;
-  age: number;
-};
+export type NormalizedUserEntity = UserEntity;
 
-export const userEntity = new schema.Entity("users");
+const ENTITY_NAME = "users" as const;
 
-export class UserRepository extends Repository<NormalizedUser> {}
+export const UserEntitySchema = new schema.Entity(ENTITY_NAME);
+
+export class UserRepository extends Repository<NormalizedUserEntity> {
+  static entityName = ENTITY_NAME;
+}
