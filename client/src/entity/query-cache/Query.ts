@@ -1,7 +1,6 @@
 import { type Schema, normalize, denormalize } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
-import { type EntityName } from "../entity-manager/EntityManager.ts";
 
 export type QueryStatus = "idle" | "fetching" | "success" | "error";
 
@@ -20,9 +19,9 @@ export type QueryOptions<
   schema: Schema;
 };
 
-export type QueryState<TData extends Record<string, any>> = {
+export type QueryState = {
   status: QueryStatus;
-  data: TData | null;
+  normalizedData: unknown;
 };
 
 type HashQueryOptions = {
@@ -41,9 +40,9 @@ export class Query<
   TData extends Record<string, any>,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  private state: QueryState<TData>;
-  public options: QueryOptions<TParams, TData>;
-  private consumersCount: number;
+  #state: QueryState;
+  #options: QueryOptions<TParams, TData>;
+  #consumersCount: number;
 
   constructor(
     queryCache: QueryCache,
@@ -51,98 +50,88 @@ export class Query<
   ) {
     super();
     this.#queryCache = queryCache;
-    this.options = {
+    this.#options = {
       name,
       params,
       fn,
       schema,
     };
-    this.consumersCount = 0;
-    this.state = {
+    this.#consumersCount = 0;
+    this.#state = {
       status: "idle",
-      data: null,
+      normalizedData: null,
     };
   }
 
-  public setData(data: TData) {
+  static hashQuery({ name, params }: HashQueryOptions) {
+    return `${name}|${JSON.stringify(params)}`;
+  }
+
+  setData(data: TData) {
     const normalizedData = this.#queryCache
       .getEntityManager()
-      .processData(data, this.options.schema);
+      .processData(data, this.#options.schema);
 
     this.updateState({
-      data: normalizedData,
+      normalizedData,
     });
   }
 
-  public getData() {
+  getData() {
     return this.#queryCache
       .getEntityManager()
-      .denormalizeData(this.state.data, this.options.schema);
+      .denormalizeData(this.#state.normalizedData, this.#options.schema);
   }
 
-  public updateData(newDate: TData) {
-    this.updateState({
-      data: newDate,
-    });
-  }
-
-  private updateState(newState: Partial<QueryState<TData>>) {
-    this.state = {
-      ...this.state,
+  updateState(newState: Partial<QueryState>) {
+    this.#state = {
+      ...this.#state,
       ...newState,
     };
 
     this.notify({ type: "state-updated" });
   }
 
-  public async triggerFetch() {
+  async triggerFetch() {
     this.updateState({
       status: "fetching",
     });
 
     try {
-      const data = await this.options.fn({ params: this.options.params });
+      const data = await this.#options.fn({ params: this.#options.params });
 
       const normalizedData = this.#queryCache
         .getEntityManager()
-        .processData(data, this.options.schema);
+        .processData(data, this.#options.schema);
 
       this.updateState({
         status: "success",
-        data: normalizedData,
+        normalizedData,
       });
     } catch (e) {
       this.updateState({
         status: "error",
-        data: null,
+        normalizedData: null,
       });
       throw e;
     }
   }
 
-  public getConsumersCount() {
-    return this.consumersCount;
+  getConsumersCount() {
+    return this.#consumersCount;
   }
 
-  public updateConsumersCount(updater: (prev: number) => number) {
-    this.consumersCount = updater(this.consumersCount);
+  updateConsumersCount(updater: (prev: number) => number) {
+    this.#consumersCount = updater(this.#consumersCount);
   }
 
-  public static hashQuery({ name, params }: HashQueryOptions) {
-    return `${name}|${JSON.stringify(params)}`;
-  }
-
-  public getState() {
-    return this.state;
-  }
-
-  public notify(event: QueryNotifyEvent) {
+  notify(event: QueryNotifyEvent) {
     this.listeners.forEach((listener) => {
       listener(event);
     });
   }
 
-  public getStatus() {
-    return this.state.status;
+  getStatus() {
+    return this.#state.status;
   }
 }

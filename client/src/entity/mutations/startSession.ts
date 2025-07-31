@@ -48,25 +48,25 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
     }),
     {
       update({ entityManager }) {
-        // updateData({ limit: 23, search: "adf" }, (prev) => {
-        //   return {
-        //     ...prev,
-        //     list: [
-        //       ...prev.list,
-        //       {
-        //         id: counter++,
-        //         name: "a1",
-        //         age: 20,
-        //       },
-        //     ],
-        //   };
-        // });
-        entityManager.getRepository("users").updateOne({
-          id: 2,
-          changes: {
-            name: "Aziz Test",
-          },
+        updateData({ limit: 23, search: "adf" }, (prev) => {
+          return {
+            ...prev,
+            list: [
+              ...prev.list,
+              {
+                id: counter++,
+                name: "a1",
+                age: 20,
+              },
+            ],
+          };
         });
+        // entityManager.getRepository("users").updateOne({
+        //   id: 2,
+        //   changes: {
+        //     name: "Aziz Test",
+        //   },
+        // });
       },
     },
   );

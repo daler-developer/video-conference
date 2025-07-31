@@ -56,29 +56,29 @@ export class QueryCache extends Subscribable<Listener> {
     return this.#queryRepository.get<TParams, TData>({ name, params });
   }
 
-  public getQueryState<
-    TParams extends Record<string, any>,
-    TData extends Record<string, any>,
-  >({ name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {
-    const query = this.#queryRepository.get<TParams, TData>({ name, params });
+  // public getQueryState<
+  //   TParams extends Record<string, any>,
+  //   TData extends Record<string, any>,
+  // >({ name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {
+  //   const query = this.#queryRepository.get<TParams, TData>({ name, params });
+  //
+  //   if (query) {
+  //     return query.getState();
+  //   } else {
+  //     throw new Error("test");
+  //   }
+  // }
 
-    if (query) {
-      return query.getState();
-    } else {
-      // throw new Error("test");
-    }
-  }
-
-  public setQueryData<
-    TParams extends Record<string, any>,
-    TData extends Record<string, any>,
-  >(
-    { name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">,
-    data: TData,
-  ) {
-    const query = this.#queryRepository.get<TParams, TData>({ name, params });
-    query.updateData(data);
-  }
+  // public setQueryData<
+  //   TParams extends Record<string, any>,
+  //   TData extends Record<string, any>,
+  // >(
+  //   { name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">,
+  //   data: TData,
+  // ) {
+  //   const query = this.#queryRepository.get<TParams, TData>({ name, params });
+  //   query.updateData(data);
+  // }
 }
 
 export const queryCache = new QueryCache();
