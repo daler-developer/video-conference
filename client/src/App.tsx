@@ -10,7 +10,6 @@ import {
   StartSessionError,
   useNewMediaFrameSub,
   useGetUsersQuery,
-  updateData,
 } from "@/entity";
 import { useForceRender } from "@/shared/hooks";
 import TestButton from "@/TestButton.tsx";

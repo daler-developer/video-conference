@@ -5,7 +5,7 @@ import {
   type MutationAdapter,
 } from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "@/websocket";
-import { updateData } from "../queries/getUsers.ts";
+import { getUsersQuery } from "../queries/getUsers.ts";
 
 const OUTGOING_MESSAGE_TYPE = "START_SESSION";
 const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
@@ -48,25 +48,25 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
     }),
     {
       update({ entityManager }) {
-        updateData({ limit: 23, search: "adf" }, (prev) => {
-          return {
-            ...prev,
-            list: [
-              ...prev.list,
-              {
-                id: counter++,
-                name: "a1",
-                age: 20,
-              },
-            ],
-          };
-        });
-        // entityManager.getRepository("users").updateOne({
-        //   id: 2,
-        //   changes: {
-        //     name: "Aziz Test",
-        //   },
+        // getUsersQuery.updateData({ limit: 23, search: "adf" }, (prev) => {
+        //   return {
+        //     ...prev,
+        //     list: [
+        //       ...prev.list,
+        //       {
+        //         id: counter++,
+        //         name: "a1",
+        //         age: 20,
+        //       },
+        //     ],
+        //   };
         // });
+        entityManager.getRepository("users").updateOne({
+          id: 2,
+          changes: {
+            name: "Aziz Test",
+          },
+        });
       },
     },
   );

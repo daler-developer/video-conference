@@ -37,7 +37,7 @@ export class QueryCache extends Subscribable<Listener> {
   public destroyQuery({
     name,
     params,
-  }: Pick<QueryOptions<any, any>, "name" | "params">) {
+  }: Pick<QueryOptions<any, unknown>, "name" | "params">) {
     const query = this.#queryRepository.get({ name, params });
 
     if (query) {
@@ -50,8 +50,8 @@ export class QueryCache extends Subscribable<Listener> {
   }
 
   public getQuery<
-    TParams extends Record<string, any>,
-    TData extends Record<string, any>,
+    TParams extends Record<string, unknown>,
+    TData extends Record<string, unknown>,
   >({ name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {
     return this.#queryRepository.get<TParams, TData>({ name, params });
   }

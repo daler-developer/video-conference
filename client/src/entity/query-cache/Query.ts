@@ -1,20 +1,20 @@
-import { type Schema, normalize, denormalize } from "normalizr";
+import { type Schema } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
 
 export type QueryStatus = "idle" | "fetching" | "success" | "error";
 
 export type QueryFn<
-  TParams extends Record<string, any>,
-  TData extends Record<string, any>,
+  TParams extends Record<string, unknown>,
+  TData extends Record<string, unknown>,
 > = (options: { params: TParams }) => Promise<TData>;
 
 export type QueryOptions<
-  TParams extends Record<string, any>,
-  TData extends Record<string, any>,
+  TParams extends Record<string, unknown>,
+  TData extends Record<string, unknown>,
 > = {
   name: string;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
   fn: QueryFn<TParams, TData>;
   schema: Schema;
 };
@@ -26,7 +26,7 @@ export type QueryState = {
 
 type HashQueryOptions = {
   name: string;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
 };
 
 type QueryNotifyEvent = {
@@ -36,8 +36,8 @@ type QueryNotifyEvent = {
 type Listener = (event: QueryNotifyEvent) => void;
 
 export class Query<
-  TParams extends Record<string, any>,
-  TData extends Record<string, any>,
+  TParams extends Record<string, unknown>,
+  TData extends Record<string, unknown>,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
   #state: QueryState;
