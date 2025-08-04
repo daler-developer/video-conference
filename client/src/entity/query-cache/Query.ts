@@ -70,7 +70,7 @@ export class Query<
   setData(data: TData) {
     const normalizedData = this.#queryCache
       .getEntityManager()
-      .processData(data, this.#options.schema);
+      .normalizeAndSave(data, this.#options.schema);
 
     this.updateState({
       normalizedData,
@@ -102,7 +102,7 @@ export class Query<
 
       const normalizedData = this.#queryCache
         .getEntityManager()
-        .processData(data, this.#options.schema);
+        .normalizeAndSave(data, this.#options.schema);
 
       this.updateState({
         status: "success",

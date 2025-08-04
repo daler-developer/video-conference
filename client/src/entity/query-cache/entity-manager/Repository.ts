@@ -1,4 +1,4 @@
-import { schema } from "normalizr";
+import { Entity } from "./Entity.ts";
 
 type BaseEntity = {
   id: number;
@@ -9,12 +9,12 @@ type Update<TEntity extends BaseEntity> = {
   changes: Omit<Partial<TEntity>, "id">;
 };
 
-export abstract class Repository<TEntity extends BaseEntity> {
-  #byId: Record<number, TEntity> = {};
+export abstract class Repository<TEntity extends Entity> {
+  #byId: Map<number, TEntity> = new Map();
   #allIds = new Set<number>();
 
   getOne(id: number): TEntity | null {
-    return this.#byId[id];
+    return this.#byId.get(id) || null;
   }
 
   getAllById() {
@@ -22,11 +22,11 @@ export abstract class Repository<TEntity extends BaseEntity> {
   }
 
   addOne(data: TEntity): void {
-    const exists = this.#allIds.has(data.id);
+    const exists = this.#allIds.has(data.getData().id);
 
     if (!exists) {
-      this.#byId[data.id] = data;
-      this.#allIds.add(data.id);
+      this.#byId.set(data.getData().id, data);
+      this.#allIds.add(data.getData().id);
     }
   }
 
@@ -37,8 +37,8 @@ export abstract class Repository<TEntity extends BaseEntity> {
   }
 
   setOne(data: TEntity): void {
-    this.#byId[data.id] = data;
-    this.#allIds.add(data.id);
+    this.#byId.set(data.getData().id, data);
+    this.#allIds.add(data.getData().id);
   }
 
   setMany(entities: TEntity[]): void {
@@ -48,7 +48,7 @@ export abstract class Repository<TEntity extends BaseEntity> {
   }
 
   removeOne(id: number): void {
-    delete this.#byId[id];
+    this.#byId.delete(id);
     this.#allIds.delete(id);
   }
 
@@ -58,39 +58,39 @@ export abstract class Repository<TEntity extends BaseEntity> {
     }
   }
 
-  updateOne({ id, changes }: Update<TEntity>): void {
-    const entity = this.#byId[id];
+  // updateOne({ id, changes }: Update<TEntity>): void {
+  //   const entity = this.#byId[id];
+  //
+  //   if (entity) {
+  //     this.#byId[id] = {
+  //       ...entity,
+  //       ...changes,
+  //     };
+  //   }
+  // }
 
-    if (entity) {
-      this.#byId[id] = {
-        ...entity,
-        ...changes,
-      };
-    }
-  }
+  // updateMany(updates: Update<TEntity>[]) {
+  //   for (const update of updates) {
+  //     this.updateOne(update);
+  //   }
+  // }
 
-  updateMany(updates: Update<TEntity>[]) {
-    for (const update of updates) {
-      this.updateOne(update);
-    }
-  }
-
-  upsertOne(entity: TEntity): void {
-    const existingEntity = this.#byId[entity.id];
-
-    if (existingEntity) {
-      this.#byId[entity.id] = {
-        ...existingEntity,
-        ...entity,
-      };
-    } else {
-      this.addOne(entity);
-    }
-  }
-
-  upsertMany(entities: TEntity[]): void {
-    for (const entity of entities) {
-      this.upsertOne(entity);
-    }
-  }
+  // upsertOne(entity: Entity): void {
+  //   const existingEntity = this.#byId[entity.id];
+  //
+  //   if (existingEntity) {
+  //     this.#byId[entity.id] = {
+  //       ...existingEntity,
+  //       ...entity,
+  //     };
+  //   } else {
+  //     this.addOne(entity);
+  //   }
+  // }
+  //
+  // upsertMany(entities: TEntity[]): void {
+  //   for (const entity of entities) {
+  //     this.upsertOne(entity);
+  //   }
+  // }
 }

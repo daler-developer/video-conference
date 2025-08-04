@@ -1,6 +1,18 @@
 import { useGetUsersQuery, useNewMediaFrameSub } from "@/entity";
+import { useForceRender } from "@/shared/hooks";
+import { useEffect } from "react";
 
 const Subscribe = () => {
+  const forceRender = useForceRender();
+
+  useEffect(() => {
+    setInterval(() => {
+      forceRender();
+    }, 2000);
+  }, []);
+
+  console.log("render");
+
   const queries = {
     getUsers: useGetUsersQuery({
       params: {
