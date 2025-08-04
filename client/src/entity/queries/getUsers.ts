@@ -29,7 +29,7 @@ const schema = {
   list: [UserEntitySchema],
 };
 
-export const getUsersQuery = createQuery(
+export const { hook: useGetUsersQuery } = createQuery(
   createEventSubAdapterForWebsocket<OutgoingMessage, IncomingMessage>({
     name: GET_USERS,
     outgoingMessageType: GET_USERS,
@@ -37,7 +37,7 @@ export const getUsersQuery = createQuery(
   schema,
 );
 
-export const { hook: useGetUsersQuery } = getUsersQuery;
+// export const { hook: useGetUsersQuery } = getUsersQuery;
 
 // const adapter = createEventSubAdapterForWebsocket<
 //   OutgoingMessage,
@@ -46,14 +46,19 @@ export const { hook: useGetUsersQuery } = getUsersQuery;
 //   name: GET_USERS,
 //   outgoingMessageType: GET_USERS,
 // });
-
-// adapter.callback({
-//   params: {
-//     limit: 123,
-//     search: 'sdf'
-//   },
-// }).then(result => {
-//   result.data.list.forEach((item) => {
-//     item
+//
+// adapter
+//   .callback({
+//     params: {
+//       limit: 123,
+//       search: "sdf",
+//     },
 //   })
-// })
+//   .then((result) => {
+//     result.data.list.forEach((a) => {
+//       a.age
+//     })
+//     result.data.list.forEach((item) => {
+//       item;
+//     });
+//   });

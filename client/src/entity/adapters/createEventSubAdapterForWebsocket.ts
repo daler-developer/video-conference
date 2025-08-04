@@ -4,6 +4,7 @@ import {
   createOutgoingMessageCreator,
   websocketClient,
 } from "@/websocket";
+import _ from "lodash";
 import { type EventSubAdapter } from "../utils/createEventSub";
 
 type Options<TEventName extends string = string> = {
@@ -69,9 +70,13 @@ export const createEventSubAdapterForWebsocket = <
       const off = websocketClient.onMessage((message) => {
         if (incomingMessageIsOfTypeEventSubData(message)) {
           if (message.payload.eventName === eventName) {
-            onData({
-              data: message.payload.eventData as any,
-            });
+            if (_.isEqual(message.payload.eventParams, params)) {
+              console.log(message.payload.eventParams);
+              console.log(params);
+              onData({
+                data: message.payload.eventData as TEventData,
+              });
+            }
           }
         }
       });

@@ -39,16 +39,16 @@ const App = () => {
 
   return (
     <div style={{ margin: "50px" }}>
-      <TestButton />
-      <Button
-        type="button"
-        onClick={() => {
-          setShow(true);
-        }}
-      >
-        Show
-      </Button>
-      {show && <Subscribe />}
+      {/*<TestButton />*/}
+      {/*<Button*/}
+      {/*  type="button"*/}
+      {/*  onClick={() => {*/}
+      {/*    setShow(true);*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  Show*/}
+      {/*</Button>*/}
+      {isSub && <Subscribe />}
       <div>
         <Button
           type="button"

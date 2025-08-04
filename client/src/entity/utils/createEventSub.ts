@@ -18,12 +18,17 @@ type HookOptions<
   onData: (a: { data: TData }) => void;
 };
 
+type Options<TData extends object> = {
+  update?: (updateOptions: { data: TData }) => void;
+};
+
 export const createEventSub = <
   TParams extends Record<string, any>,
   TData extends Record<string, any>,
->({
-  subscribe,
-}: EventSubAdapter<TParams, TData>) => {
+>(
+  { subscribe }: EventSubAdapter<TParams, TData>,
+  options?: Options<TData>,
+) => {
   const hook = function useHook({
     params,
     onData,
@@ -33,7 +38,12 @@ export const createEventSub = <
     useEffect(() => {
       const { unsubscribe } = subscribe({
         params,
-        onData: latestOnData.current,
+        onData({ data }) {
+          options?.update?.({
+            data,
+          });
+          latestOnData.current({ data });
+        },
       });
 
       return () => {

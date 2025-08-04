@@ -40,8 +40,6 @@ const RecordVideo = () => {
           data: await videoBlob.arrayBuffer(),
         },
       });
-
-      console.log(data);
     };
 
     recorder.start(1000);

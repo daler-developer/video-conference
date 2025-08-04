@@ -11,8 +11,6 @@ const Subscribe = () => {
     }, 2000);
   }, []);
 
-  console.log("render");
-
   const queries = {
     getUsers: useGetUsersQuery({
       params: {
@@ -22,14 +20,14 @@ const Subscribe = () => {
     }),
   };
 
-  // useNewMediaFrameSub({
-  //   params: {
-  //     conferenceId: "hello_world",
-  //   },
-  //   onData({ data }) {
-  //     console.log("event", data.data);
-  //   },
-  // });
+  useNewMediaFrameSub({
+    params: {
+      conferenceId: "hello_world",
+    },
+    onData({ data }) {
+      // console.log("data", data);
+    },
+  });
 
   if (queries.getUsers.status === "fetching") {
     return (

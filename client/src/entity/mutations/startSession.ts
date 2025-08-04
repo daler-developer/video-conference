@@ -5,7 +5,7 @@ import {
   type MutationAdapter,
 } from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "@/websocket";
-import { getUsersQuery } from "../queries/getUsers.ts";
+// import { getUsersQuery } from "../queries/getUsers.ts";
 
 const OUTGOING_MESSAGE_TYPE = "START_SESSION";
 const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
@@ -61,11 +61,11 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
         //     ],
         //   };
         // });
-        const entity = entityManager.getRepository("users").getOne(2);
-
-        entity!.updateData({
-          name: "Aziz Test",
-        });
+        // const entity = entityManager.getRepository("users").getOne(2);
+        //
+        // entity!.updateData({
+        //   name: "Aziz Test",
+        // });
       },
     },
   );

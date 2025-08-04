@@ -80,7 +80,7 @@ export class Query<
   getData() {
     return this.#queryCache
       .getEntityManager()
-      .denormalizeData(this.#state.normalizedData, this.#options.schema);
+      .denormalizeData<TData>(this.#state.normalizedData, this.#options.schema);
   }
 
   updateState(newState: Partial<QueryState>) {

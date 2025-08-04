@@ -3,7 +3,6 @@ import type { MutationAdapter } from "@/entity/adapters/createMutationAdapterFor
 import { ApiError } from "../ApiError.ts";
 import { type EntityManager } from "../query-cache/entity-manager/EntityManager.ts";
 import { queryCache } from "../query-cache/QueryCache.ts";
-import { type createQuery } from "../utils/createQuery.ts";
 
 type Status = "pending" | "idle" | "success" | "error";
 
