@@ -3,37 +3,14 @@ import type {
   BaseOutgoingMessage,
   IncomingErrorMessage,
 } from "./types.ts";
-import { v4 as uuidv4 } from "uuid";
 import {
   incomingMessageIsOfTypeError,
-  websocketClient,
-} from "@/websocket/index.ts";
-
-const isPlainObject = (obj: unknown): obj is any => {
-  if (typeof obj !== "object" || obj === null) return false;
-  const proto = Object.getPrototypeOf(obj);
-  return proto === Object.prototype || proto === null;
-};
-
-const isBlob = (obj: unknown): obj is Blob => {
-  return obj instanceof Blob;
-};
-
-const isArrayBuffer = (value: unknown): value is ArrayBuffer => {
-  return value instanceof ArrayBuffer;
-};
-
-const isString = (value: unknown): value is string => {
-  return typeof value === "string";
-};
-
-const isSlotForBinary = (str: string): str is string => {
-  return str.startsWith("$$") && str.endsWith("$$");
-};
-
-const parseSlotForBinary = (str: string) => {
-  return str.slice(2, -2).split(":").map(Number);
-};
+  isPlainObject,
+  isArrayBuffer,
+  isString,
+  isSlotForBinary,
+  parseSlotForBinary,
+} from "./utils";
 
 type Callback = (event: MessageEvent) => void;
 
@@ -160,7 +137,7 @@ class WebsocketClient {
     this.ws!.send(serialized);
 
     return new Promise<BaseIncomingMessage>((res, rej) => {
-      const unsubscribe = websocketClient.onMessage((message) => {
+      const unsubscribe = this.onMessage((message) => {
         if (
           !incomingMessageIsOfTypeError(message) &&
           message.meta.messageId === outgoingMessage.meta.messageId

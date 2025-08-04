@@ -1,4 +1,3 @@
-import { sendStartSessionMessage } from "./message-senders/sendStartSessionMessage";
 import {
   startMutation,
   useStartSession,
@@ -12,7 +11,6 @@ import { useNewMediaFrameSub } from "./event-subs/newMediaFrameSub.ts";
 import { useGetUsersQuery } from "./queries/getUsers.ts";
 
 export {
-  sendStartSessionMessage,
   startMutation,
   useSendMediaFrame,
   SendMediaFrameError,
@@ -20,5 +18,4 @@ export {
   StartSessionError,
   useNewMediaFrameSub,
   useGetUsersQuery,
-  updateData,
 };

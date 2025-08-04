@@ -1,7 +1,6 @@
 import { Button } from "@mantine/core";
 import { useRef, useState } from "react";
 import { useSendMediaFrame } from "@/entity";
-import { sendMediaFrameMessage } from "./websocket/sendMessage/sendMessageFrameMessage.ts";
 
 const RecordVideo = () => {
   const [recording, setRecording] = useState(false);

@@ -1,5 +1,4 @@
 import createMutation from "../utils/createMutation.ts";
-import { sendStartSessionMessage } from "../message-senders/sendStartSessionMessage";
 import {
   createMutationAdapterFromWebsocket,
   type MutationAdapter,
