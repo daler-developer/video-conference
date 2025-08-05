@@ -17,7 +17,7 @@ export class QueryCache extends Subscribable<Listener> {
     return this.#entityManager;
   }
 
-  public buildQueryOrUseExisting(queryOptions: QueryOptions<any, any>) {
+  buildQueryOrUseExisting(queryOptions: QueryOptions<any, any, any>) {
     const existingQuery = this.#queryRepository.get({
       name: queryOptions.name,
       params: queryOptions.params,
@@ -34,10 +34,10 @@ export class QueryCache extends Subscribable<Listener> {
     return newQuery;
   }
 
-  public destroyQuery({
+  destroyQuery({
     name,
     params,
-  }: Pick<QueryOptions<any, unknown>, "name" | "params">) {
+  }: Pick<QueryOptions<any, any, any>, "name" | "params">) {
     const query = this.#queryRepository.get({ name, params });
 
     if (query) {
@@ -49,7 +49,7 @@ export class QueryCache extends Subscribable<Listener> {
     }
   }
 
-  public getQuery<
+  getQuery<
     TParams extends Record<string, unknown>,
     TData extends Record<string, unknown>,
   >({ name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {

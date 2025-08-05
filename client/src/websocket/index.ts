@@ -1,4 +1,8 @@
-import { type BaseOutgoingMessage, type BaseIncomingMessage } from "./types";
+import {
+  type BaseOutgoingMessage,
+  type BaseIncomingMessage,
+  type BaseIncomingMessagePayload,
+} from "./types";
 import { createOutgoingMessageCreator } from "./createOutgoingMessageCreator.ts";
 import websocketClient from "./WebsocketClient.ts";
 import { incomingMessageIsOfTypeError } from "./utils.ts";
@@ -8,5 +12,6 @@ export {
   websocketClient,
   type BaseOutgoingMessage,
   type BaseIncomingMessage,
+  type BaseIncomingMessagePayload,
   incomingMessageIsOfTypeError,
 };

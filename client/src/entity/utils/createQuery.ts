@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { normalize, type Schema, schema } from "normalizr";
+import { type Schema } from "normalizr";
 import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 import { useForceRender } from "@/shared/hooks";
@@ -27,12 +27,13 @@ const createQuery = <
 
     const [query] = useState(() => {
       return queryCache.buildQueryOrUseExisting({
+        isInfinite: true,
         schema,
         name,
         params,
-        async fn({ params }) {
+        async fn({ params, pageParam }) {
           await sleep();
-          const { data } = await callback({ params });
+          const { data } = await callback({ params, pageParam });
 
           return data;
         },
@@ -50,60 +51,6 @@ const createQuery = <
         unsubscribe();
       };
     }, [query, forceRender]);
-    // useEffect(() => {
-    //   queryCache.initQuery({
-    //     schema,
-    //     name,
-    //     params,
-    //     async fn({ params }) {
-    //       await sleep();
-    //       const { data } = await callback({ params });
-    //
-    //       return data;
-    //     },
-    //   });
-    //
-    //   return () => {
-    //     queryCache.destroyQuery({
-    //       name,
-    //       params,
-    //     });
-    //   };
-    // }, []);
-
-    // queryCache.initQuery({
-    //   schema,
-    //   name,
-    //   params,
-    //   async fn({ params }) {
-    //     await sleep();
-    //     const { data } = await callback({ params });
-    //
-    //     return data;
-    //   },
-    // });
-
-    // const state = useSyncExternalStore(
-    //   useCallback((callback) => {
-    //     const query = queryCache.getQuery<TParams, TData>({ name, params });
-    //
-    //     return query.subscribe((event) => {
-    //       if (event.type === "state-updated") {
-    //         callback();
-    //       }
-    //     });
-    //   }, []),
-    //   () => {
-    //     const query = queryCache.getQuery<TParams, TData>({ name, params });
-    //
-    //     console.log(query);
-    //
-    //     return {
-    //       status: query.getStatus(),
-    //       data: query.getData(),
-    //     };
-    //   },
-    // );
 
     const data = query.getData();
     const status = query.getStatus();
@@ -131,3 +78,58 @@ const createQuery = <
 };
 
 export { createQuery };
+
+// useEffect(() => {
+//   queryCache.initQuery({
+//     schema,
+//     name,
+//     params,
+//     async fn({ params }) {
+//       await sleep();
+//       const { data } = await callback({ params });
+//
+//       return data;
+//     },
+//   });
+//
+//   return () => {
+//     queryCache.destroyQuery({
+//       name,
+//       params,
+//     });
+//   };
+// }, []);
+
+// queryCache.initQuery({
+//   schema,
+//   name,
+//   params,
+//   async fn({ params }) {
+//     await sleep();
+//     const { data } = await callback({ params });
+//
+//     return data;
+//   },
+// });
+
+// const state = useSyncExternalStore(
+//   useCallback((callback) => {
+//     const query = queryCache.getQuery<TParams, TData>({ name, params });
+//
+//     return query.subscribe((event) => {
+//       if (event.type === "state-updated") {
+//         callback();
+//       }
+//     });
+//   }, []),
+//   () => {
+//     const query = queryCache.getQuery<TParams, TData>({ name, params });
+//
+//     console.log(query);
+//
+//     return {
+//       status: query.getStatus(),
+//       data: query.getData(),
+//     };
+//   },
+// );

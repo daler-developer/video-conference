@@ -42,14 +42,21 @@ export class EntityManager {
       schema,
     );
 
+    // const allEntities: Entity[] = [];
+
     for (const entityName of Object.keys(entities) as EntityName[]) {
       const allEntities = Object.values(entities[entityName]);
       for (const entity of allEntities) {
-        this.getRepository(entityName).addOne(new Entity(entity));
+        const entity_ = new Entity(entity);
+        this.getRepository(entityName).addOne(entity_);
+        // allEntities.push(entity_);
       }
     }
 
-    return result as any;
+    return {
+      normalizedData: result,
+      allEntities: [],
+    };
   }
 
   denormalizeData<TResult>(normalizedData: unknown, schema: Schema) {

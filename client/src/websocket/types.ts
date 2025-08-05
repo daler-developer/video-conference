@@ -22,7 +22,7 @@ export type BaseOutgoingMessage<
   meta: BaseOutgoingMessageMeta;
 };
 
-type BaseIncomingMessagePayload = { [key: string]: JsonValue };
+export type BaseIncomingMessagePayload = { [key: string]: JsonValue };
 
 export type BaseIncomingMessage<
   TMessageType extends string = string,

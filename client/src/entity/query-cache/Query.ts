@@ -7,21 +7,29 @@ export type QueryStatus = "idle" | "fetching" | "success" | "error";
 export type QueryFn<
   TParams extends Record<string, unknown>,
   TData extends Record<string, unknown>,
-> = (options: { params: TParams }) => Promise<TData>;
+  TPageParam extends Record<string, unknown> | null,
+> = (options: { params: TParams; pageParam: TPageParam }) => Promise<TData>;
 
 export type QueryOptions<
   TParams extends Record<string, unknown>,
   TData extends Record<string, unknown>,
+  TPageParam extends Record<string, unknown> | null,
 > = {
   name: string;
   params: Record<string, unknown>;
-  fn: QueryFn<TParams, TData>;
+  fn: QueryFn<TParams, TData, TPageParam>;
   schema: Schema;
+  isInfinite: boolean;
+  initialPageParam?: TPageParam;
+  getNextPageParam?: (options: {
+    lastPageParam: TPageParam;
+  }) => NonNullable<TPageParam>;
 };
 
-export type QueryState = {
+export type QueryState<TPageParam extends Record<string, unknown> | null> = {
   status: QueryStatus;
   normalizedData: unknown;
+  lastPageParam?: TPageParam;
 };
 
 type HashQueryOptions = {
@@ -38,15 +46,24 @@ type Listener = (event: QueryNotifyEvent) => void;
 export class Query<
   TParams extends Record<string, unknown>,
   TData extends Record<string, unknown>,
+  TPageParam extends Record<string, unknown> | null = null,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  #state: QueryState;
-  #options: QueryOptions<TParams, TData>;
+  #state: QueryState<TPageParam>;
+  #options: QueryOptions<TParams, TData, TPageParam>;
   #consumersCount: number;
 
   constructor(
     queryCache: QueryCache,
-    { name, params, fn, schema }: QueryOptions<TParams, TData>,
+    {
+      name,
+      params,
+      fn,
+      schema,
+      isInfinite,
+      initialPageParam,
+      getNextPageParam,
+    }: QueryOptions<TParams, TData, TPageParam>,
   ) {
     super();
     this.#queryCache = queryCache;
@@ -55,11 +72,15 @@ export class Query<
       params,
       fn,
       schema,
+      isInfinite,
+      initialPageParam,
+      getNextPageParam,
     };
     this.#consumersCount = 0;
     this.#state = {
       status: "idle",
       normalizedData: null,
+      lastPageParam: this.#options.initialPageParam,
     };
   }
 
@@ -68,7 +89,7 @@ export class Query<
   }
 
   setData(data: TData) {
-    const normalizedData = this.#queryCache
+    const { normalizedData } = this.#queryCache
       .getEntityManager()
       .normalizeAndSave(data, this.#options.schema);
 
@@ -83,7 +104,7 @@ export class Query<
       .denormalizeData<TData>(this.#state.normalizedData, this.#options.schema);
   }
 
-  updateState(newState: Partial<QueryState>) {
+  updateState(newState: Partial<QueryState<TPageParam>>) {
     this.#state = {
       ...this.#state,
       ...newState,
@@ -98,14 +119,56 @@ export class Query<
     });
 
     try {
-      const data = await this.#options.fn({ params: this.#options.params });
+      const data = await this.#options.fn({
+        params: this.#options.params,
+        pageParam: this.#options.initialPageParam!,
+      });
 
-      const normalizedData = this.#queryCache
+      const { normalizedData } = this.#queryCache
+        .getEntityManager()
+        .normalizeAndSave(data, this.#options.schema);
+
+      // this.#allEntities = allEntities;
+      //
+      // for (const entity of this.#allEntities) {
+      //   entity.subscribe(() => {});
+      // }
+
+      this.updateState({
+        status: "success",
+        normalizedData,
+      });
+    } catch (e) {
+      this.updateState({
+        status: "error",
+        normalizedData: null,
+      });
+      throw e;
+    }
+  }
+
+  async fetchMore() {
+    try {
+      this.updateState({
+        status: "fetching",
+      });
+
+      const nextPageParam = this.#options.getNextPageParam!({
+        lastPageParam: this.#state.lastPageParam!,
+      });
+
+      const data = await this.#options.fn({
+        params: nextPageParam!,
+        pageParam: this.#options.initialPageParam!,
+      });
+
+      const { normalizedData } = this.#queryCache
         .getEntityManager()
         .normalizeAndSave(data, this.#options.schema);
 
       this.updateState({
         status: "success",
+        lastPageParam: nextPageParam,
         normalizedData,
       });
     } catch (e) {

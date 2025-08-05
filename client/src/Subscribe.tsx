@@ -5,11 +5,11 @@ import { useEffect } from "react";
 const Subscribe = () => {
   const forceRender = useForceRender();
 
-  useEffect(() => {
-    setInterval(() => {
-      forceRender();
-    }, 2000);
-  }, []);
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     forceRender();
+  //   }, 2000);
+  // }, []);
 
   const queries = {
     getUsers: useGetUsersQuery({
