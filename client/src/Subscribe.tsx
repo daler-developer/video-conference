@@ -1,6 +1,7 @@
 import { useGetUsersQuery, useNewMediaFrameSub } from "@/entity";
 import { useForceRender } from "@/shared/hooks";
 import { useEffect } from "react";
+import { Button } from "@mantine/core";
 
 const Subscribe = () => {
   const forceRender = useForceRender();
@@ -20,44 +21,59 @@ const Subscribe = () => {
     }),
   };
 
-  useNewMediaFrameSub({
-    params: {
-      conferenceId: "hello_world",
-    },
-    onData({ data }) {
-      // console.log("data", data);
-    },
-  });
+  // useNewMediaFrameSub({
+  //   params: {
+  //     conferenceId: "hello_world",
+  //   },
+  //   onData({ data }) {
+  //     console.log("data", data);
+  //   },
+  // });
 
-  if (queries.getUsers.status === "fetching") {
-    return (
-      <div>
-        <h1>Loading</h1>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Button
+        type="button"
+        onClick={() => {
+          queries.getUsers.fetchMore();
+        }}
+      >
+        Fetch More
+      </Button>
 
-  if (queries.getUsers.status === "error") {
-    return (
       <div>
-        <h1>Error</h1>
-      </div>
-    );
-  }
+        {queries.getUsers.status === "fetching" && (
+          <div>
+            <h1>Loading</h1>
+          </div>
+        )}
 
-  if (queries.getUsers.status === "success") {
-    return (
-      <div>
-        <ul>
-          {queries.getUsers.data!.list.map((user) => (
-            <li key={user.id}>
-              Name {user.name}; Age: {user.age}
-            </li>
-          ))}
-        </ul>
+        {queries.getUsers.status === "fetching-more" && (
+          <div>
+            <h1>Fetching more</h1>
+          </div>
+        )}
+
+        {queries.getUsers.status === "error" && (
+          <div>
+            <h1>Error</h1>
+          </div>
+        )}
+
+        {queries.getUsers.data && (
+          <div>
+            <ul>
+              {queries.getUsers.data!.list.map((user) => (
+                <li key={user.id}>
+                  Name {user.name}; Age: {user.age}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default Subscribe;

@@ -1,24 +1,35 @@
-import { type BaseOutgoingMessage } from "./types";
+import {
+  type BaseOutgoingMessage,
+  type BaseOutgoingMessagePayload,
+} from "./types";
 import { prepareMeta } from "./utils.ts";
 
-type Options<TOutgoingMessage extends BaseOutgoingMessage> = {
-  type: TOutgoingMessage["type"];
+type Options<TMessageType extends string> = {
+  type: TMessageType;
 };
 
 export const createOutgoingMessageCreator = <
-  TOutgoingMessage extends BaseOutgoingMessage,
+  TMessagePayload extends BaseOutgoingMessagePayload,
+  TMessageType extends string,
 >({
   type,
-}: Options<TOutgoingMessage>) => {
+}: Options<TMessageType>) => {
   return ({
     payload,
   }: {
-    payload: TOutgoingMessage["payload"];
-  }): TOutgoingMessage => {
+    payload: TMessagePayload;
+  }): BaseOutgoingMessage<TMessageType, TMessagePayload> => {
     return {
       type,
       payload,
       meta: prepareMeta(),
-    } as TOutgoingMessage;
+    };
   };
 };
+
+export type OutgoingMessageCreator<
+  TMessagePayload extends BaseOutgoingMessagePayload,
+  TMessageType extends string,
+> = ReturnType<
+  typeof createOutgoingMessageCreator<TMessagePayload, TMessageType>
+>;

@@ -1,4 +1,4 @@
-import { type QueryOptions } from "./Query";
+import { type QueryOptions, Query } from "./Query";
 import { QueryRepository } from "./QueryRepository";
 import { Subscribable } from "./Subscribable";
 import { EntityManager } from "./entity-manager/EntityManager";
@@ -13,11 +13,21 @@ export class QueryCache extends Subscribable<Listener> {
   #queryRepository = new QueryRepository(this);
   #entityManager = new EntityManager();
 
+  getQueryRepository() {
+    return this.#queryRepository;
+  }
+
   getEntityManager(): EntityManager {
     return this.#entityManager;
   }
 
-  buildQueryOrUseExisting(queryOptions: QueryOptions<any, any, any>) {
+  buildQueryOrUseExisting<
+    TParams extends Record<string, any>,
+    TData extends Record<string, any>,
+    TPageParam extends Record<string, any> | null,
+  >(
+    queryOptions: QueryOptions<TParams, TData, TPageParam>,
+  ): Query<TParams, TData, TPageParam> {
     const existingQuery = this.#queryRepository.get({
       name: queryOptions.name,
       params: queryOptions.params,
@@ -34,26 +44,21 @@ export class QueryCache extends Subscribable<Listener> {
     return newQuery;
   }
 
-  destroyQuery({
-    name,
-    params,
-  }: Pick<QueryOptions<any, any, any>, "name" | "params">) {
-    const query = this.#queryRepository.get({ name, params });
-
+  handleQueryUnmount<
+    TParams extends Record<string, any>,
+    TData extends Record<string, any>,
+    TPageParam extends Record<string, any> | null,
+  >(query: Query<TParams, TData, TPageParam>) {
     if (query) {
       query.updateConsumersCount((prev) => prev - 1);
 
       if (query.getConsumersCount() === 0) {
-        this.#queryRepository.delete({ name, params });
+        this.#queryRepository.delete({
+          name: query.getOptions().name,
+          params: query.getOptions().params,
+        });
       }
     }
-  }
-
-  getQuery<
-    TParams extends Record<string, unknown>,
-    TData extends Record<string, unknown>,
-  >({ name, params }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {
-    return this.#queryRepository.get<TParams, TData>({ name, params });
   }
 
   // public getQueryState<

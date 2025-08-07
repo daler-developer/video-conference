@@ -1,22 +1,28 @@
 import { type Schema } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
+import type { IncomingMessageExtractPayload } from "@/websocket";
 
-export type QueryStatus = "idle" | "fetching" | "success" | "error";
+export type QueryStatus =
+  | "idle"
+  | "fetching"
+  | "fetching-more"
+  | "success"
+  | "error";
 
 export type QueryFn<
-  TParams extends Record<string, unknown>,
-  TData extends Record<string, unknown>,
-  TPageParam extends Record<string, unknown> | null,
+  TParams extends Record<string, any>,
+  TData extends Record<string, any>,
+  TPageParam extends Record<string, any> | null,
 > = (options: { params: TParams; pageParam: TPageParam }) => Promise<TData>;
 
 export type QueryOptions<
-  TParams extends Record<string, unknown>,
-  TData extends Record<string, unknown>,
-  TPageParam extends Record<string, unknown> | null,
+  TParams extends Record<string, any>,
+  TData extends Record<string, any>,
+  TPageParam extends Record<string, any> | null,
 > = {
   name: string;
-  params: Record<string, unknown>;
+  params: Record<string, any>;
   fn: QueryFn<TParams, TData, TPageParam>;
   schema: Schema;
   isInfinite: boolean;
@@ -24,11 +30,12 @@ export type QueryOptions<
   getNextPageParam?: (options: {
     lastPageParam: TPageParam;
   }) => NonNullable<TPageParam>;
+  merge: (options: { existingData: TData; incomingData: TData }) => TData;
 };
 
-export type QueryState<TPageParam extends Record<string, unknown> | null> = {
+export type QueryState<TPageParam extends Record<string, any> | null> = {
   status: QueryStatus;
-  normalizedData: unknown;
+  normalizedData: any;
   lastPageParam?: TPageParam;
 };
 
@@ -63,6 +70,7 @@ export class Query<
       isInfinite,
       initialPageParam,
       getNextPageParam,
+      merge,
     }: QueryOptions<TParams, TData, TPageParam>,
   ) {
     super();
@@ -75,13 +83,29 @@ export class Query<
       isInfinite,
       initialPageParam,
       getNextPageParam,
+      merge,
     };
     this.#consumersCount = 0;
-    this.#state = {
+    this.#state = this.getInitialState();
+    this.bindMethods();
+  }
+
+  private getInitialState(): QueryState<TPageParam> {
+    return {
       status: "idle",
       normalizedData: null,
       lastPageParam: this.#options.initialPageParam,
     };
+  }
+
+  private bindMethods() {
+    this.fetchMore = this.fetchMore.bind(this);
+    this.reset = this.reset.bind(this);
+    this.getIsIdle = this.getIsIdle.bind(this);
+    this.getIsFetching = this.getIsFetching.bind(this);
+    this.getIsFetchingMore = this.getIsFetchingMore.bind(this);
+    this.getIsSuccess = this.getIsSuccess.bind(this);
+    this.getIsError = this.getIsError.bind(this);
   }
 
   static hashQuery({ name, params }: HashQueryOptions) {
@@ -99,6 +123,10 @@ export class Query<
   }
 
   getData() {
+    if (!this.#state.normalizedData) {
+      return null;
+    }
+
     return this.#queryCache
       .getEntityManager()
       .denormalizeData<TData>(this.#state.normalizedData, this.#options.schema);
@@ -150,7 +178,7 @@ export class Query<
   async fetchMore() {
     try {
       this.updateState({
-        status: "fetching",
+        status: "fetching-more",
       });
 
       const nextPageParam = this.#options.getNextPageParam!({
@@ -158,13 +186,18 @@ export class Query<
       });
 
       const data = await this.#options.fn({
-        params: nextPageParam!,
-        pageParam: this.#options.initialPageParam!,
+        params: this.#options.params,
+        pageParam: nextPageParam,
+      });
+
+      const mergedData = this.#options.merge({
+        existingData: this.getData(),
+        incomingData: data,
       });
 
       const { normalizedData } = this.#queryCache
         .getEntityManager()
-        .normalizeAndSave(data, this.#options.schema);
+        .normalizeAndSave(mergedData, this.#options.schema);
 
       this.updateState({
         status: "success",
@@ -184,6 +217,10 @@ export class Query<
     return this.#consumersCount;
   }
 
+  getOptions() {
+    return this.#options;
+  }
+
   updateConsumersCount(updater: (prev: number) => number) {
     this.#consumersCount = updater(this.#consumersCount);
   }
@@ -196,5 +233,29 @@ export class Query<
 
   getStatus() {
     return this.#state.status;
+  }
+
+  getIsIdle() {
+    return this.#state.status === "idle";
+  }
+
+  getIsFetching() {
+    return this.#state.status === "fetching";
+  }
+
+  getIsFetchingMore() {
+    return this.#state.status === "fetching-more";
+  }
+
+  getIsSuccess() {
+    return this.#state.status === "success";
+  }
+
+  getIsError() {
+    return this.#state.status === "error";
+  }
+
+  reset() {
+    this.updateState(this.getInitialState());
   }
 }

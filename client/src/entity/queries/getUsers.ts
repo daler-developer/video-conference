@@ -3,6 +3,7 @@ import { createQuery } from "../utils/createQuery";
 import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
+  createOutgoingMessageCreator,
 } from "@/websocket";
 import { UserEntitySchema } from "../query-cache/entity-manager/UserRepository";
 import { type UserEntity } from "../types";
@@ -26,26 +27,6 @@ type IncomingMessage = BaseIncomingMessage<
   }
 >;
 
-const schema = {
-  list: [UserEntitySchema],
-};
-
-export const { hook: useGetUsersQuery } = createQuery(
-  createEventSubAdapterForWebsocket<OutgoingMessage, IncomingMessage>({
-    name: GET_USERS,
-    outgoingMessageType: GET_USERS,
-    createPayload({ params, pageParam }) {
-      return {
-        limit: 234,
-        search: "234",
-      };
-    },
-  }),
-  schema,
-);
-
-// export const { hook: useGetUsersQuery } = getUsersQuery;
-
 type Params = {
   limit: number;
   search: string;
@@ -55,50 +36,71 @@ type PageParam = {
   page: number;
 };
 
-type OutgoingMessagePayload = {
-  limit: number;
-  search: string;
-  page: number;
-};
-
-type IncomingMessagePayload = {
-  list: UserEntity[];
-};
-
 const adapter = createEventSubAdapterForWebsocket<
-  OutgoingMessagePayload,
-  IncomingMessagePayload,
+  typeof GET_USERS,
+  OutgoingMessage,
+  IncomingMessage,
   Params,
   PageParam,
-  typeof GET_USERS
->({
-  name: GET_USERS,
-  outgoingMessageType: GET_USERS,
-  createPayload({ params, pageParam }) {
+  true
+>(
+  GET_USERS,
+  GET_USERS,
+  ({ params, pageParam }) => {
     return {
       limit: params.limit,
       search: params.search,
       page: pageParam.page,
     };
   },
-});
+  true,
+  {
+    page: 1,
+  },
+  ({ lastPageParam }) => {
+    return {
+      ...lastPageParam,
+      page: lastPageParam.page + 1,
+    };
+  },
+  ({ existingData, incomingData }) => {
+    return {
+      ...existingData,
+      list: [...existingData.list, ...incomingData.list],
+    };
+  },
+);
 
-adapter
-  .callback({
-    params: {
-      limit: 123,
-      search: "sdf",
-    },
-    pageParam: {
-      page: 1,
-    },
-  })
-  .then((result) => {
-    console.log(result.data.list[0].age);
-    // result.data.list.forEach((a) => {
-    //   a.age;
-    // });
-    // result.data.list.forEach((item) => {
-    //   item;
-    // });
-  });
+const schema = {
+  list: [UserEntitySchema],
+};
+
+export const { hook: useGetUsersQuery } = createQuery(adapter, schema);
+
+// const adapter = createEventSubAdapterForWebsocket<Params, PageParam>({
+//   name: GET_USERS,
+//   outgoingMessageCreator: createOutgoingMessage,
+//   createPayload({ params, pageParam }) {
+//     return {
+//       limit: params.limit,
+//       search: params.search,
+//       page: pageParam.page,
+//     };
+//   },
+// });
+
+// adapter
+//   .callback({
+//     params: {
+//       limit: 123,
+//       search: "sdf",
+//     },
+//     pageParam: {
+//       page: 1,
+//     },
+//   })
+//   .then((result) => {
+//     result.data.list.forEach((a) => {
+//
+//     });
+//   });

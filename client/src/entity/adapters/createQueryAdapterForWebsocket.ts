@@ -2,75 +2,82 @@ import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
   type BaseIncomingMessagePayload,
+  type BaseOutgoingMessagePayload,
   createOutgoingMessageCreator,
   websocketClient,
+  type OutgoingMessageCreator,
+  type OutgoingMessageExtractPayload,
+  type IncomingMessageExtractPayload,
+  type OutgoingMessageExtractType,
 } from "@/websocket";
+import { type QueryAdapter } from "../utils/createQuery";
 
-export type QueryAdapter<
-  TQueryName extends string = string,
-  TParams extends Record<string, any> = Record<string, any>,
-  TData extends TIncomingMessagePayload = TIncomingMessagePayload,
-  TPageParam extends Record<string, any> = Record<string, any>,
-> = {
-  name: TQueryName;
-  callback: (options: {
-    params: TParams;
-    pageParam?: TPageParam;
-  }) => Promise<{ data: TData }>;
-};
+// type Options<
+//   TQueryName extends string,
+//   TOutgoingMessageCreator extends OutgoingMessageCreator<any, any>,
+//   TParams extends Record<string, any>,
+//   TPageParam extends Record<string, any>,
+//   TPayload extends Record<string, any>,
+// > = {
+//   name: TQueryName;
+//   outgoingMessageCreator: TOutgoingMessageCreator;
+//   createPayload: (options: {
+//     params: TParams;
+//     pageParam: TPageParam;
+//   }) => TPayload;
+// };
 
-type Options<
+export const createEventSubAdapterForWebsocket = <
   TQueryName extends string,
+  TOutgoingMessage extends BaseOutgoingMessage,
+  TIncomingMessage extends BaseIncomingMessage<any, any>,
   TParams extends Record<string, any>,
   TPageParam extends Record<string, any>,
-  TPayload extends Record<string, any>,
-> = {
-  name: TQueryName;
-  outgoingMessageType: string;
+  TIsInfinite extends boolean,
+>(
+  name: TQueryName,
+  outgoingMessageType: OutgoingMessageExtractType<TOutgoingMessage>,
   createPayload: (options: {
     params: TParams;
     pageParam: TPageParam;
-  }) => TPayload;
-};
-
-export const createEventSubAdapterForWebsocket = <
-  TOutgoingMessagePayload extends Record<string, any>,
-  TIncomingMessagePayload extends BaseIncomingMessagePayload,
-  TParams extends Record<string, any>,
-  TPageParam extends Record<string, any>,
-  TOutgoingMessageType extends string,
->({
-  name,
-  outgoingMessageType,
-  createPayload,
-}: Options<
-  TOutgoingMessageType,
+  }) => OutgoingMessageExtractPayload<TOutgoingMessage>,
+  isInfinite: TIsInfinite,
+  initialPageParam: TPageParam,
+  getNextPageParam: (options: {
+    lastPageParam: TPageParam;
+  }) => NonNullable<TPageParam>,
+  merge: (options: {
+    existingData: IncomingMessageExtractPayload<TIncomingMessage>;
+    incomingData: IncomingMessageExtractPayload<TIncomingMessage>;
+  }) => IncomingMessageExtractPayload<TIncomingMessage>,
+): QueryAdapter<
+  TQueryName,
   TParams,
-  TPageParam,
-  TOutgoingMessagePayload
->): QueryAdapter<
-  TOutgoingMessageType,
-  TParams,
-  TIncomingMessagePayload,
+  IncomingMessageExtractPayload<TIncomingMessage>,
   TPageParam
 > => {
   return {
     name,
+    isInfinite,
+    initialPageParam,
+    getNextPageParam,
+    merge,
     async callback({ params, pageParam }) {
+      const payload = createPayload({ params, pageParam: pageParam! });
+
       const createOutgoingMessage = createOutgoingMessageCreator({
         type: outgoingMessageType,
       });
 
-      const payload = createPayload({ params, pageParam: pageParam! });
+      const outgoingMessage = createOutgoingMessage({
+        payload,
+      });
 
-      const incomingResponseMessage = await websocketClient.sendMessage(
-        createOutgoingMessage({
-          payload,
-        }),
-      );
+      const incomingResponseMessage =
+        await websocketClient.sendMessage(outgoingMessage);
 
       return {
-        data: incomingResponseMessage.payload,
+        data: incomingResponseMessage.payload as IncomingMessageExtractPayload<TIncomingMessage>,
       };
     },
   };

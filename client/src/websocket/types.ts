@@ -22,8 +22,6 @@ export type BaseOutgoingMessage<
   meta: BaseOutgoingMessageMeta;
 };
 
-export type BaseIncomingMessagePayload = { [key: string]: JsonValue };
-
 export type BaseIncomingMessage<
   TMessageType extends string = string,
   TMessagePayload extends
@@ -35,6 +33,24 @@ export type BaseIncomingMessage<
     messageId?: string;
   };
 };
+
+export type OutgoingMessageExtractType<T> =
+  T extends BaseOutgoingMessage<infer U> ? U : never;
+
+export type OutgoingMessageExtractPayload<T> =
+  T extends BaseOutgoingMessage<infer _, infer U> ? U : never;
+
+export type IncomingMessageExtractType<T> =
+  T extends BaseIncomingMessage<infer U> ? U : never;
+
+export type IncomingMessageExtractPayload<T> =
+  T extends BaseIncomingMessage<infer _, infer U> ? U : never;
+
+export type OutgoingMessagePayload<
+  TOutgoingMessage extends BaseOutgoingMessage,
+> = TOutgoingMessage extends BaseOutgoingMessage<infer U> ? U : never;
+
+export type BaseIncomingMessagePayload = { [key: string]: JsonValue };
 
 export type IncomingErrorMessage<
   TErrorType extends string = string,
