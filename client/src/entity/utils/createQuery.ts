@@ -1,43 +1,40 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { type Schema } from "normalizr";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 import { useForceRender } from "@/shared/hooks";
-import type { IncomingMessageExtractPayload } from "@/websocket";
+import {
+  type QueryOptions,
+  type BaseQueryData,
+  type BaseQueryParams,
+  type BaseQueryPageParam,
+} from "../query-cache/Query";
 
 export type QueryAdapter<
-  TQueryName extends string = string,
-  TParams extends Record<string, any> = Record<string, any>,
-  TData extends Record<string, any> = Record<string, any>,
-  TPageParam extends Record<string, any> | null = null,
-> = {
-  name: TQueryName;
-  isInfinite: boolean;
-  initialPageParam: TPageParam;
-  getNextPageParam: (options: {
-    lastPageParam: TPageParam;
-  }) => NonNullable<TPageParam>;
-  callback: (options: {
-    params: TParams;
-    pageParam?: TPageParam;
-  }) => Promise<{ data: TData }>;
-  merge: (options: { existingData: TData; incomingData: TData }) => TData;
+  TQueryParams extends BaseQueryParams,
+  TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
+> = Pick<
+  QueryOptions<TQueryParams, TQueryData, TQueryPageParam>,
+  | "name"
+  | "isInfinite"
+  | "initialPageParam"
+  | "getNextPageParam"
+  | "callback"
+  | "merge"
+>;
+
+type HookOptions<TQueryParams extends BaseQueryParams> = {
+  params: TQueryParams;
 };
 
-type HookOptions<TParams extends Record<string, any> = Record<string, any>> = {
-  params: TParams;
-};
-
-type UpdateDataCallback<TData extends Record<string, any>> = (
-  prev: TData,
-) => TData;
-
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
+type UpdateDataCallback<TQueryData extends BaseQueryData> = (
+  prev: TQueryData,
+) => TQueryData;
 
 const createQuery = <
-  TParams extends Record<string, any> = Record<string, any>,
-  TData extends Record<string, any> = Record<string, any>,
-  TQueryName extends string = string,
-  TPageParam extends Record<string, any> | null = null,
+  TQueryParams extends BaseQueryParams,
+  TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
 >(
   {
     name,
@@ -46,14 +43,18 @@ const createQuery = <
     initialPageParam,
     getNextPageParam,
     merge,
-  }: QueryAdapter<TQueryName, TParams, TData, TPageParam>,
+  }: QueryAdapter<TQueryParams, TQueryData, TQueryPageParam>,
   schema: Schema,
 ) => {
-  const hook = function useHook({ params }: HookOptions<TParams>) {
+  const hook = function useHook({ params }: HookOptions<TQueryParams>) {
     const forceRender = useForceRender();
 
     const [query] = useState(() => {
-      return queryCache.buildQueryOrUseExisting<TParams, TData, TPageParam>({
+      return queryCache.buildQueryOrUseExisting<
+        TQueryParams,
+        TQueryData,
+        TQueryPageParam
+      >({
         isInfinite,
         schema,
         name,
@@ -61,12 +62,7 @@ const createQuery = <
         initialPageParam,
         getNextPageParam,
         merge,
-        async fn({ params, pageParam }) {
-          await sleep();
-          const { data } = await callback({ params, pageParam });
-
-          return data;
-        },
+        callback,
       });
     });
 
@@ -100,10 +96,13 @@ const createQuery = <
     };
   };
 
-  const updateData = (params: TParams, callback: UpdateDataCallback<TData>) => {
+  const updateData = (
+    params: TQueryParams,
+    callback: UpdateDataCallback<TQueryData>,
+  ) => {
     const query = queryCache
       .getQueryRepository()
-      .get<TParams, TData>({ name, params });
+      .get<TQueryParams, TQueryData>({ name, params });
     const prevData = query.getData();
 
     if (prevData) {

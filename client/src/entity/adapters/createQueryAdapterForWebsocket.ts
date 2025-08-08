@@ -11,6 +11,11 @@ import {
   type OutgoingMessageExtractType,
 } from "@/websocket";
 import { type QueryAdapter } from "../utils/createQuery";
+import {
+  type BaseQueryData,
+  type BaseQueryParams,
+  type BaseQueryPageParam,
+} from "../query-cache/Query";
 
 // type Options<
 //   TQueryName extends string,
@@ -27,34 +32,48 @@ import { type QueryAdapter } from "../utils/createQuery";
 //   }) => TPayload;
 // };
 
-export const createEventSubAdapterForWebsocket = <
-  TQueryName extends string,
+type Options<
   TOutgoingMessage extends BaseOutgoingMessage,
-  TIncomingMessage extends BaseIncomingMessage<any, any>,
-  TParams extends Record<string, any>,
-  TPageParam extends Record<string, any>,
-  TIsInfinite extends boolean,
->(
-  name: TQueryName,
-  outgoingMessageType: OutgoingMessageExtractType<TOutgoingMessage>,
+  TIncomingMessage extends BaseIncomingMessage,
+  TQueryParams extends BaseQueryParams,
+  TQueryPageParam extends BaseQueryPageParam,
+> = Pick<
+  QueryAdapter<
+    TQueryParams,
+    IncomingMessageExtractPayload<TIncomingMessage>,
+    TQueryPageParam
+  >,
+  "name" | "isInfinite" | "initialPageParam" | "getNextPageParam" | "merge"
+> & {
+  outgoingMessageType: OutgoingMessageExtractType<TOutgoingMessage>;
   createPayload: (options: {
-    params: TParams;
-    pageParam: TPageParam;
-  }) => OutgoingMessageExtractPayload<TOutgoingMessage>,
-  isInfinite: TIsInfinite,
-  initialPageParam: TPageParam,
-  getNextPageParam: (options: {
-    lastPageParam: TPageParam;
-  }) => NonNullable<TPageParam>,
-  merge: (options: {
-    existingData: IncomingMessageExtractPayload<TIncomingMessage>;
-    incomingData: IncomingMessageExtractPayload<TIncomingMessage>;
-  }) => IncomingMessageExtractPayload<TIncomingMessage>,
-): QueryAdapter<
-  TQueryName,
-  TParams,
+    params: TQueryParams;
+    pageParam: TQueryPageParam;
+  }) => OutgoingMessageExtractPayload<TOutgoingMessage>;
+};
+
+export const createEventSubAdapterForWebsocket = <
+  TOutgoingMessage extends BaseOutgoingMessage,
+  TIncomingMessage extends BaseIncomingMessage,
+  TQueryParams extends BaseQueryParams,
+  TQueryPageParam extends BaseQueryPageParam,
+>({
+  name,
+  outgoingMessageType,
+  createPayload,
+  isInfinite,
+  initialPageParam,
+  getNextPageParam,
+  merge,
+}: Options<
+  TOutgoingMessage,
+  TIncomingMessage,
+  TQueryParams,
+  TQueryPageParam
+>): QueryAdapter<
+  TQueryParams,
   IncomingMessageExtractPayload<TIncomingMessage>,
-  TPageParam
+  TQueryPageParam
 > => {
   return {
     name,
@@ -76,9 +95,7 @@ export const createEventSubAdapterForWebsocket = <
       const incomingResponseMessage =
         await websocketClient.sendMessage(outgoingMessage);
 
-      return {
-        data: incomingResponseMessage.payload as IncomingMessageExtractPayload<TIncomingMessage>,
-      };
+      return incomingResponseMessage.payload as IncomingMessageExtractPayload<TIncomingMessage>;
     },
   };
 };

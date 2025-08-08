@@ -3,13 +3,7 @@ import { QueryRepository } from "./QueryRepository";
 import { Subscribable } from "./Subscribable";
 import { EntityManager } from "./entity-manager/EntityManager";
 
-type QueryCacheNotifyEvent = {
-  type: "query-state-updated";
-};
-
-type Listener = (event: QueryCacheNotifyEvent) => void;
-
-export class QueryCache extends Subscribable<Listener> {
+export class QueryCache {
   #queryRepository = new QueryRepository(this);
   #entityManager = new EntityManager();
 

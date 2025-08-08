@@ -37,39 +37,37 @@ type PageParam = {
 };
 
 const adapter = createEventSubAdapterForWebsocket<
-  typeof GET_USERS,
   OutgoingMessage,
   IncomingMessage,
   Params,
-  PageParam,
-  true
->(
-  GET_USERS,
-  GET_USERS,
-  ({ params, pageParam }) => {
+  PageParam
+>({
+  name: GET_USERS,
+  outgoingMessageType: GET_USERS,
+  createPayload: ({ params, pageParam }) => {
     return {
       limit: params.limit,
       search: params.search,
       page: pageParam.page,
     };
   },
-  true,
-  {
+  isInfinite: true,
+  initialPageParam: {
     page: 1,
   },
-  ({ lastPageParam }) => {
+  getNextPageParam: ({ lastPageParam }) => {
     return {
       ...lastPageParam,
       page: lastPageParam.page + 1,
     };
   },
-  ({ existingData, incomingData }) => {
+  merge: ({ existingData, incomingData }) => {
     return {
       ...existingData,
       list: [...existingData.list, ...incomingData.list],
     };
   },
-);
+});
 
 const schema = {
   list: [UserEntitySchema],

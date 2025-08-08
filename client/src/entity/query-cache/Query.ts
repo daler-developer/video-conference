@@ -1,7 +1,6 @@
 import { type Schema } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
-import type { IncomingMessageExtractPayload } from "@/websocket";
 
 export type QueryStatus =
   | "idle"
@@ -10,54 +9,75 @@ export type QueryStatus =
   | "success"
   | "error";
 
-export type QueryFn<
-  TParams extends Record<string, any>,
-  TData extends Record<string, any>,
-  TPageParam extends Record<string, any> | null,
-> = (options: { params: TParams; pageParam: TPageParam }) => Promise<TData>;
+export type BaseQueryParams = Record<string, any>;
+
+export type BaseQueryData = Record<string, any>;
+
+export type BaseQueryPageParam = Record<string, any> | null;
+
+export type QueryCallback<
+  TQueryParams extends BaseQueryParams,
+  TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
+> = (options: {
+  params: TQueryParams;
+  pageParam: TQueryPageParam;
+}) => Promise<TQueryData>;
+
+export type QueryMerge<TQueryData extends BaseQueryData> = (options: {
+  existingData: TQueryData;
+  incomingData: TQueryData;
+}) => TQueryData;
+
+export type QueryGetNextPageParam<TQueryPageParam extends BaseQueryPageParam> =
+  (options: { lastPageParam: TQueryPageParam }) => NonNullable<TQueryPageParam>;
 
 export type QueryOptions<
-  TParams extends Record<string, any>,
-  TData extends Record<string, any>,
-  TPageParam extends Record<string, any> | null,
+  TQueryParams extends BaseQueryParams,
+  TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
 > = {
   name: string;
-  params: Record<string, any>;
-  fn: QueryFn<TParams, TData, TPageParam>;
+  params: TQueryParams;
+  callback: QueryCallback<TQueryParams, TQueryData, TQueryPageParam>;
   schema: Schema;
   isInfinite: boolean;
-  initialPageParam?: TPageParam;
-  getNextPageParam?: (options: {
-    lastPageParam: TPageParam;
-  }) => NonNullable<TPageParam>;
-  merge: (options: { existingData: TData; incomingData: TData }) => TData;
+  initialPageParam?: TQueryPageParam;
+  getNextPageParam?: QueryGetNextPageParam<TQueryPageParam>;
+  merge: QueryMerge<TQueryData>;
 };
 
-export type QueryState<TPageParam extends Record<string, any> | null> = {
+export type QueryState<TQueryPageParam extends BaseQueryPageParam> = {
   status: QueryStatus;
   normalizedData: any;
-  lastPageParam?: TPageParam;
+  lastPageParam?: TQueryPageParam;
 };
 
 type HashQueryOptions = {
   name: string;
-  params: Record<string, unknown>;
+  params: unknown;
 };
 
-type QueryNotifyEvent = {
-  type: "state-updated";
+type BaseQueryNotifyEvent<TType extends string> = {
+  type: TType;
 };
+
+type QueryNotifyEventStateUpdated = BaseQueryNotifyEvent<"state-updated">;
+
+type QueryNotifyEvent = QueryNotifyEventStateUpdated;
 
 type Listener = (event: QueryNotifyEvent) => void;
 
+const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
+
 export class Query<
-  TParams extends Record<string, unknown>,
-  TData extends Record<string, unknown>,
-  TPageParam extends Record<string, unknown> | null = null,
+  TQueryParams extends BaseQueryParams,
+  TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  #state: QueryState<TPageParam>;
-  #options: QueryOptions<TParams, TData, TPageParam>;
+  #state: QueryState<TQueryPageParam>;
+  #options: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>;
   #consumersCount: number;
 
   constructor(
@@ -65,20 +85,20 @@ export class Query<
     {
       name,
       params,
-      fn,
+      callback,
       schema,
       isInfinite,
       initialPageParam,
       getNextPageParam,
       merge,
-    }: QueryOptions<TParams, TData, TPageParam>,
+    }: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>,
   ) {
     super();
     this.#queryCache = queryCache;
     this.#options = {
       name,
       params,
-      fn,
+      callback,
       schema,
       isInfinite,
       initialPageParam,
@@ -90,7 +110,7 @@ export class Query<
     this.bindMethods();
   }
 
-  private getInitialState(): QueryState<TPageParam> {
+  private getInitialState(): QueryState<TQueryPageParam> {
     return {
       status: "idle",
       normalizedData: null,
@@ -112,7 +132,7 @@ export class Query<
     return `${name}|${JSON.stringify(params)}`;
   }
 
-  setData(data: TData) {
+  setData(data: TQueryData) {
     const { normalizedData } = this.#queryCache
       .getEntityManager()
       .normalizeAndSave(data, this.#options.schema);
@@ -129,10 +149,13 @@ export class Query<
 
     return this.#queryCache
       .getEntityManager()
-      .denormalizeData<TData>(this.#state.normalizedData, this.#options.schema);
+      .denormalizeData<TQueryData>(
+        this.#state.normalizedData,
+        this.#options.schema,
+      );
   }
 
-  updateState(newState: Partial<QueryState<TPageParam>>) {
+  updateState(newState: Partial<QueryState<TQueryPageParam>>) {
     this.#state = {
       ...this.#state,
       ...newState,
@@ -146,8 +169,10 @@ export class Query<
       status: "fetching",
     });
 
+    await sleep();
+
     try {
-      const data = await this.#options.fn({
+      const data = await this.#options.callback({
         params: this.#options.params,
         pageParam: this.#options.initialPageParam!,
       });
@@ -181,17 +206,19 @@ export class Query<
         status: "fetching-more",
       });
 
+      await sleep();
+
       const nextPageParam = this.#options.getNextPageParam!({
         lastPageParam: this.#state.lastPageParam!,
       });
 
-      const data = await this.#options.fn({
+      const data = await this.#options.callback({
         params: this.#options.params,
         pageParam: nextPageParam,
       });
 
       const mergedData = this.#options.merge({
-        existingData: this.getData(),
+        existingData: this.getData()!,
         incomingData: data,
       });
 
