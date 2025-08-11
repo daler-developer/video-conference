@@ -1,15 +1,25 @@
-import { Query, type QueryOptions } from "./Query";
+import {
+  type BaseQueryData,
+  type BaseQueryPageParam,
+  type BaseQueryParams,
+  Query,
+  type QueryOptions,
+} from "./Query";
 import { QueryCache } from "./QueryCache";
 
 export class QueryRepository {
   #queryCache: QueryCache;
-  #queries: Map<string, Query<any, any>> = new Map();
+  #queries: Map<string, Query<any, any, any>> = new Map();
 
   constructor(queryCache: QueryCache) {
     this.#queryCache = queryCache;
   }
 
-  add(queryOptions: QueryOptions<any, any>) {
+  add<
+    TQueryParams extends BaseQueryParams,
+    TQueryData extends BaseQueryData,
+    TQueryPageParam extends BaseQueryPageParam,
+  >(queryOptions: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>) {
     const queryHash = Query.hashQuery({
       name: queryOptions.name,
       params: queryOptions.params,
@@ -19,16 +29,37 @@ export class QueryRepository {
     return newQuery;
   }
 
-  get<TParams extends Record<string, any>, TData extends Record<string, any>>({
+  get<
+    TQueryParams extends BaseQueryParams,
+    TQueryData extends BaseQueryData,
+    TQueryPageParam extends BaseQueryPageParam,
+  >({
     name,
     params,
-  }: Pick<QueryOptions<TParams, TData>, "name" | "params">) {
+  }: Pick<
+    QueryOptions<TQueryParams, TQueryData, TQueryPageParam>,
+    "name" | "params"
+  >) {
     const queryHash = Query.hashQuery({ name, params });
 
-    return this.#queries.get(queryHash) as Query<TParams, TData>;
+    return this.#queries.get(queryHash) as Query<
+      TQueryParams,
+      TQueryData,
+      TQueryPageParam
+    >;
   }
 
-  delete({ name, params }: Pick<QueryOptions<any, any>, "name" | "params">) {
+  delete<
+    TQueryParams extends BaseQueryParams,
+    TQueryData extends BaseQueryData,
+    TQueryPageParam extends BaseQueryPageParam,
+  >({
+    name,
+    params,
+  }: Pick<
+    QueryOptions<TQueryParams, TQueryData, TQueryPageParam>,
+    "name" | "params"
+  >) {
     const queryHash = Query.hashQuery({ name, params });
 
     return this.#queries.delete(queryHash);

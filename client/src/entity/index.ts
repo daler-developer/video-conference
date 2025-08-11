@@ -8,7 +8,7 @@ import {
   SendMediaFrameError,
 } from "./mutations/sendMediaFrame.ts";
 import { useNewMediaFrameSub } from "./event-subs/newMediaFrameSub.ts";
-import { useGetUsersQuery } from "./queries/getUsers.ts";
+import { useGetUsersQuery, useGetUsersLazyQuery } from "./queries/getUsers.ts";
 
 export {
   startMutation,
@@ -18,4 +18,5 @@ export {
   StartSessionError,
   useNewMediaFrameSub,
   useGetUsersQuery,
+  useGetUsersLazyQuery,
 };

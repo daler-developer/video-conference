@@ -1,4 +1,8 @@
-import { useGetUsersQuery, useNewMediaFrameSub } from "@/entity";
+import {
+  useGetUsersQuery,
+  useGetUsersLazyQuery,
+  useNewMediaFrameSub,
+} from "@/entity";
 import { useForceRender } from "@/shared/hooks";
 import { useEffect } from "react";
 import { Button } from "@mantine/core";
@@ -13,7 +17,7 @@ const Subscribe = () => {
   // }, []);
 
   const queries = {
-    getUsers: useGetUsersQuery({
+    getUsers: useGetUsersLazyQuery({
       params: {
         limit: 23,
         search: "adf",
@@ -35,6 +39,15 @@ const Subscribe = () => {
       <Button
         type="button"
         onClick={() => {
+          queries.getUsers.fetch();
+        }}
+      >
+        Fetch
+      </Button>
+
+      <Button
+        type="button"
+        onClick={() => {
           queries.getUsers.fetchMore();
         }}
       >
@@ -42,6 +55,12 @@ const Subscribe = () => {
       </Button>
 
       <div>
+        {queries.getUsers.status === "idle" && (
+          <div>
+            <h1>Idle</h1>
+          </div>
+        )}
+
         {queries.getUsers.status === "fetching" && (
           <div>
             <h1>Loading</h1>

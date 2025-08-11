@@ -79,6 +79,7 @@ export class Query<
   #state: QueryState<TQueryPageParam>;
   #options: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>;
   #consumersCount: number;
+  #observersCount: number;
 
   constructor(
     queryCache: QueryCache,
@@ -106,6 +107,7 @@ export class Query<
       merge,
     };
     this.#consumersCount = 0;
+    this.#observersCount = 0;
     this.#state = this.getInitialState();
     this.bindMethods();
   }
@@ -119,6 +121,7 @@ export class Query<
   }
 
   private bindMethods() {
+    this.triggerFetch = this.triggerFetch.bind(this);
     this.fetchMore = this.fetchMore.bind(this);
     this.reset = this.reset.bind(this);
     this.getIsIdle = this.getIsIdle.bind(this);
@@ -201,6 +204,10 @@ export class Query<
   }
 
   async fetchMore() {
+    if (!this.#options.isInfinite) {
+      throw new Error(`Query ${this.#options.name} is not infinite`);
+    }
+
     try {
       this.updateState({
         status: "fetching-more",
@@ -252,7 +259,11 @@ export class Query<
     this.#consumersCount = updater(this.#consumersCount);
   }
 
-  notify(event: QueryNotifyEvent) {
+  updateObserversCount(updater: (prev: number) => number) {
+    this.#observersCount = updater(this.#observersCount);
+  }
+
+  private notify(event: QueryNotifyEvent) {
     this.listeners.forEach((listener) => {
       listener(event);
     });

@@ -67,13 +67,13 @@ const adapter = createEventSubAdapterForWebsocket<
       list: [...existingData.list, ...incomingData.list],
     };
   },
+  schema: {
+    list: [UserEntitySchema],
+  },
 });
 
-const schema = {
-  list: [UserEntitySchema],
-};
-
-export const { hook: useGetUsersQuery } = createQuery(adapter, schema);
+export const { hook: useGetUsersQuery, lazyHook: useGetUsersLazyQuery } =
+  createQuery(adapter);
 
 // const adapter = createEventSubAdapterForWebsocket<Params, PageParam>({
 //   name: GET_USERS,
@@ -98,7 +98,5 @@ export const { hook: useGetUsersQuery } = createQuery(adapter, schema);
 //     },
 //   })
 //   .then((result) => {
-//     result.data.list.forEach((a) => {
-//
-//     });
+//     result.data.list.forEach((a) => {});
 //   });
