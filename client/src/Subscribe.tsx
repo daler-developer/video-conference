@@ -17,13 +17,7 @@ const Subscribe = () => {
   // }, []);
 
   const queries = {
-    getUsers: useGetUsersQuery({
-      params: {
-        limit: 23,
-        search: "adf",
-      },
-    }),
-    getUsersLazy: useGetUsersLazyQuery({
+    getUsers: useGetUsersLazyQuery({
       params: {
         limit: 23,
         search: "adf",

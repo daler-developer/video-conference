@@ -69,20 +69,6 @@ type QueryNotifyEvent = QueryNotifyEventStateUpdated;
 
 type Listener = (event: QueryNotifyEvent) => void;
 
-type QueryResult<
-  TQueryData extends BaseQueryData,
-  TQueryIsInfinite extends boolean,
-> = {
-  data: TQueryData | null;
-  status: QueryStatus;
-  isIdle: boolean;
-  isFetching: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-} & (TQueryIsInfinite extends true
-  ? { fetchMore: () => Promise<void>; isFetchingMore: boolean }
-  : {});
-
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 export class Query<
@@ -180,25 +166,6 @@ export class Query<
         this.#state.normalizedData,
         this.#options.schema,
       );
-  }
-
-  createResult() {
-    const result = {} as QueryResult<TQueryData, TQueryIsInfinite>;
-
-    result.data = this.getData();
-    result.status = this.getStatus();
-    result.isIdle = this.getIsIdle();
-    result.isFetching = this.getIsFetching();
-    result.isSuccess = this.getIsSuccess();
-    result.isError = this.getIsError();
-
-    if (this.#options.isInfinite) {
-      (result as QueryResult<TQueryData, true>).fetchMore = this.fetchMore;
-      (result as QueryResult<TQueryData, true>).isFetchingMore =
-        this.getIsFetchingMore();
-    }
-
-    return result;
   }
 
   updateState(newState: Partial<QueryState<TQueryPageParam>>) {

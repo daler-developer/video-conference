@@ -4,16 +4,39 @@ import {
   type BaseQueryParams,
   type QueryOptions,
   Query,
+  type QueryStatus,
 } from "./Query";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
+
+type QueryResult<
+  TQueryData extends BaseQueryData,
+  TQueryIsInfinite extends boolean,
+  TQueryObserverIsLazy extends boolean,
+> = {
+  data: TQueryData | null;
+  status: QueryStatus;
+  isIdle: boolean;
+  isFetching: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+} & (TQueryIsInfinite extends true
+  ? { fetchMore: () => Promise<void>; isFetchingMore: boolean }
+  : {}) &
+  (TQueryObserverIsLazy extends true ? { fetch: () => Promise<void> } : {});
 
 export type QueryObserverOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-  TIsInfinite extends boolean,
-> = QueryOptions<TQueryParams, TQueryData, TQueryPageParam, TIsInfinite> & {
-  isLazy: boolean;
+  TQueryIsInfinite extends boolean,
+  TQueryObserverIsLazy extends boolean,
+> = QueryOptions<
+  TQueryParams,
+  TQueryData,
+  TQueryPageParam,
+  TQueryIsInfinite
+> & {
+  isLazy: TQueryObserverIsLazy;
 };
 
 export class QueryObserver<
@@ -21,6 +44,7 @@ export class QueryObserver<
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
+  TQueryObserverIsLazy extends boolean,
 > {
   #query: Query<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>;
 
@@ -29,7 +53,8 @@ export class QueryObserver<
       TQueryParams,
       TQueryData,
       TQueryPageParam,
-      TQueryIsInfinite
+      TQueryIsInfinite,
+      TQueryObserverIsLazy
     >,
   ) {
     const existingQuery = queryCache
@@ -73,5 +98,40 @@ export class QueryObserver<
         params: this.#query.getOptions().params,
       });
     }
+  }
+
+  createResult() {
+    const result = {} as QueryResult<
+      TQueryData,
+      TQueryIsInfinite,
+      TQueryObserverIsLazy
+    >;
+
+    result.data = this.getQuery().getData();
+    result.status = this.getQuery().getStatus();
+    result.isIdle = this.getQuery().getIsIdle();
+    result.isFetching = this.getQuery().getIsFetching();
+    result.isSuccess = this.getQuery().getIsSuccess();
+    result.isError = this.getQuery().getIsError();
+
+    if (this.getQuery().getOptions().isInfinite) {
+      (
+        result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
+      ).fetchMore = this.getQuery().fetchMore;
+      (
+        result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
+      ).isFetchingMore = this.getQuery().getIsFetchingMore();
+    }
+
+    // if (this.getQuery().getOptions()..) {
+    //   (
+    //       result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
+    //   ).fetchMore = this.getQuery().fetchMore;
+    //   (
+    //       result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
+    //   ).isFetchingMore = this.getQuery().getIsFetchingMore();
+    // }
+
+    return result;
   }
 }

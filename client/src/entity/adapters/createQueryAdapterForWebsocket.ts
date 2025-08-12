@@ -27,7 +27,8 @@ export type QueryAdapter<
     TQueryParams,
     TQueryData,
     TQueryPageParam,
-    TQueryIsInfinite
+    TQueryIsInfinite,
+    any
   >,
   | "name"
   | "isInfinite"

@@ -15,12 +15,14 @@ export const useBaseQuery = <
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
+  TQueryObserverIsLazy extends boolean,
 >(
   queryObserverOptions: QueryObserverOptions<
     TQueryParams,
     TQueryData,
     TQueryPageParam,
-    TQueryIsInfinite
+    TQueryIsInfinite,
+    TQueryObserverIsLazy
   >,
 ) => {
   const forceRender = useForceRender();
@@ -42,5 +44,5 @@ export const useBaseQuery = <
     };
   }, [observer, query, forceRender]);
 
-  return query.createResult();
+  return observer.createResult();
 };
