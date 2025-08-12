@@ -23,6 +23,12 @@ const Subscribe = () => {
         search: "adf",
       },
     }),
+    getUsersTemp: useGetUsersQuery({
+      params: {
+        limit: 23,
+        search: "adf",
+      },
+    }),
   };
 
   console.log(queries.getUsers.data?.list[0].age);

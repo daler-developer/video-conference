@@ -2,12 +2,12 @@ import { type Schema } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
 
-export type QueryStatus =
+export type QueryStatus<TQueryIsInfinite extends boolean> =
   | "idle"
   | "fetching"
-  | "fetching-more"
   | "success"
-  | "error";
+  | "error"
+  | (TQueryIsInfinite extends true ? "fetching-more" : never);
 
 export type BaseQueryParams = Record<string, any>;
 
@@ -48,8 +48,11 @@ export type QueryOptions<
   merge: QueryMerge<TQueryData>;
 };
 
-export type QueryState<TQueryPageParam extends BaseQueryPageParam> = {
-  status: QueryStatus;
+export type QueryState<
+  TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
+> = {
+  status: QueryStatus<TQueryIsInfinite>;
   normalizedData: any;
   lastPageParam?: TQueryPageParam;
 };
@@ -78,7 +81,7 @@ export class Query<
   TQueryIsInfinite extends boolean,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  #state: QueryState<TQueryPageParam>;
+  #state: QueryState<TQueryPageParam, TQueryIsInfinite>;
   #options: QueryOptions<
     TQueryParams,
     TQueryData,
@@ -122,7 +125,7 @@ export class Query<
     this.bindMethods();
   }
 
-  private getInitialState(): QueryState<TQueryPageParam> {
+  private getInitialState(): QueryState<TQueryPageParam, TQueryIsInfinite> {
     return {
       status: "idle",
       normalizedData: null,
@@ -168,7 +171,9 @@ export class Query<
       );
   }
 
-  updateState(newState: Partial<QueryState<TQueryPageParam>>) {
+  updateState(
+    newState: Partial<QueryState<TQueryPageParam, TQueryIsInfinite>>,
+  ) {
     this.#state = {
       ...this.#state,
       ...newState,

@@ -41,7 +41,7 @@ const adapter = createEventSubAdapterForWebsocket<
   IncomingMessage,
   Params,
   PageParam,
-  true
+  false
 >({
   name: GET_USERS,
   outgoingMessageType: GET_USERS,
@@ -52,7 +52,7 @@ const adapter = createEventSubAdapterForWebsocket<
       page: pageParam.page,
     };
   },
-  isInfinite: true,
+  isInfinite: false,
   initialPageParam: {
     page: 1,
   },

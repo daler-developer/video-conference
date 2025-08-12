@@ -14,7 +14,7 @@ type QueryResult<
   TQueryObserverIsLazy extends boolean,
 > = {
   data: TQueryData | null;
-  status: QueryStatus;
+  status: QueryStatus<TQueryIsInfinite>;
   isIdle: boolean;
   isFetching: boolean;
   isSuccess: boolean;
