@@ -22,8 +22,14 @@ const createQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 >(
-  adapterOptions: QueryAdapter<TQueryParams, TQueryData, TQueryPageParam>,
+  adapterOptions: QueryAdapter<
+    TQueryParams,
+    TQueryData,
+    TQueryPageParam,
+    TQueryIsInfinite
+  >,
 ) => {
   const useQuery = ({ params }: HookOptions<TQueryParams>) => {
     return useBaseQuery({
@@ -50,7 +56,8 @@ const createQuery = <
       .get<
         TQueryParams,
         TQueryData,
-        TQueryPageParam
+        TQueryPageParam,
+        TQueryIsInfinite
       >({ name: adapterOptions.name, params });
     const prevData = query.getData();
 

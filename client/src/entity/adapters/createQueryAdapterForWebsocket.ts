@@ -21,8 +21,14 @@ export type QueryAdapter<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 > = Pick<
-  QueryObserverOptions<TQueryParams, TQueryData, TQueryPageParam>,
+  QueryObserverOptions<
+    TQueryParams,
+    TQueryData,
+    TQueryPageParam,
+    TQueryIsInfinite
+  >,
   | "name"
   | "isInfinite"
   | "initialPageParam"
@@ -37,11 +43,13 @@ type Options<
   TIncomingMessage extends BaseIncomingMessage,
   TQueryParams extends BaseQueryParams,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 > = Pick<
   QueryAdapter<
     TQueryParams,
     IncomingMessageExtractPayload<TIncomingMessage>,
-    TQueryPageParam
+    TQueryPageParam,
+    TQueryIsInfinite
   >,
   | "name"
   | "isInfinite"
@@ -62,6 +70,7 @@ export const createEventSubAdapterForWebsocket = <
   TIncomingMessage extends BaseIncomingMessage,
   TQueryParams extends BaseQueryParams,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 >({
   name,
   outgoingMessageType,
@@ -75,11 +84,13 @@ export const createEventSubAdapterForWebsocket = <
   TOutgoingMessage,
   TIncomingMessage,
   TQueryParams,
-  TQueryPageParam
+  TQueryPageParam,
+  TQueryIsInfinite
 >): QueryAdapter<
   TQueryParams,
   IncomingMessageExtractPayload<TIncomingMessage>,
-  TQueryPageParam
+  TQueryPageParam,
+  TQueryIsInfinite
 > => {
   return {
     name,

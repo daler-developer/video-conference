@@ -11,7 +11,8 @@ export type QueryObserverOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-> = QueryOptions<TQueryParams, TQueryData, TQueryPageParam> & {
+  TIsInfinite extends boolean,
+> = QueryOptions<TQueryParams, TQueryData, TQueryPageParam, TIsInfinite> & {
   isLazy: boolean;
 };
 
@@ -19,19 +20,21 @@ export class QueryObserver<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 > {
-  #query: Query<TQueryParams, TQueryData, TQueryPageParam>;
+  #query: Query<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>;
 
   constructor(
     queryObserverOptions: QueryObserverOptions<
       TQueryParams,
       TQueryData,
-      TQueryPageParam
+      TQueryPageParam,
+      TQueryIsInfinite
     >,
   ) {
     const existingQuery = queryCache
       .getQueryRepository()
-      .get<TQueryParams, TQueryData, TQueryPageParam>({
+      .get<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>({
         name: queryObserverOptions.name,
         params: queryObserverOptions.params,
       });
@@ -44,7 +47,12 @@ export class QueryObserver<
 
     const newQuery = queryCache
       .getQueryRepository()
-      .add<TQueryParams, TQueryData, TQueryPageParam>(queryObserverOptions);
+      .add<
+        TQueryParams,
+        TQueryData,
+        TQueryPageParam,
+        TQueryIsInfinite
+      >(queryObserverOptions);
     if (!queryObserverOptions.isLazy) {
       void newQuery.triggerFetch();
     }
@@ -59,7 +67,7 @@ export class QueryObserver<
   destroy() {
     this.#query.updateObserversCount((prev) => prev - 1);
 
-    if (this.#query.getConsumersCount() === 0) {
+    if (this.#query.getObserversCount() === 0) {
       queryCache.getQueryRepository().delete({
         name: this.#query.getOptions().name,
         params: this.#query.getOptions().params,

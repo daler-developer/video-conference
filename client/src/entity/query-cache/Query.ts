@@ -36,12 +36,13 @@ export type QueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 > = {
   name: string;
   params: TQueryParams;
   callback: QueryCallback<TQueryParams, TQueryData, TQueryPageParam>;
   schema: Schema;
-  isInfinite: boolean;
+  isInfinite: TQueryIsInfinite;
   initialPageParam?: TQueryPageParam;
   getNextPageParam?: QueryGetNextPageParam<TQueryPageParam>;
   merge: QueryMerge<TQueryData>;
@@ -68,17 +69,36 @@ type QueryNotifyEvent = QueryNotifyEventStateUpdated;
 
 type Listener = (event: QueryNotifyEvent) => void;
 
+type QueryResult<
+  TQueryData extends BaseQueryData,
+  TQueryIsInfinite extends boolean,
+> = {
+  data: TQueryData | null;
+  status: QueryStatus;
+  isIdle: boolean;
+  isFetching: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+} & (TQueryIsInfinite extends true
+  ? { fetchMore: () => Promise<void>; isFetchingMore: boolean }
+  : {});
+
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 export class Query<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
   #state: QueryState<TQueryPageParam>;
-  #options: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>;
-  #consumersCount: number;
+  #options: QueryOptions<
+    TQueryParams,
+    TQueryData,
+    TQueryPageParam,
+    TQueryIsInfinite
+  >;
   #observersCount: number;
 
   constructor(
@@ -92,7 +112,12 @@ export class Query<
       initialPageParam,
       getNextPageParam,
       merge,
-    }: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>,
+    }: QueryOptions<
+      TQueryParams,
+      TQueryData,
+      TQueryPageParam,
+      TQueryIsInfinite
+    >,
   ) {
     super();
     this.#queryCache = queryCache;
@@ -106,7 +131,6 @@ export class Query<
       getNextPageParam,
       merge,
     };
-    this.#consumersCount = 0;
     this.#observersCount = 0;
     this.#state = this.getInitialState();
     this.bindMethods();
@@ -156,6 +180,25 @@ export class Query<
         this.#state.normalizedData,
         this.#options.schema,
       );
+  }
+
+  createResult() {
+    const result = {} as QueryResult<TQueryData, TQueryIsInfinite>;
+
+    result.data = this.getData();
+    result.status = this.getStatus();
+    result.isIdle = this.getIsIdle();
+    result.isFetching = this.getIsFetching();
+    result.isSuccess = this.getIsSuccess();
+    result.isError = this.getIsError();
+
+    if (this.#options.isInfinite) {
+      (result as QueryResult<TQueryData, true>).fetchMore = this.fetchMore;
+      (result as QueryResult<TQueryData, true>).isFetchingMore =
+        this.getIsFetchingMore();
+    }
+
+    return result;
   }
 
   updateState(newState: Partial<QueryState<TQueryPageParam>>) {
@@ -247,20 +290,16 @@ export class Query<
     }
   }
 
-  getConsumersCount() {
-    return this.#consumersCount;
-  }
-
   getOptions() {
     return this.#options;
   }
 
-  updateConsumersCount(updater: (prev: number) => number) {
-    this.#consumersCount = updater(this.#consumersCount);
-  }
-
   updateObserversCount(updater: (prev: number) => number) {
     this.#observersCount = updater(this.#observersCount);
+  }
+
+  getObserversCount() {
+    return this.#observersCount;
   }
 
   private notify(event: QueryNotifyEvent) {

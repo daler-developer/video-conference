@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 import { useForceRender } from "@/shared/hooks";
 import {
   type BaseQueryData,
@@ -10,17 +9,18 @@ import {
   QueryObserver,
   type QueryObserverOptions,
 } from "../query-cache/QueryObserver";
-import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 
 export const useBaseQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryIsInfinite extends boolean,
 >(
   queryObserverOptions: QueryObserverOptions<
     TQueryParams,
     TQueryData,
-    TQueryPageParam
+    TQueryPageParam,
+    TQueryIsInfinite
   >,
 ) => {
   const forceRender = useForceRender();
@@ -42,14 +42,5 @@ export const useBaseQuery = <
     };
   }, [observer, query, forceRender]);
 
-  return {
-    data: query.getData(),
-    status: query.getStatus(),
-    fetchMore: query.fetchMore,
-    isIdle: query.getIsIdle(),
-    isFetching: query.getIsFetching(),
-    isFetchingMore: query.getIsFetchingMore(),
-    isSuccess: query.getIsSuccess(),
-    isError: query.getIsError(),
-  };
+  return query.createResult();
 };

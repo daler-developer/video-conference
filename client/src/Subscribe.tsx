@@ -17,13 +17,22 @@ const Subscribe = () => {
   // }, []);
 
   const queries = {
-    getUsers: useGetUsersLazyQuery({
+    getUsers: useGetUsersQuery({
+      params: {
+        limit: 23,
+        search: "adf",
+      },
+    }),
+    getUsersLazy: useGetUsersLazyQuery({
       params: {
         limit: 23,
         search: "adf",
       },
     }),
   };
+
+  console.log(queries.getUsers.data?.list[0].age);
+  console.log(queries.getUsers.data?.list[0].asdf);
 
   // useNewMediaFrameSub({
   //   params: {

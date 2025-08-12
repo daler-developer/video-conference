@@ -40,7 +40,8 @@ const adapter = createEventSubAdapterForWebsocket<
   OutgoingMessage,
   IncomingMessage,
   Params,
-  PageParam
+  PageParam,
+  true
 >({
   name: GET_USERS,
   outgoingMessageType: GET_USERS,
@@ -72,8 +73,10 @@ const adapter = createEventSubAdapterForWebsocket<
   },
 });
 
-export const { hook: useGetUsersQuery, lazyHook: useGetUsersLazyQuery } =
-  createQuery(adapter);
+export const {
+  useQuery: useGetUsersQuery,
+  useLazyQuery: useGetUsersLazyQuery,
+} = createQuery(adapter);
 
 // const adapter = createEventSubAdapterForWebsocket<Params, PageParam>({
 //   name: GET_USERS,
