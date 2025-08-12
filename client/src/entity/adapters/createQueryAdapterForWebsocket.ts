@@ -15,7 +15,7 @@ import {
   type BaseQueryParams,
   type BaseQueryPageParam,
 } from "../query-cache/Query";
-import { type QueryObserverOptions } from "../query-cache/QueryObserver.ts";
+import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
 
 export type QueryAdapter<
   TQueryParams extends BaseQueryParams,
@@ -23,7 +23,7 @@ export type QueryAdapter<
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
 > = Pick<
-  QueryObserverOptions<
+  QueryObserverConfig<
     TQueryParams,
     TQueryData,
     TQueryPageParam,

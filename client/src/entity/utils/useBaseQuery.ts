@@ -7,7 +7,7 @@ import {
 } from "../query-cache/Query";
 import {
   QueryObserver,
-  type QueryObserverOptions,
+  type QueryObserverConfig,
 } from "../query-cache/QueryObserver";
 
 export const useBaseQuery = <
@@ -17,7 +17,7 @@ export const useBaseQuery = <
   TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
 >(
-  queryObserverOptions: QueryObserverOptions<
+  queryObserverOptions: QueryObserverConfig<
     TQueryParams,
     TQueryData,
     TQueryPageParam,

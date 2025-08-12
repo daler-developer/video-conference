@@ -24,20 +24,18 @@ type QueryResult<
   : {}) &
   (TQueryObserverIsLazy extends true ? { fetch: () => Promise<void> } : {});
 
-export type QueryObserverOptions<
+export type QueryObserverOptions<TQueryObserverIsLazy extends boolean> = {
+  isLazy: TQueryObserverIsLazy;
+};
+
+export type QueryObserverConfig<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
-> = QueryOptions<
-  TQueryParams,
-  TQueryData,
-  TQueryPageParam,
-  TQueryIsInfinite
-> & {
-  isLazy: TQueryObserverIsLazy;
-};
+> = QueryOptions<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite> &
+  QueryObserverOptions<TQueryObserverIsLazy>;
 
 export class QueryObserver<
   TQueryParams extends BaseQueryParams,
@@ -47,9 +45,10 @@ export class QueryObserver<
   TQueryObserverIsLazy extends boolean,
 > {
   #query: Query<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>;
+  #options: QueryObserverOptions<TQueryObserverIsLazy>;
 
   constructor(
-    queryObserverOptions: QueryObserverOptions<
+    queryObserverConfig: QueryObserverConfig<
       TQueryParams,
       TQueryData,
       TQueryPageParam,
@@ -57,11 +56,14 @@ export class QueryObserver<
       TQueryObserverIsLazy
     >,
   ) {
+    this.#options = {
+      isLazy: queryObserverConfig.isLazy,
+    };
     const existingQuery = queryCache
       .getQueryRepository()
       .get<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>({
-        name: queryObserverOptions.name,
-        params: queryObserverOptions.params,
+        name: queryObserverConfig.name,
+        params: queryObserverConfig.params,
       });
 
     if (existingQuery) {
@@ -77,8 +79,8 @@ export class QueryObserver<
         TQueryData,
         TQueryPageParam,
         TQueryIsInfinite
-      >(queryObserverOptions);
-    if (!queryObserverOptions.isLazy) {
+      >(queryObserverConfig);
+    if (!queryObserverConfig.isLazy) {
       void newQuery.triggerFetch();
     }
     newQuery.updateObserversCount((prev) => prev + 1);
@@ -123,14 +125,10 @@ export class QueryObserver<
       ).isFetchingMore = this.getQuery().getIsFetchingMore();
     }
 
-    // if (this.getQuery().getOptions()..) {
-    //   (
-    //       result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
-    //   ).fetchMore = this.getQuery().fetchMore;
-    //   (
-    //       result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
-    //   ).isFetchingMore = this.getQuery().getIsFetchingMore();
-    // }
+    if (this.#options.isLazy) {
+      (result as QueryResult<TQueryData, TQueryIsInfinite, true>).fetch =
+        this.getQuery().triggerFetch;
+    }
 
     return result;
   }
