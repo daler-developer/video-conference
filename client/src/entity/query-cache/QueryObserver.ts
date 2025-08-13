@@ -3,8 +3,9 @@ import {
   type BaseQueryPageParam,
   type BaseQueryParams,
   type QueryOptions,
-  Query,
   type QueryStatus,
+  type QueryFetchStatus,
+  Query,
 } from "./Query";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 
@@ -14,11 +15,15 @@ type QueryResult<
   TQueryObserverIsLazy extends boolean,
 > = {
   data: TQueryData | null;
-  status: QueryStatus<TQueryIsInfinite>;
+  status: QueryStatus;
+  fetchStatus: QueryFetchStatus;
   isIdle: boolean;
   isFetching: boolean;
+  isPending: boolean;
   isSuccess: boolean;
   isError: boolean;
+  isLoading: boolean;
+  isRefetching: boolean;
 } & (TQueryIsInfinite extends true
   ? { fetchMore: () => Promise<void>; isFetchingMore: boolean }
   : {}) &
@@ -32,8 +37,8 @@ export type QueryObserverConfig<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
+  TQueryIsInfinite extends boolean,
 > = QueryOptions<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite> &
   QueryObserverOptions<TQueryObserverIsLazy>;
 
@@ -44,7 +49,7 @@ export class QueryObserver<
   TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
 > {
-  #query: Query<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>;
+  #query: Query<TQueryParams, TQueryData, TQueryPageParam>;
   #options: QueryObserverOptions<TQueryObserverIsLazy>;
 
   constructor(
@@ -52,8 +57,8 @@ export class QueryObserver<
       TQueryParams,
       TQueryData,
       TQueryPageParam,
-      TQueryIsInfinite,
-      TQueryObserverIsLazy
+      TQueryObserverIsLazy,
+      TQueryIsInfinite
     >,
   ) {
     this.#options = {
@@ -61,7 +66,7 @@ export class QueryObserver<
     };
     const existingQuery = queryCache
       .getQueryRepository()
-      .get<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>({
+      .get<TQueryParams, TQueryData, TQueryPageParam>({
         name: queryObserverConfig.name,
         params: queryObserverConfig.params,
       });
@@ -74,12 +79,7 @@ export class QueryObserver<
 
     const newQuery = queryCache
       .getQueryRepository()
-      .add<
-        TQueryParams,
-        TQueryData,
-        TQueryPageParam,
-        TQueryIsInfinite
-      >(queryObserverConfig);
+      .add<TQueryParams, TQueryData, TQueryPageParam>(queryObserverConfig);
     if (!queryObserverConfig.isLazy) {
       void newQuery.triggerFetch();
     }
@@ -111,10 +111,13 @@ export class QueryObserver<
 
     result.data = this.getQuery().getData();
     result.status = this.getQuery().getStatus();
-    result.isIdle = this.getQuery().getIsIdle();
-    result.isFetching = this.getQuery().getIsFetching();
-    result.isSuccess = this.getQuery().getIsSuccess();
-    result.isError = this.getQuery().getIsError();
+    result.isIdle = this.getQuery().isIdle;
+    result.isFetching = this.getQuery().isFetching;
+    result.isPending = this.getQuery().isPending;
+    result.isSuccess = this.getQuery().isSuccess;
+    result.isError = this.getQuery().isError;
+    result.isRefetching = this.getQuery().isRefetching;
+    result.isLoading = this.getQuery().isLoading;
 
     if (this.getQuery().getOptions().isInfinite) {
       (
@@ -122,7 +125,7 @@ export class QueryObserver<
       ).fetchMore = this.getQuery().fetchMore;
       (
         result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
-      ).isFetchingMore = this.getQuery().getIsFetchingMore();
+      ).isFetchingMore = this.getQuery().isFetchingMore;
     }
 
     if (this.#options.isLazy) {

@@ -53,8 +53,7 @@ const createQuery = <
       .get<
         TQueryParams,
         TQueryData,
-        TQueryPageParam,
-        TQueryIsInfinite
+        TQueryPageParam
       >({ name: adapterOptions.name, params });
     const prevData = query.getData();
 

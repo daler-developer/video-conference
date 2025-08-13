@@ -9,7 +9,7 @@ import { QueryCache } from "./QueryCache";
 
 export class QueryRepository {
   #queryCache: QueryCache;
-  #queries: Map<string, Query<any, any, any, any>> = new Map();
+  #queries: Map<string, Query<any, any, any>> = new Map();
 
   constructor(queryCache: QueryCache) {
     this.#queryCache = queryCache;
@@ -19,15 +19,7 @@ export class QueryRepository {
     TQueryParams extends BaseQueryParams,
     TQueryData extends BaseQueryData,
     TQueryPageParam extends BaseQueryPageParam,
-    TQueryIsInfinite extends boolean,
-  >(
-    queryOptions: QueryOptions<
-      TQueryParams,
-      TQueryData,
-      TQueryPageParam,
-      TQueryIsInfinite
-    >,
-  ) {
+  >(queryOptions: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>) {
     const queryHash = Query.hashQuery({
       name: queryOptions.name,
       params: queryOptions.params,
@@ -41,12 +33,11 @@ export class QueryRepository {
     TQueryParams extends BaseQueryParams,
     TQueryData extends BaseQueryData,
     TQueryPageParam extends BaseQueryPageParam,
-    TQueryIsInfinite extends boolean,
   >({
     name,
     params,
   }: Pick<
-    QueryOptions<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>,
+    QueryOptions<TQueryParams, TQueryData, TQueryPageParam>,
     "name" | "params"
   >) {
     const queryHash = Query.hashQuery({ name, params });
@@ -54,8 +45,7 @@ export class QueryRepository {
     return this.#queries.get(queryHash) as Query<
       TQueryParams,
       TQueryData,
-      TQueryPageParam,
-      TQueryIsInfinite
+      TQueryPageParam
     >;
   }
 
@@ -63,12 +53,11 @@ export class QueryRepository {
     TQueryParams extends BaseQueryParams,
     TQueryData extends BaseQueryData,
     TQueryPageParam extends BaseQueryPageParam,
-    TQueryIsInfinite extends boolean,
   >({
     name,
     params,
   }: Pick<
-    QueryOptions<TQueryParams, TQueryData, TQueryPageParam, TQueryIsInfinite>,
+    QueryOptions<TQueryParams, TQueryData, TQueryPageParam>,
     "name" | "params"
   >) {
     const queryHash = Query.hashQuery({ name, params });

@@ -2,12 +2,13 @@ import { type Schema } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
 
-export type QueryStatus<TQueryIsInfinite extends boolean> =
-  | "idle"
-  | "fetching"
-  | "success"
-  | "error"
-  | (TQueryIsInfinite extends true ? "fetching-more" : never);
+export type QueryStatus = "pending" | "success" | "error";
+
+export type QueryFetchStatus = "idle" | "fetching";
+
+export type QueryFetchMeta = {
+  isFetchingMore: false;
+};
 
 export type BaseQueryParams = Record<string, any>;
 
@@ -36,7 +37,7 @@ export type QueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
+  TQueryIsInfinite extends boolean = any,
 > = {
   name: string;
   params: TQueryParams;
@@ -48,11 +49,10 @@ export type QueryOptions<
   merge: QueryMerge<TQueryData>;
 };
 
-export type QueryState<
-  TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
-> = {
-  status: QueryStatus<TQueryIsInfinite>;
+export type QueryState<TQueryPageParam extends BaseQueryPageParam> = {
+  status: QueryStatus;
+  fetchStatus: QueryFetchStatus;
+  fetchMeta: QueryFetchMeta;
   normalizedData: any;
   lastPageParam?: TQueryPageParam;
 };
@@ -78,10 +78,10 @@ export class Query<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
+  TQueryIsInfinite extends boolean = any,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  #state: QueryState<TQueryPageParam, TQueryIsInfinite>;
+  #state: QueryState<TQueryPageParam>;
   #options: QueryOptions<
     TQueryParams,
     TQueryData,
@@ -125,9 +125,13 @@ export class Query<
     this.bindMethods();
   }
 
-  private getInitialState(): QueryState<TQueryPageParam, TQueryIsInfinite> {
+  private getInitialState(): QueryState<TQueryPageParam> {
     return {
-      status: "idle",
+      status: "pending",
+      fetchStatus: "idle",
+      fetchMeta: {
+        isFetchingMore: false,
+      },
       normalizedData: null,
       lastPageParam: this.#options.initialPageParam,
     };
@@ -137,11 +141,10 @@ export class Query<
     this.triggerFetch = this.triggerFetch.bind(this);
     this.fetchMore = this.fetchMore.bind(this);
     this.reset = this.reset.bind(this);
-    this.getIsIdle = this.getIsIdle.bind(this);
-    this.getIsFetching = this.getIsFetching.bind(this);
-    this.getIsFetchingMore = this.getIsFetchingMore.bind(this);
-    this.getIsSuccess = this.getIsSuccess.bind(this);
-    this.getIsError = this.getIsError.bind(this);
+    // this.getIsIdle = this.getIsIdle.bind(this);
+    // this.getIsFetching = this.getIsFetching.bind(this);
+    // this.getIsSuccess = this.getIsSuccess.bind(this);
+    // this.getIsError = this.getIsError.bind(this);
   }
 
   static hashQuery({ name, params }: HashQueryOptions) {
@@ -171,12 +174,14 @@ export class Query<
       );
   }
 
-  updateState(
-    newState: Partial<QueryState<TQueryPageParam, TQueryIsInfinite>>,
-  ) {
+  updateState(newState: Partial<QueryState<TQueryPageParam>>) {
     this.#state = {
       ...this.#state,
       ...newState,
+      fetchMeta: {
+        ...this.#state.fetchMeta,
+        ...newState.fetchMeta,
+      },
     };
 
     this.notify({ type: "state-updated" });
@@ -184,7 +189,7 @@ export class Query<
 
   async triggerFetch() {
     this.updateState({
-      status: "fetching",
+      fetchStatus: "fetching",
     });
 
     await sleep();
@@ -207,11 +212,13 @@ export class Query<
 
       this.updateState({
         status: "success",
+        fetchStatus: "idle",
         normalizedData,
       });
     } catch (e) {
       this.updateState({
         status: "error",
+        fetchStatus: "idle",
         normalizedData: null,
       });
       throw e;
@@ -224,10 +231,8 @@ export class Query<
     }
 
     try {
-      (
-        this as Query<TQueryParams, TQueryData, TQueryPageParam, true>
-      ).updateState({
-        status: "fetching-more",
+      (this as Query<TQueryParams, TQueryData, TQueryPageParam>).updateState({
+        fetchStatus: "fetching",
       });
 
       await sleep();
@@ -251,12 +256,14 @@ export class Query<
         .normalizeAndSave(mergedData, this.#options.schema);
 
       this.updateState({
+        fetchStatus: "idle",
         status: "success",
         lastPageParam: nextPageParam,
         normalizedData,
       });
     } catch (e) {
       this.updateState({
+        fetchStatus: "idle",
         status: "error",
         normalizedData: null,
       });
@@ -276,37 +283,49 @@ export class Query<
     return this.#observersCount;
   }
 
+  getStatus() {
+    return this.#state.status;
+  }
+
+  reset() {
+    this.updateState(this.getInitialState());
+  }
+
   private notify(event: QueryNotifyEvent) {
     this.listeners.forEach((listener) => {
       listener(event);
     });
   }
 
-  getStatus() {
-    return this.#state.status;
+  get isLoading() {
+    return this.isFetching && this.isPending;
   }
 
-  getIsIdle() {
-    return this.#state.status === "idle";
+  get isRefetching() {
+    return this.isFetching && !this.isPending;
   }
 
-  getIsFetching() {
-    return this.#state.status === "fetching";
+  get isPending() {
+    return this.#state.status === "pending";
   }
 
-  getIsFetchingMore() {
-    return this.#state.status === "fetching-more";
-  }
-
-  getIsSuccess() {
+  get isSuccess() {
     return this.#state.status === "success";
   }
 
-  getIsError() {
+  get isError() {
     return this.#state.status === "error";
   }
 
-  reset() {
-    this.updateState(this.getInitialState());
+  get isIdle() {
+    return this.#state.fetchStatus === "idle";
+  }
+
+  get isFetching() {
+    return this.#state.fetchStatus === "fetching";
+  }
+
+  get isFetchingMore() {
+    return this.isFetching && this.#state.fetchMeta.isFetchingMore;
   }
 }

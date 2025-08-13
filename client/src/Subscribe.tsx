@@ -32,7 +32,7 @@ const Subscribe = () => {
   };
 
   console.log(queries.getUsers.data?.list[0].age);
-  console.log(queries.getUsers.data?.list[0].asdf);
+  console.log(queries.getUsers.data?.list[0].age);
 
   // useNewMediaFrameSub({
   //   params: {
