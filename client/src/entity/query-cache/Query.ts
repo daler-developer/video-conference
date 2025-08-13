@@ -224,7 +224,9 @@ export class Query<
     }
 
     try {
-      this.updateState({
+      (
+        this as Query<TQueryParams, TQueryData, TQueryPageParam, true>
+      ).updateState({
         status: "fetching-more",
       });
 

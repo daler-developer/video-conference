@@ -3,7 +3,6 @@ import { createQuery } from "../utils/createQuery";
 import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
-  createOutgoingMessageCreator,
 } from "@/websocket";
 import { UserEntitySchema } from "../query-cache/entity-manager/UserRepository";
 import { type UserEntity } from "../types";

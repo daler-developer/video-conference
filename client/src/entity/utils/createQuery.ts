@@ -1,12 +1,9 @@
-import { useEffect, useState } from "react";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
-import { useForceRender } from "@/shared/hooks";
 import {
   type BaseQueryData,
   type BaseQueryParams,
   type BaseQueryPageParam,
 } from "../query-cache/Query";
-import { QueryObserver } from "../query-cache/QueryObserver";
 import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { useBaseQuery } from "./useBaseQuery";
 
