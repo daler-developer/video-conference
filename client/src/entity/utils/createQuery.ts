@@ -55,7 +55,7 @@ const createQuery = <
         TQueryData,
         TQueryPageParam
       >({ name: adapterOptions.name, params });
-    const prevData = query.getData();
+    const prevData = query.data;
 
     if (prevData) {
       const newData = callback(prevData);

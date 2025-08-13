@@ -23,12 +23,6 @@ const Subscribe = () => {
         search: "adf",
       },
     }),
-    getUsersTemp: useGetUsersQuery({
-      params: {
-        limit: 23,
-        search: "adf",
-      },
-    }),
   };
 
   console.log(queries.getUsers.data?.list[0].age);
@@ -64,31 +58,31 @@ const Subscribe = () => {
       </Button>
 
       <div>
-        {queries.getUsers.status === "idle" && (
+        {queries.getUsers.isIdle && (
           <div>
             <h1>Idle</h1>
           </div>
         )}
 
-        {queries.getUsers.status === "fetching" && (
+        {queries.getUsers.isFetching && (
           <div>
             <h1>Loading</h1>
           </div>
         )}
 
-        {queries.getUsers.status === "fetching-more" && (
+        {queries.getUsers.isFetchingMore && (
           <div>
             <h1>Fetching more</h1>
           </div>
         )}
 
-        {queries.getUsers.status === "error" && (
+        {queries.getUsers.isError && (
           <div>
             <h1>Error</h1>
           </div>
         )}
 
-        {queries.getUsers.data && (
+        {queries.getUsers.isSuccess && (
           <div>
             <ul>
               {queries.getUsers.data!.list.map((user) => (

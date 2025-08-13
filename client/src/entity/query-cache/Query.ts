@@ -7,7 +7,7 @@ export type QueryStatus = "pending" | "success" | "error";
 export type QueryFetchStatus = "idle" | "fetching";
 
 export type QueryFetchMeta = {
-  isFetchingMore: false;
+  isFetchingMore: boolean;
 };
 
 export type BaseQueryParams = Record<string, any>;
@@ -161,19 +161,6 @@ export class Query<
     });
   }
 
-  getData() {
-    if (!this.#state.normalizedData) {
-      return null;
-    }
-
-    return this.#queryCache
-      .getEntityManager()
-      .denormalizeData<TQueryData>(
-        this.#state.normalizedData,
-        this.#options.schema,
-      );
-  }
-
   updateState(newState: Partial<QueryState<TQueryPageParam>>) {
     this.#state = {
       ...this.#state,
@@ -233,6 +220,9 @@ export class Query<
     try {
       (this as Query<TQueryParams, TQueryData, TQueryPageParam>).updateState({
         fetchStatus: "fetching",
+        fetchMeta: {
+          isFetchingMore: true,
+        },
       });
 
       await sleep();
@@ -247,7 +237,7 @@ export class Query<
       });
 
       const mergedData = this.#options.merge({
-        existingData: this.getData()!,
+        existingData: this.data!,
         incomingData: data,
       });
 
@@ -260,31 +250,21 @@ export class Query<
         status: "success",
         lastPageParam: nextPageParam,
         normalizedData,
+        fetchMeta: {
+          isFetchingMore: false,
+        },
       });
     } catch (e) {
       this.updateState({
         fetchStatus: "idle",
         status: "error",
         normalizedData: null,
+        fetchMeta: {
+          isFetchingMore: false,
+        },
       });
       throw e;
     }
-  }
-
-  getOptions() {
-    return this.#options;
-  }
-
-  updateObserversCount(updater: (prev: number) => number) {
-    this.#observersCount = updater(this.#observersCount);
-  }
-
-  getObserversCount() {
-    return this.#observersCount;
-  }
-
-  getStatus() {
-    return this.#state.status;
   }
 
   reset() {
@@ -295,6 +275,35 @@ export class Query<
     this.listeners.forEach((listener) => {
       listener(event);
     });
+  }
+
+  get observersCount() {
+    return this.#observersCount;
+  }
+
+  set observersCount(value: number) {
+    this.#observersCount = value;
+  }
+
+  get status() {
+    return this.#state.status;
+  }
+
+  get data() {
+    if (!this.#state.normalizedData) {
+      return null;
+    }
+
+    return this.#queryCache
+      .getEntityManager()
+      .denormalizeData<TQueryData>(
+        this.#state.normalizedData,
+        this.#options.schema,
+      );
+  }
+
+  get options() {
+    return this.#options;
   }
 
   get isLoading() {

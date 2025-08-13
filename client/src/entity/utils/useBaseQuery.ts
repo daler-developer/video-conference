@@ -29,7 +29,7 @@ export const useBaseQuery = <
 
   const [observer] = useState(new QueryObserver(queryObserverOptions));
 
-  const query = observer.getQuery();
+  const query = observer.query;
 
   useEffect(() => {
     const unsubscribe = query.subscribe((event) => {

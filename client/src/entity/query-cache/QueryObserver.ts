@@ -72,7 +72,7 @@ export class QueryObserver<
       });
 
     if (existingQuery) {
-      existingQuery.updateObserversCount((prev) => prev + 1);
+      existingQuery.observersCount++;
       this.#query = existingQuery;
       return;
     }
@@ -83,21 +83,17 @@ export class QueryObserver<
     if (!queryObserverConfig.isLazy) {
       void newQuery.triggerFetch();
     }
-    newQuery.updateObserversCount((prev) => prev + 1);
+    newQuery.observersCount++;
     this.#query = newQuery;
   }
 
-  getQuery() {
-    return this.#query;
-  }
-
   destroy() {
-    this.#query.updateObserversCount((prev) => prev - 1);
+    this.#query.observersCount--;
 
-    if (this.#query.getObserversCount() === 0) {
+    if (this.#query.observersCount === 0) {
       queryCache.getQueryRepository().delete({
-        name: this.#query.getOptions().name,
-        params: this.#query.getOptions().params,
+        name: this.#query.options.name,
+        params: this.#query.options.params,
       });
     }
   }
@@ -109,30 +105,34 @@ export class QueryObserver<
       TQueryObserverIsLazy
     >;
 
-    result.data = this.getQuery().getData();
-    result.status = this.getQuery().getStatus();
-    result.isIdle = this.getQuery().isIdle;
-    result.isFetching = this.getQuery().isFetching;
-    result.isPending = this.getQuery().isPending;
-    result.isSuccess = this.getQuery().isSuccess;
-    result.isError = this.getQuery().isError;
-    result.isRefetching = this.getQuery().isRefetching;
-    result.isLoading = this.getQuery().isLoading;
+    result.data = this.query.data;
+    result.status = this.query.status;
+    result.isIdle = this.query.isIdle;
+    result.isFetching = this.query.isFetching;
+    result.isPending = this.query.isPending;
+    result.isSuccess = this.query.isSuccess;
+    result.isError = this.query.isError;
+    result.isRefetching = this.query.isRefetching;
+    result.isLoading = this.query.isLoading;
 
-    if (this.getQuery().getOptions().isInfinite) {
+    if (this.query.options.isInfinite) {
       (
         result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
-      ).fetchMore = this.getQuery().fetchMore;
+      ).fetchMore = this.query.fetchMore;
       (
         result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
-      ).isFetchingMore = this.getQuery().isFetchingMore;
+      ).isFetchingMore = this.query.isFetchingMore;
     }
 
     if (this.#options.isLazy) {
       (result as QueryResult<TQueryData, TQueryIsInfinite, true>).fetch =
-        this.getQuery().triggerFetch;
+        this.query.triggerFetch;
     }
 
     return result;
+  }
+
+  get query() {
+    return this.#query;
   }
 }
