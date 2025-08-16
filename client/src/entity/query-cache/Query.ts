@@ -157,10 +157,6 @@ export class Query<
     this.fetchMore = this.fetchMore.bind(this);
     this.reset = this.reset.bind(this);
     this.refetch = this.refetch.bind(this);
-    // this.getIsIdle = this.getIsIdle.bind(this);
-    // this.getIsFetching = this.getIsFetching.bind(this);
-    // this.getIsSuccess = this.getIsSuccess.bind(this);
-    // this.getIsError = this.getIsError.bind(this);
   }
 
   static hashQuery({ name, params }: HashQueryOptions) {
@@ -191,63 +187,51 @@ export class Query<
   }
 
   async fetch() {
-    if (this.#options.isInfinite) {
-      return this.#baseFetch({
-        onFetch() {
-          this.#pageParams.push(this.#options.initialPageParam!);
+    return this.#baseFetch({
+      onFetch() {
+        this.#pageParams.push(this.#options.initialPageParam!);
 
-          return this.#options.callback({
-            params: this.#options.params,
-            pageParam: this.#options.initialPageParam!,
-          });
-        },
-      });
-    } else {
-      return this.#baseFetch({
-        onFetch() {
-          return this.#options.callback({
-            params: this.#options.params,
-          });
-        },
-      });
-    }
+        return this.#options.callback({
+          params: this.#options.params,
+          pageParam: this.options.isInfinite
+            ? this.#options.initialPageParam!
+            : undefined,
+        });
+      },
+    });
   }
 
   async refetch() {
-    if (this.#options.isInfinite) {
-      return this.#baseFetch({
-        async onFetch() {
-          let res: TQueryData | null = null;
-
-          for (const pageParam of this.#pageParams) {
-            const data = await this.#options.callback({
-              params: this.#options.params,
-              pageParam,
-            });
-
-            if (!res) {
-              res = data;
-              continue;
-            }
-
-            res = this.#options.merge({
-              existingData: res,
-              incomingData: data,
-            });
-          }
-
-          return res!;
-        },
-      });
-    } else {
-      return this.#baseFetch({
-        async onFetch() {
+    return this.#baseFetch({
+      async onFetch() {
+        if (!this.#options.isInfinite) {
           return this.#options.callback({
             params: this.#options.params,
           });
-        },
-      });
-    }
+        }
+
+        let res: TQueryData | null = null;
+
+        for (const pageParam of this.#pageParams) {
+          const data = await this.#options.callback({
+            params: this.#options.params,
+            pageParam,
+          });
+
+          if (!res) {
+            res = data;
+            continue;
+          }
+
+          res = this.#options.merge({
+            existingData: res,
+            incomingData: data,
+          });
+        }
+
+        return res!;
+      },
+    });
   }
 
   async fetchMore() {
