@@ -187,6 +187,10 @@ export class Query<
   }
 
   async fetch() {
+    if (this.isSuccess) {
+      return;
+    }
+
     return this.#baseFetch({
       onFetch() {
         this.#pageParams.push(this.#options.initialPageParam!);
@@ -207,6 +211,15 @@ export class Query<
         if (!this.#options.isInfinite) {
           return this.#options.callback({
             params: this.#options.params,
+          });
+        }
+
+        if (this.isPending) {
+          this.#pageParams.push(this.#options.initialPageParam!);
+
+          return this.#options.callback({
+            params: this.#options.params,
+            pageParam: this.#options.initialPageParam,
           });
         }
 

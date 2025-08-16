@@ -17,7 +17,7 @@ const Subscribe = () => {
   // }, []);
 
   const queries = {
-    getUsers: useGetUsersQuery({
+    getUsers: useGetUsersLazyQuery({
       params: {
         limit: 23,
         search: "adf",
@@ -42,7 +42,7 @@ const Subscribe = () => {
       <Button
         type="button"
         onClick={() => {
-          // queries.getUsers.fetch();
+          queries.getUsers.fetch();
         }}
       >
         Fetch
