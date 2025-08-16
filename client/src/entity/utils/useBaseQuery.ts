@@ -27,7 +27,7 @@ export const useBaseQuery = <
 ) => {
   const forceRender = useForceRender();
 
-  const [observer] = useState(new QueryObserver(queryObserverOptions));
+  const [observer] = useState(() => new QueryObserver(queryObserverOptions));
 
   const query = observer.query;
 
