@@ -22,6 +22,12 @@ type OutgoingResponseMessage = BaseOutgoingMessage<
   }
 >;
 
+function getRandom1to10() {
+  return Math.floor(Math.random() * 10) + 1;
+}
+
+let counter = 0;
+
 export default createResolverByMessageType<IncomingMessage, OutgoingResponseMessage>(MESSAGE_TYPE, {
   responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
   validator() {
@@ -33,14 +39,14 @@ export default createResolverByMessageType<IncomingMessage, OutgoingResponseMess
       payload: {
         list: [
           {
-            id: 1,
+            id: ++counter,
             name: 'Daler',
-            age: 20,
+            age: getRandom1to10(),
           },
           {
-            id: 2,
+            id: ++counter,
             name: 'Aziz',
-            age: 20,
+            age: getRandom1to10(),
           },
         ],
       },

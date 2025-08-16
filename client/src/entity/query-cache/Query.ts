@@ -84,7 +84,7 @@ type QueryNotifyEvent = QueryNotifyEventStateUpdated;
 
 type Listener = (event: QueryNotifyEvent) => void;
 
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 1500));
+const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 export class Query<
   TQueryParams extends BaseQueryParams,
@@ -433,7 +433,7 @@ export class Query<
   }
 
   get isRefetching() {
-    return this.isFetching && !this.isPending;
+    return this.isFetching && !this.isPending && !this.isFetchingMore;
   }
 
   get isPending() {
