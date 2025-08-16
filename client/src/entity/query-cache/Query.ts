@@ -265,55 +265,6 @@ export class Query<
         isFetchingMore: true,
       },
     });
-
-    // try {
-    //   this.updateState({
-    //     fetchStatus: "fetching",
-    //     fetchMeta: {
-    //       isFetchingMore: true,
-    //     },
-    //   });
-    //
-    //   await sleep();
-    //
-    //   const nextPageParam = this.#options.getNextPageParam!({
-    //     lastPageParam: this.#state.lastPageParam!,
-    //   });
-    //
-    //   const data = await this.#options.callback({
-    //     params: this.#options.params,
-    //     pageParam: nextPageParam,
-    //   });
-    //
-    //   const mergedData = this.#options.merge({
-    //     existingData: this.data!,
-    //     incomingData: data,
-    //   });
-    //
-    //   const { normalizedData } = this.#queryCache
-    //     .getEntityManager()
-    //     .normalizeAndSave(mergedData, this.#options.schema);
-    //
-    //   this.updateState({
-    //     fetchStatus: "idle",
-    //     status: "success",
-    //     lastPageParam: nextPageParam,
-    //     normalizedData,
-    //     fetchMeta: {
-    //       isFetchingMore: false,
-    //     },
-    //   });
-    // } catch (e) {
-    //   this.updateState({
-    //     fetchStatus: "idle",
-    //     status: "error",
-    //     normalizedData: null,
-    //     fetchMeta: {
-    //       isFetchingMore: false,
-    //     },
-    //   });
-    //   throw e;
-    // }
   }
 
   async #baseFetch(
