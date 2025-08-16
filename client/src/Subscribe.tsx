@@ -17,7 +17,7 @@ const Subscribe = () => {
   // }, []);
 
   const queries = {
-    getUsers: useGetUsersLazyQuery({
+    getUsers: useGetUsersQuery({
       params: {
         limit: 23,
         search: "adf",
@@ -25,8 +25,8 @@ const Subscribe = () => {
     }),
   };
 
-  console.log(queries.getUsers.data?.list[0].age);
-  console.log(queries.getUsers.data?.list[0].age);
+  // console.log(queries.getUsers.data?.list[0].name);
+  // console.log(queries.getUsers.data?.list[0].age);
 
   // useNewMediaFrameSub({
   //   params: {
@@ -42,10 +42,19 @@ const Subscribe = () => {
       <Button
         type="button"
         onClick={() => {
-          queries.getUsers.fetch();
+          // queries.getUsers.fetch();
         }}
       >
         Fetch
+      </Button>
+
+      <Button
+        type="button"
+        onClick={() => {
+          queries.getUsers.refetch();
+        }}
+      >
+        Refetch
       </Button>
 
       <Button
@@ -64,7 +73,13 @@ const Subscribe = () => {
           </div>
         )}
 
-        {queries.getUsers.isFetching && (
+        {queries.getUsers.isRefetching && (
+          <div>
+            <h1>Refetching</h1>
+          </div>
+        )}
+
+        {queries.getUsers.isLoading && (
           <div>
             <h1>Loading</h1>
           </div>

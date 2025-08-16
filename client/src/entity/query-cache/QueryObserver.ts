@@ -10,7 +10,9 @@ import {
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 
 type QueryResult<
+  TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
 > = {
@@ -24,10 +26,20 @@ type QueryResult<
   isError: boolean;
   isLoading: boolean;
   isRefetching: boolean;
+  refetch: Query<TQueryParams, TQueryData, TQueryPageParam>["refetch"];
 } & (TQueryIsInfinite extends true
-  ? { fetchMore: () => Promise<void>; isFetchingMore: boolean }
+  ? {
+      fetchMore: Query<TQueryParams, TQueryData, TQueryPageParam>["fetchMore"];
+      isFetchingMore: Query<
+        TQueryParams,
+        TQueryData,
+        TQueryPageParam
+      >["isFetchingMore"];
+    }
   : {}) &
-  (TQueryObserverIsLazy extends true ? { fetch: () => Promise<void> } : {});
+  (TQueryObserverIsLazy extends true
+    ? { fetch: Query<TQueryParams, TQueryData, TQueryPageParam>["fetch"] }
+    : {});
 
 export type QueryObserverOptions<TQueryObserverIsLazy extends boolean> = {
   isLazy: TQueryObserverIsLazy;
@@ -81,7 +93,7 @@ export class QueryObserver<
       .getQueryRepository()
       .add<TQueryParams, TQueryData, TQueryPageParam>(queryObserverConfig);
     if (!queryObserverConfig.isLazy) {
-      void newQuery.triggerFetch();
+      void newQuery.fetch();
     }
     newQuery.observersCount++;
     this.#query = newQuery;
@@ -100,7 +112,9 @@ export class QueryObserver<
 
   createResult() {
     const result = {} as QueryResult<
+      TQueryParams,
       TQueryData,
+      TQueryPageParam,
       TQueryIsInfinite,
       TQueryObserverIsLazy
     >;
@@ -114,19 +128,39 @@ export class QueryObserver<
     result.isError = this.query.isError;
     result.isRefetching = this.query.isRefetching;
     result.isLoading = this.query.isLoading;
+    result.refetch = this.query.refetch;
 
     if (this.query.options.isInfinite) {
       (
-        result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
+        result as QueryResult<
+          TQueryParams,
+          TQueryData,
+          TQueryPageParam,
+          true,
+          TQueryObserverIsLazy
+        >
       ).fetchMore = this.query.fetchMore;
       (
-        result as QueryResult<TQueryData, true, TQueryObserverIsLazy>
+        result as QueryResult<
+          TQueryParams,
+          TQueryData,
+          TQueryPageParam,
+          true,
+          TQueryObserverIsLazy
+        >
       ).isFetchingMore = this.query.isFetchingMore;
     }
 
     if (this.#options.isLazy) {
-      (result as QueryResult<TQueryData, TQueryIsInfinite, true>).fetch =
-        this.query.triggerFetch;
+      (
+        result as QueryResult<
+          TQueryParams,
+          TQueryData,
+          TQueryPageParam,
+          TQueryIsInfinite,
+          true
+        >
+      ).fetch = this.query.fetch;
     }
 
     return result;

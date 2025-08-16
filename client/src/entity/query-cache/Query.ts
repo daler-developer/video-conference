@@ -22,7 +22,7 @@ export type QueryCallback<
   TQueryPageParam extends BaseQueryPageParam,
 > = (options: {
   params: TQueryParams;
-  pageParam: TQueryPageParam;
+  pageParam?: TQueryPageParam;
 }) => Promise<TQueryData>;
 
 export type QueryMerge<TQueryData extends BaseQueryData> = (options: {
@@ -49,12 +49,24 @@ export type QueryOptions<
   merge: QueryMerge<TQueryData>;
 };
 
-export type QueryState<TQueryPageParam extends BaseQueryPageParam> = {
+export type QueryState = {
   status: QueryStatus;
   fetchStatus: QueryFetchStatus;
   fetchMeta: QueryFetchMeta;
   normalizedData: any;
-  lastPageParam?: TQueryPageParam;
+};
+
+type BaseFetchOptions<
+  TQueryParams extends BaseQueryParams,
+  TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
+> = {
+  onFetch: (
+    this: Query<TQueryParams, TQueryData, TQueryPageParam>,
+  ) => Promise<TQueryData>;
+  fetchMeta?: QueryFetchMeta;
+  onSuccess?: () => void;
+  onError?: () => void;
 };
 
 type HashQueryOptions = {
@@ -72,7 +84,7 @@ type QueryNotifyEvent = QueryNotifyEventStateUpdated;
 
 type Listener = (event: QueryNotifyEvent) => void;
 
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
+const sleep = () => new Promise((resolve) => setTimeout(resolve, 1500));
 
 export class Query<
   TQueryParams extends BaseQueryParams,
@@ -81,7 +93,7 @@ export class Query<
   TQueryIsInfinite extends boolean = any,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  #state: QueryState<TQueryPageParam>;
+  #state: QueryState;
   #options: QueryOptions<
     TQueryParams,
     TQueryData,
@@ -89,6 +101,8 @@ export class Query<
     TQueryIsInfinite
   >;
   #observersCount: number;
+  #fetchPromise: Promise<TQueryData> | null;
+  #pageParams: TQueryPageParam[];
 
   constructor(
     queryCache: QueryCache,
@@ -110,6 +124,7 @@ export class Query<
   ) {
     super();
     this.#queryCache = queryCache;
+    this.#pageParams = [];
     this.#options = {
       name,
       params,
@@ -120,27 +135,28 @@ export class Query<
       getNextPageParam,
       merge,
     };
+    this.#fetchPromise = null;
     this.#observersCount = 0;
     this.#state = this.getInitialState();
     this.bindMethods();
   }
 
-  private getInitialState(): QueryState<TQueryPageParam> {
+  private getInitialState(): QueryState {
     return {
+      normalizedData: null,
       status: "pending",
       fetchStatus: "idle",
       fetchMeta: {
         isFetchingMore: false,
       },
-      normalizedData: null,
-      lastPageParam: this.#options.initialPageParam,
     };
   }
 
   private bindMethods() {
-    this.triggerFetch = this.triggerFetch.bind(this);
+    this.fetch = this.fetch.bind(this);
     this.fetchMore = this.fetchMore.bind(this);
     this.reset = this.reset.bind(this);
+    this.refetch = this.refetch.bind(this);
     // this.getIsIdle = this.getIsIdle.bind(this);
     // this.getIsFetching = this.getIsFetching.bind(this);
     // this.getIsSuccess = this.getIsSuccess.bind(this);
@@ -161,7 +177,7 @@ export class Query<
     });
   }
 
-  updateState(newState: Partial<QueryState<TQueryPageParam>>) {
+  updateState(newState: Partial<QueryState>) {
     this.#state = {
       ...this.#state,
       ...newState,
@@ -174,18 +190,170 @@ export class Query<
     this.notify({ type: "state-updated" });
   }
 
-  async triggerFetch() {
-    this.updateState({
-      fetchStatus: "fetching",
+  async fetch() {
+    if (this.#options.isInfinite) {
+      return this.#baseFetch({
+        onFetch() {
+          this.#pageParams.push(this.#options.initialPageParam!);
+
+          return this.#options.callback({
+            params: this.#options.params,
+            pageParam: this.#options.initialPageParam!,
+          });
+        },
+      });
+    } else {
+      return this.#baseFetch({
+        onFetch() {
+          return this.#options.callback({
+            params: this.#options.params,
+          });
+        },
+      });
+    }
+  }
+
+  async refetch() {
+    if (this.#options.isInfinite) {
+      return this.#baseFetch({
+        async onFetch() {
+          let res: TQueryData | null = null;
+
+          for (const pageParam of this.#pageParams) {
+            const data = await this.#options.callback({
+              params: this.#options.params,
+              pageParam,
+            });
+
+            if (!res) {
+              res = data;
+              continue;
+            }
+
+            res = this.#options.merge({
+              existingData: res,
+              incomingData: data,
+            });
+          }
+
+          return res!;
+        },
+      });
+    } else {
+      return this.#baseFetch({
+        async onFetch() {
+          return this.#options.callback({
+            params: this.#options.params,
+          });
+        },
+      });
+    }
+  }
+
+  async fetchMore() {
+    if (!this.#options.isInfinite) {
+      throw new Error(`Query ${this.#options.name} is not infinite`);
+    }
+
+    return this.#baseFetch({
+      async onFetch() {
+        const nextPageParam = this.#options.getNextPageParam!({
+          lastPageParam: this.#pageParams[this.#pageParams.length - 1],
+        });
+
+        const incomingData = await this.#options.callback({
+          params: this.#options.params,
+          pageParam: nextPageParam,
+        });
+
+        this.#pageParams.push(nextPageParam);
+
+        if (this.data) {
+          return this.#options.merge({
+            existingData: this.data,
+            incomingData,
+          });
+        }
+
+        return incomingData;
+      },
+      fetchMeta: {
+        isFetchingMore: true,
+      },
     });
 
-    await sleep();
+    // try {
+    //   this.updateState({
+    //     fetchStatus: "fetching",
+    //     fetchMeta: {
+    //       isFetchingMore: true,
+    //     },
+    //   });
+    //
+    //   await sleep();
+    //
+    //   const nextPageParam = this.#options.getNextPageParam!({
+    //     lastPageParam: this.#state.lastPageParam!,
+    //   });
+    //
+    //   const data = await this.#options.callback({
+    //     params: this.#options.params,
+    //     pageParam: nextPageParam,
+    //   });
+    //
+    //   const mergedData = this.#options.merge({
+    //     existingData: this.data!,
+    //     incomingData: data,
+    //   });
+    //
+    //   const { normalizedData } = this.#queryCache
+    //     .getEntityManager()
+    //     .normalizeAndSave(mergedData, this.#options.schema);
+    //
+    //   this.updateState({
+    //     fetchStatus: "idle",
+    //     status: "success",
+    //     lastPageParam: nextPageParam,
+    //     normalizedData,
+    //     fetchMeta: {
+    //       isFetchingMore: false,
+    //     },
+    //   });
+    // } catch (e) {
+    //   this.updateState({
+    //     fetchStatus: "idle",
+    //     status: "error",
+    //     normalizedData: null,
+    //     fetchMeta: {
+    //       isFetchingMore: false,
+    //     },
+    //   });
+    //   throw e;
+    // }
+  }
+
+  async #baseFetch(
+    options: BaseFetchOptions<TQueryParams, TQueryData, TQueryPageParam>,
+  ) {
+    const prevFetchMeta = this.#state.fetchMeta;
 
     try {
-      const data = await this.#options.callback({
-        params: this.#options.params,
-        pageParam: this.#options.initialPageParam!,
+      if (this.isFetching) {
+        return this.#fetchPromise!;
+      }
+
+      this.updateState({
+        fetchStatus: "fetching",
+        fetchMeta: options.fetchMeta || this.#state.fetchMeta,
       });
+
+      await sleep();
+
+      const fetchPromise = options.onFetch.bind(this)();
+
+      this.#fetchPromise = fetchPromise;
+
+      const data = await fetchPromise;
 
       const { normalizedData } = this.#queryCache
         .getEntityManager()
@@ -201,69 +369,23 @@ export class Query<
         status: "success",
         fetchStatus: "idle",
         normalizedData,
+        fetchMeta: prevFetchMeta,
       });
+
+      options.onSuccess?.();
+
+      return data;
     } catch (e) {
       this.updateState({
         status: "error",
         fetchStatus: "idle",
         normalizedData: null,
+        fetchMeta: prevFetchMeta,
       });
+      options.onError?.();
       throw e;
-    }
-  }
-
-  async fetchMore() {
-    if (!this.#options.isInfinite) {
-      throw new Error(`Query ${this.#options.name} is not infinite`);
-    }
-
-    try {
-      (this as Query<TQueryParams, TQueryData, TQueryPageParam>).updateState({
-        fetchStatus: "fetching",
-        fetchMeta: {
-          isFetchingMore: true,
-        },
-      });
-
-      await sleep();
-
-      const nextPageParam = this.#options.getNextPageParam!({
-        lastPageParam: this.#state.lastPageParam!,
-      });
-
-      const data = await this.#options.callback({
-        params: this.#options.params,
-        pageParam: nextPageParam,
-      });
-
-      const mergedData = this.#options.merge({
-        existingData: this.data!,
-        incomingData: data,
-      });
-
-      const { normalizedData } = this.#queryCache
-        .getEntityManager()
-        .normalizeAndSave(mergedData, this.#options.schema);
-
-      this.updateState({
-        fetchStatus: "idle",
-        status: "success",
-        lastPageParam: nextPageParam,
-        normalizedData,
-        fetchMeta: {
-          isFetchingMore: false,
-        },
-      });
-    } catch (e) {
-      this.updateState({
-        fetchStatus: "idle",
-        status: "error",
-        normalizedData: null,
-        fetchMeta: {
-          isFetchingMore: false,
-        },
-      });
-      throw e;
+    } finally {
+      this.#fetchPromise = null;
     }
   }
 
