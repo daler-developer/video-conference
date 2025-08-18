@@ -139,6 +139,17 @@ export class Query<
     this.#observersCount = 0;
     this.#state = this.getInitialState();
     this.bindMethods();
+    this.subscribeToEntitiesUpdate();
+  }
+
+  private subscribeToEntitiesUpdate() {
+    this.#queryCache.getEntityManager().subscribe((event) => {
+      if (event.type === "entity-updated") {
+        this.listeners.forEach((listener) => {
+          listener({ type: "state-updated" });
+        });
+      }
+    });
   }
 
   private getInitialState(): QueryState {
@@ -219,7 +230,7 @@ export class Query<
 
           return this.#options.callback({
             params: this.#options.params,
-            pageParam: this.#options.initialPageParam,
+            pageParam: this.#options.initialPageParam!,
           });
         }
 
@@ -254,6 +265,15 @@ export class Query<
 
     return this.#baseFetch({
       async onFetch() {
+        if (this.isPending) {
+          this.#pageParams.push(this.#options.initialPageParam!);
+
+          return this.#options.callback({
+            params: this.#options.params,
+            pageParam: this.#options.initialPageParam!,
+          });
+        }
+
         const nextPageParam = this.#options.getNextPageParam!({
           lastPageParam: this.#pageParams[this.#pageParams.length - 1],
         });

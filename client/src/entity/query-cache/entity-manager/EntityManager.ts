@@ -5,8 +5,9 @@ import {
   type NormalizedMessageEntity,
 } from "./MessageRepository.ts";
 import { Entity } from "./Entity.ts";
+import { Subscribable } from "../Subscribable.ts";
 
-type EntityName =
+export type EntityName =
   | typeof UserRepository.entityName
   | typeof MessageRepository.entityName;
 
@@ -15,11 +16,30 @@ type Entities = {
   messages: Map<number, Entity<NormalizedMessageEntity>>;
 };
 
-export class EntityManager {
+type EntityManagerNotifyEvent = {
+  type: "entity-updated";
+};
+
+type Listener = (event: EntityManagerNotifyEvent) => void;
+
+export class EntityManager extends Subscribable<Listener> {
   #repositories = {
     [UserRepository.entityName]: new UserRepository(),
     [MessageRepository.entityName]: new MessageRepository(),
   };
+
+  constructor() {
+    super();
+    Object.values(this.#repositories).forEach((repository) => {
+      repository.subscribe((event) => {
+        if (event.type === "entity-updated") {
+          this.listeners.forEach((listener) => {
+            listener({ type: "entity-updated" });
+          });
+        }
+      });
+    });
+  }
 
   private getAllEntities() {
     const res: Entities = {} as any;

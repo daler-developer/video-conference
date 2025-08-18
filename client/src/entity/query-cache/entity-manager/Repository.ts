@@ -1,4 +1,6 @@
 import { Entity } from "./Entity.ts";
+import { Subscribable } from "../Subscribable.ts";
+import { type EntityName } from "../entity-manager/EntityManager.ts";
 
 type BaseEntity = {
   id: number;
@@ -9,7 +11,15 @@ type Update<TEntity extends BaseEntity> = {
   changes: Omit<Partial<TEntity>, "id">;
 };
 
-export abstract class Repository<TEntity extends Entity> {
+type RepositoryNotifyEvent = {
+  type: "entity-updated";
+};
+
+type Listener = (event: RepositoryNotifyEvent) => void;
+
+export abstract class Repository<
+  TEntity extends Entity,
+> extends Subscribable<Listener> {
   #byId: Map<number, TEntity> = new Map();
   #allIds = new Set<number>();
 
