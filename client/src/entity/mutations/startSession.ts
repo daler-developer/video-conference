@@ -47,6 +47,26 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
     }),
     {
       update({ entityManager }) {
+        // entityManager.getRepository("users").updateOne({
+        //   id: 2,
+        //   changes: {
+        //     name: "Aziz test",
+        //   },
+        // });
+        // entityManager.getRepository("users").updateMany([
+        //   {
+        //     id: 1,
+        //     changes: {
+        //       name: "Aziz test",
+        //     },
+        //   },
+        //   {
+        //     id: 2,
+        //     changes: {
+        //       name: "Aziz test 2",
+        //     },
+        //   },
+        // ]);
         // getUsersQuery.updateData({ limit: 23, search: "adf" }, (prev) => {
         //   return {
         //     ...prev,
@@ -60,11 +80,11 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
         //     ],
         //   };
         // });
-        const entity = entityManager.getRepository("users").getOne(2);
-
-        entity!.updateData({
-          name: "Aziz Test",
-        });
+        // const entity = entityManager.getRepository("users").getOne(2);
+        //
+        // entity!.updateData({
+        //   name: "Aziz Test",
+        // });
       },
     },
   );

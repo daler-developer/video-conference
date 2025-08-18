@@ -39,12 +39,12 @@ export default createResolverByMessageType<IncomingMessage, OutgoingResponseMess
       payload: {
         list: [
           {
-            id: ++counter,
+            id: 1,
             name: 'Daler',
             age: getRandom1to10(),
           },
           {
-            id: ++counter,
+            id: 2,
             name: 'Aziz',
             age: getRandom1to10(),
           },

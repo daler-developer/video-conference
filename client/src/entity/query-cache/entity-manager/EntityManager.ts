@@ -12,8 +12,8 @@ export type EntityName =
   | typeof MessageRepository.entityName;
 
 type Entities = {
-  users: Map<number, Entity<NormalizedUserEntity>>;
-  messages: Map<number, Entity<NormalizedMessageEntity>>;
+  users: Map<number, NormalizedUserEntity>;
+  messages: Map<number, NormalizedMessageEntity>;
 };
 
 type EntityManagerNotifyEvent = {
@@ -67,8 +67,7 @@ export class EntityManager extends Subscribable<Listener> {
     for (const entityName of Object.keys(entities) as EntityName[]) {
       const allEntities = Object.values(entities[entityName]);
       for (const entity of allEntities) {
-        const entity_ = new Entity(entity);
-        this.getRepository(entityName).addOne(entity_);
+        this.getRepository(entityName).upsertOne(entity);
         // allEntities.push(entity_);
       }
     }
@@ -82,10 +81,10 @@ export class EntityManager extends Subscribable<Listener> {
   denormalizeData<TResult>(normalizedData: unknown, schema: Schema) {
     const allEntities = this.getAllEntities();
 
-    const res: Entities = {} as any;
+    const res: Entities = {} as Entities;
     for (const [entityName, map] of Object.entries(allEntities)) {
       res[entityName] = [...map.values()].reduce((accum, entity) => {
-        accum[entity.getData().id] = entity.getData();
+        accum[entity.id] = entity;
         return accum;
       }, {});
     }

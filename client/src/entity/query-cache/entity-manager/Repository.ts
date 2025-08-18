@@ -18,7 +18,7 @@ type RepositoryNotifyEvent = {
 type Listener = (event: RepositoryNotifyEvent) => void;
 
 export abstract class Repository<
-  TEntity extends Entity,
+  TEntity extends BaseEntity,
 > extends Subscribable<Listener> {
   #byId: Map<number, TEntity> = new Map();
   #allIds = new Set<number>();
@@ -32,11 +32,11 @@ export abstract class Repository<
   }
 
   addOne(data: TEntity): void {
-    const exists = this.#allIds.has(data.getData().id);
+    const exists = this.#allIds.has(data.id);
 
     if (!exists) {
-      this.#byId.set(data.getData().id, data);
-      this.#allIds.add(data.getData().id);
+      this.#byId.set(data.id, data);
+      this.#allIds.add(data.id);
     }
   }
 
@@ -47,8 +47,8 @@ export abstract class Repository<
   }
 
   setOne(data: TEntity): void {
-    this.#byId.set(data.getData().id, data);
-    this.#allIds.add(data.getData().id);
+    this.#byId.set(data.id, data);
+    this.#allIds.add(data.id);
   }
 
   setMany(entities: TEntity[]): void {
@@ -68,39 +68,42 @@ export abstract class Repository<
     }
   }
 
-  // updateOne({ id, changes }: Update<TEntity>): void {
-  //   const entity = this.#byId[id];
-  //
-  //   if (entity) {
-  //     this.#byId[id] = {
-  //       ...entity,
-  //       ...changes,
-  //     };
-  //   }
-  // }
+  updateOne({ id, changes }: Update<TEntity>): void {
+    const entity = this.#byId.get(id);
 
-  // updateMany(updates: Update<TEntity>[]) {
-  //   for (const update of updates) {
-  //     this.updateOne(update);
-  //   }
-  // }
+    if (entity) {
+      this.#byId.set(id, {
+        ...entity,
+        ...changes,
+      });
+      this.listeners.forEach((listener) => {
+        listener({ type: "entity-updated" });
+      });
+    }
+  }
 
-  // upsertOne(entity: Entity): void {
-  //   const existingEntity = this.#byId[entity.id];
-  //
-  //   if (existingEntity) {
-  //     this.#byId[entity.id] = {
-  //       ...existingEntity,
-  //       ...entity,
-  //     };
-  //   } else {
-  //     this.addOne(entity);
-  //   }
-  // }
-  //
-  // upsertMany(entities: TEntity[]): void {
-  //   for (const entity of entities) {
-  //     this.upsertOne(entity);
-  //   }
-  // }
+  updateMany(updates: Update<TEntity>[]) {
+    for (const update of updates) {
+      this.updateOne(update);
+    }
+  }
+
+  upsertOne(entity: TEntity): void {
+    const existingEntity = this.#byId.get(entity.id);
+
+    if (existingEntity) {
+      this.#byId.set(entity.id, {
+        ...existingEntity,
+        ...entity,
+      });
+    } else {
+      this.addOne(entity);
+    }
+  }
+
+  upsertMany(entities: TEntity[]): void {
+    for (const entity of entities) {
+      this.upsertOne(entity);
+    }
+  }
 }
