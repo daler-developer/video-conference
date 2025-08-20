@@ -26,19 +26,23 @@ type IncomingMessage = BaseIncomingMessage<
   }
 >;
 
-type Params = {
+type QueryParams = {
   limit: number;
   search: string;
 };
 
-type PageParam = {
+type QueryData = {
+  list: UserEntity[];
+};
+
+type QueryPageParam = {
   page: number;
 };
 
 export const {
   useQuery: useGetUsersQuery,
   useLazyQuery: useGetUsersLazyQuery,
-} = createQuery({
+} = createQuery<QueryParams, QueryData, QueryPageParam, true>({
   name: GET_USERS,
   callback: createEventSubAdapterForWebsocket<
     OutgoingMessage,

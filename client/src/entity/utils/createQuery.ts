@@ -20,14 +20,13 @@ type CreateQueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryObserverIsLazy extends boolean,
   TQueryIsInfinite extends boolean,
 > = Pick<
   QueryObserverConfig<
     TQueryParams,
     TQueryData,
     TQueryPageParam,
-    TQueryObserverIsLazy,
+    any,
     TQueryIsInfinite
   >,
   | "name"
@@ -43,14 +42,12 @@ const createQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryObserverIsLazy extends boolean,
   TQueryIsInfinite extends boolean,
 >(
   options: CreateQueryOptions<
     TQueryParams,
     TQueryData,
     TQueryPageParam,
-    TQueryObserverIsLazy,
     TQueryIsInfinite
   >,
 ) => {
