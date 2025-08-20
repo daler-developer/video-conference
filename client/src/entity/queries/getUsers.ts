@@ -6,6 +6,7 @@ import {
 } from "@/websocket";
 import { UserEntitySchema } from "../query-cache/entity-manager/UserRepository";
 import { type UserEntity } from "../types";
+import { createWebsocketQueryCallback } from "../utils/createWebsocketQueryCallback.ts";
 
 const GET_USERS = "GET_USERS";
 const GET_USERS_RESULT = "GET_USERS_RESULT";
@@ -44,21 +45,20 @@ export const {
   useLazyQuery: useGetUsersLazyQuery,
 } = createQuery<QueryParams, QueryData, QueryPageParam, true>({
   name: GET_USERS,
-  callback: createEventSubAdapterForWebsocket<
-    OutgoingMessage,
-    IncomingMessage,
-    Params,
-    PageParam
+  callback: createWebsocketQueryCallback<
+    QueryParams,
+    QueryData,
+    QueryPageParam
   >({
     outgoingMessageType: GET_USERS,
-    createPayload: ({ params, pageParam }) => {
+    createPayload({ params, pageParam }) {
       return {
         limit: params.limit,
         search: params.search,
         page: pageParam.page,
       };
     },
-  }).callback,
+  }),
   isInfinite: true,
   initialPageParam: {
     page: 1,
