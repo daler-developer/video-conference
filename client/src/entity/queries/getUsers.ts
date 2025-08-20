@@ -35,22 +35,26 @@ type PageParam = {
   page: number;
 };
 
-const adapter = createEventSubAdapterForWebsocket<
-  OutgoingMessage,
-  IncomingMessage,
-  Params,
-  PageParam,
-  true
->({
+export const {
+  useQuery: useGetUsersQuery,
+  useLazyQuery: useGetUsersLazyQuery,
+} = createQuery({
   name: GET_USERS,
-  outgoingMessageType: GET_USERS,
-  createPayload: ({ params, pageParam }) => {
-    return {
-      limit: params.limit,
-      search: params.search,
-      page: pageParam.page,
-    };
-  },
+  callback: createEventSubAdapterForWebsocket<
+    OutgoingMessage,
+    IncomingMessage,
+    Params,
+    PageParam
+  >({
+    outgoingMessageType: GET_USERS,
+    createPayload: ({ params, pageParam }) => {
+      return {
+        limit: params.limit,
+        search: params.search,
+        page: pageParam.page,
+      };
+    },
+  }).callback,
   isInfinite: true,
   initialPageParam: {
     page: 1,
@@ -71,11 +75,6 @@ const adapter = createEventSubAdapterForWebsocket<
     list: [UserEntitySchema],
   },
 });
-
-export const {
-  useQuery: useGetUsersQuery,
-  useLazyQuery: useGetUsersLazyQuery,
-} = createQuery(adapter);
 
 // const adapter = createEventSubAdapterForWebsocket<Params, PageParam>({
 //   name: GET_USERS,
@@ -102,3 +101,40 @@ export const {
 //   .then((result) => {
 //     result.data.list.forEach((a) => {});
 //   });
+
+// const adapter = createEventSubAdapterForWebsocket<
+//   OutgoingMessage,
+//   IncomingMessage,
+//   Params,
+//   PageParam,
+//   true
+// >({
+//   name: GET_USERS,
+//   outgoingMessageType: GET_USERS,
+//   createPayload: ({ params, pageParam }) => {
+//     return {
+//       limit: params.limit,
+//       search: params.search,
+//       page: pageParam.page,
+//     };
+//   },
+//   isInfinite: true,
+//   initialPageParam: {
+//     page: 1,
+//   },
+//   getNextPageParam: ({ lastPageParam }) => {
+//     return {
+//       ...lastPageParam,
+//       page: lastPageParam.page + 1,
+//     };
+//   },
+//   merge: ({ existingData, incomingData }) => {
+//     return {
+//       ...existingData,
+//       list: [...existingData.list, ...incomingData.list],
+//     };
+//   },
+//   schema: {
+//     list: [UserEntitySchema],
+//   },
+// });

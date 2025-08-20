@@ -6,6 +6,7 @@ import {
 } from "../query-cache/Query";
 import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { useBaseQuery } from "./useBaseQuery";
+import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
 
 type HookOptions<TQueryParams extends BaseQueryParams> = {
   params: TQueryParams;
@@ -15,22 +16,47 @@ type UpdateDataCallback<TQueryData extends BaseQueryData> = (
   prev: TQueryData,
 ) => TQueryData;
 
+type CreateQueryOptions<
+  TQueryParams extends BaseQueryParams,
+  TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
+  TQueryObserverIsLazy extends boolean,
+  TQueryIsInfinite extends boolean,
+> = Pick<
+  QueryObserverConfig<
+    TQueryParams,
+    TQueryData,
+    TQueryPageParam,
+    TQueryObserverIsLazy,
+    TQueryIsInfinite
+  >,
+  | "name"
+  | "callback"
+  | "isInfinite"
+  | "initialPageParam"
+  | "getNextPageParam"
+  | "merge"
+  | "schema"
+>;
+
 const createQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
+  TQueryObserverIsLazy extends boolean,
   TQueryIsInfinite extends boolean,
 >(
-  adapterOptions: QueryAdapter<
+  options: CreateQueryOptions<
     TQueryParams,
     TQueryData,
     TQueryPageParam,
+    TQueryObserverIsLazy,
     TQueryIsInfinite
   >,
 ) => {
   const useQuery = ({ params }: HookOptions<TQueryParams>) => {
     return useBaseQuery({
-      ...adapterOptions,
+      ...options,
       isLazy: false,
       params,
     });
@@ -38,7 +64,7 @@ const createQuery = <
 
   const useLazyQuery = ({ params }: HookOptions<TQueryParams>) => {
     return useBaseQuery({
-      ...adapterOptions,
+      ...options,
       isLazy: true,
       params,
     });
@@ -54,7 +80,7 @@ const createQuery = <
         TQueryParams,
         TQueryData,
         TQueryPageParam
-      >({ name: adapterOptions.name, params });
+      >({ name: options.name, params });
     const prevData = query.data;
 
     if (prevData) {

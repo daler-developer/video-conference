@@ -18,44 +18,16 @@ export type QueryAdapter<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
 > = Pick<
-  QueryObserverConfig<
-    TQueryParams,
-    TQueryData,
-    TQueryPageParam,
-    any,
-    TQueryIsInfinite
-  >,
-  | "name"
-  | "isInfinite"
-  | "initialPageParam"
-  | "getNextPageParam"
-  | "callback"
-  | "merge"
-  | "schema"
+  QueryObserverConfig<TQueryParams, TQueryData, TQueryPageParam, any, any>,
+  "callback"
 >;
 
 type Options<
   TOutgoingMessage extends BaseOutgoingMessage,
-  TIncomingMessage extends BaseIncomingMessage,
   TQueryParams extends BaseQueryParams,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
-> = Pick<
-  QueryAdapter<
-    TQueryParams,
-    IncomingMessageExtractPayload<TIncomingMessage>,
-    TQueryPageParam,
-    TQueryIsInfinite
-  >,
-  | "name"
-  | "isInfinite"
-  | "initialPageParam"
-  | "getNextPageParam"
-  | "merge"
-  | "schema"
-> & {
+> = {
   outgoingMessageType: OutgoingMessageExtractType<TOutgoingMessage>;
   createPayload: (options: {
     params: TQueryParams;
@@ -68,35 +40,15 @@ export const createEventSubAdapterForWebsocket = <
   TIncomingMessage extends BaseIncomingMessage,
   TQueryParams extends BaseQueryParams,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
 >({
-  name,
   outgoingMessageType,
   createPayload,
-  isInfinite,
-  initialPageParam,
-  getNextPageParam,
-  merge,
-  schema,
-}: Options<
-  TOutgoingMessage,
-  TIncomingMessage,
-  TQueryParams,
-  TQueryPageParam,
-  TQueryIsInfinite
->): QueryAdapter<
+}: Options<TOutgoingMessage, TQueryParams, TQueryPageParam>): QueryAdapter<
   TQueryParams,
   IncomingMessageExtractPayload<TIncomingMessage>,
-  TQueryPageParam,
-  TQueryIsInfinite
+  TQueryPageParam
 > => {
   return {
-    name,
-    isInfinite,
-    initialPageParam,
-    getNextPageParam,
-    merge,
-    schema,
     async callback({ params, pageParam }) {
       const payload = createPayload({ params, pageParam: pageParam! });
 
