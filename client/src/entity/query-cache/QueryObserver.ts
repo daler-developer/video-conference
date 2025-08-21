@@ -12,6 +12,7 @@ import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 type QueryResult<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
@@ -26,19 +27,38 @@ type QueryResult<
   isError: boolean;
   isLoading: boolean;
   isRefetching: boolean;
-  refetch: Query<TQueryParams, TQueryData, TQueryPageParam>["refetch"];
+  error: TQueryError | null;
+  refetch: Query<
+    TQueryParams,
+    TQueryData,
+    TQueryError,
+    TQueryPageParam
+  >["refetch"];
 } & (TQueryIsInfinite extends true
   ? {
-      fetchMore: Query<TQueryParams, TQueryData, TQueryPageParam>["fetchMore"];
+      fetchMore: Query<
+        TQueryParams,
+        TQueryData,
+        TQueryError,
+        TQueryPageParam
+      >["fetchMore"];
       isFetchingMore: Query<
         TQueryParams,
         TQueryData,
+        TQueryError,
         TQueryPageParam
       >["isFetchingMore"];
     }
   : {}) &
   (TQueryObserverIsLazy extends true
-    ? { fetch: Query<TQueryParams, TQueryData, TQueryPageParam>["fetch"] }
+    ? {
+        fetch: Query<
+          TQueryParams,
+          TQueryData,
+          TQueryError,
+          TQueryPageParam
+        >["fetch"];
+      }
     : {});
 
 export type QueryObserverOptions<TQueryObserverIsLazy extends boolean> = {
@@ -48,6 +68,7 @@ export type QueryObserverOptions<TQueryObserverIsLazy extends boolean> = {
 export type QueryObserverConfig<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryObserverIsLazy extends boolean,
   TQueryIsInfinite extends boolean,
@@ -57,17 +78,19 @@ export type QueryObserverConfig<
 export class QueryObserver<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
 > {
-  #query: Query<TQueryParams, TQueryData, TQueryPageParam>;
+  #query: Query<TQueryParams, TQueryData, TQueryError, TQueryPageParam>;
   #options: QueryObserverOptions<TQueryObserverIsLazy>;
 
   constructor(
     queryObserverConfig: QueryObserverConfig<
       TQueryParams,
       TQueryData,
+      TQueryError,
       TQueryPageParam,
       TQueryObserverIsLazy,
       TQueryIsInfinite
@@ -114,6 +137,7 @@ export class QueryObserver<
     const result = {} as QueryResult<
       TQueryParams,
       TQueryData,
+      TQueryError,
       TQueryPageParam,
       TQueryIsInfinite,
       TQueryObserverIsLazy
@@ -129,12 +153,14 @@ export class QueryObserver<
     result.isRefetching = this.query.isRefetching;
     result.isLoading = this.query.isLoading;
     result.refetch = this.query.refetch;
+    result.error = this.query.error;
 
     if (this.query.options.isInfinite) {
       (
         result as QueryResult<
           TQueryParams,
           TQueryData,
+          TQueryError,
           TQueryPageParam,
           true,
           TQueryObserverIsLazy
@@ -144,6 +170,7 @@ export class QueryObserver<
         result as QueryResult<
           TQueryParams,
           TQueryData,
+          TQueryError,
           TQueryPageParam,
           true,
           TQueryObserverIsLazy
@@ -156,6 +183,7 @@ export class QueryObserver<
         result as QueryResult<
           TQueryParams,
           TQueryData,
+          TQueryError,
           TQueryPageParam,
           TQueryIsInfinite,
           true

@@ -49,20 +49,22 @@ export type QueryOptions<
   merge: QueryMerge<TQueryData>;
 };
 
-export type QueryState = {
+export type QueryState<TQueryError extends object> = {
   status: QueryStatus;
   fetchStatus: QueryFetchStatus;
   fetchMeta: QueryFetchMeta;
   normalizedData: any;
+  error: TQueryError | null;
 };
 
 type BaseFetchOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
 > = {
   onFetch: (
-    this: Query<TQueryParams, TQueryData, TQueryPageParam>,
+    this: Query<TQueryParams, TQueryData, TQueryError, TQueryPageParam>,
   ) => Promise<TQueryData>;
   fetchMeta?: QueryFetchMeta;
   onSuccess?: () => void;
@@ -89,11 +91,12 @@ const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
 export class Query<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean = any,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  #state: QueryState;
+  #state: QueryState<TQueryError>;
   #options: QueryOptions<
     TQueryParams,
     TQueryData,
@@ -152,10 +155,11 @@ export class Query<
     });
   }
 
-  private getInitialState(): QueryState {
+  private getInitialState(): QueryState<TQueryError> {
     return {
       normalizedData: null,
       status: "pending",
+      error: null,
       fetchStatus: "idle",
       fetchMeta: {
         isFetchingMore: false,
@@ -184,7 +188,7 @@ export class Query<
     });
   }
 
-  updateState(newState: Partial<QueryState>) {
+  updateState(newState: Partial<QueryState<TQueryError>>) {
     this.#state = {
       ...this.#state,
       ...newState,
@@ -301,7 +305,12 @@ export class Query<
   }
 
   async #baseFetch(
-    options: BaseFetchOptions<TQueryParams, TQueryData, TQueryPageParam>,
+    options: BaseFetchOptions<
+      TQueryParams,
+      TQueryData,
+      TQueryError,
+      TQueryPageParam
+    >,
   ) {
     const prevFetchMeta = this.#state.fetchMeta;
 
@@ -426,5 +435,9 @@ export class Query<
 
   get isFetchingMore() {
     return this.isFetching && this.#state.fetchMeta.isFetchingMore;
+  }
+
+  get error() {
+    return this.#state.error;
   }
 }

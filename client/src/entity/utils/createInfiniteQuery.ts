@@ -19,9 +19,17 @@ type UpdateDataCallback<TQueryData extends BaseQueryData> = (
 type CreateInfiniteQueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
 > = Pick<
-  QueryObserverConfig<TQueryParams, TQueryData, TQueryPageParam, any, true>,
+  QueryObserverConfig<
+    TQueryParams,
+    TQueryData,
+    TQueryError,
+    TQueryPageParam,
+    any,
+    true
+  >,
   | "name"
   | "callback"
   | "initialPageParam"
@@ -33,16 +41,25 @@ type CreateInfiniteQueryOptions<
 const createInfiniteQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
 >(
   options: CreateInfiniteQueryOptions<
     TQueryParams,
     TQueryData,
+    TQueryError,
     TQueryPageParam
   >,
 ) => {
   const useQuery = ({ params }: HookOptions<TQueryParams>) => {
-    return useBaseQuery({
+    return useBaseQuery<
+      TQueryParams,
+      TQueryData,
+      TQueryError,
+      TQueryPageParam,
+      false,
+      true
+    >({
       ...options,
       isInfinite: true,
       isLazy: false,
@@ -51,7 +68,14 @@ const createInfiniteQuery = <
   };
 
   const useLazyQuery = ({ params }: HookOptions<TQueryParams>) => {
-    return useBaseQuery({
+    return useBaseQuery<
+      TQueryParams,
+      TQueryData,
+      TQueryError,
+      TQueryPageParam,
+      true,
+      true
+    >({
       ...options,
       isInfinite: true,
       isLazy: true,

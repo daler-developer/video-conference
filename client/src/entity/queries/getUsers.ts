@@ -41,16 +41,17 @@ type QueryPageParam = {
   page: number;
 };
 
+type QueryError = {
+  foo: string;
+  age: number;
+};
+
 export const {
   useQuery: useGetUsersQuery,
   useLazyQuery: useGetUsersLazyQuery,
-} = createInfiniteQuery<QueryParams, QueryData, QueryPageParam>({
+} = createInfiniteQuery<QueryParams, QueryData, QueryError, QueryPageParam>({
   name: GET_USERS,
-  callback: createWebsocketQueryCallback<
-    QueryParams,
-    QueryData,
-    QueryPageParam
-  >({
+  callback: createWebsocketQueryCallback({
     outgoingMessageType: GET_USERS,
     createPayload({ params, pageParam }) {
       return {

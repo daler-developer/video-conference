@@ -13,6 +13,7 @@ import {
 export const useBaseQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends object,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryObserverIsLazy extends boolean,
   TQueryIsInfinite extends boolean,
@@ -20,6 +21,7 @@ export const useBaseQuery = <
   queryObserverOptions: QueryObserverConfig<
     TQueryParams,
     TQueryData,
+    TQueryError,
     TQueryPageParam,
     TQueryObserverIsLazy,
     TQueryIsInfinite
@@ -27,7 +29,17 @@ export const useBaseQuery = <
 ) => {
   const forceRender = useForceRender();
 
-  const [observer] = useState(() => new QueryObserver(queryObserverOptions));
+  const [observer] = useState(
+    () =>
+      new QueryObserver<
+        TQueryParams,
+        TQueryData,
+        TQueryError,
+        TQueryPageParam,
+        TQueryObserverIsLazy,
+        TQueryIsInfinite
+      >(queryObserverOptions),
+  );
 
   const query = observer.query;
 
