@@ -1,5 +1,6 @@
 import { createEventSubAdapterForWebsocket } from "../adapters/createQueryAdapterForWebsocket";
 import { createQuery } from "../utils/createQuery";
+import { createInfiniteQuery } from "../utils/createInfiniteQuery.ts";
 import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
@@ -43,7 +44,7 @@ type QueryPageParam = {
 export const {
   useQuery: useGetUsersQuery,
   useLazyQuery: useGetUsersLazyQuery,
-} = createQuery<QueryParams, QueryData, QueryPageParam, true>({
+} = createInfiniteQuery<QueryParams, QueryData, QueryPageParam>({
   name: GET_USERS,
   callback: createWebsocketQueryCallback<
     QueryParams,
@@ -59,7 +60,6 @@ export const {
       };
     },
   }),
-  isInfinite: true,
   initialPageParam: {
     page: 1,
   },

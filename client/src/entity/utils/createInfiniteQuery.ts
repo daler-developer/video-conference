@@ -16,24 +16,35 @@ type UpdateDataCallback<TQueryData extends BaseQueryData> = (
   prev: TQueryData,
 ) => TQueryData;
 
-type CreateQueryOptions<
+type CreateInfiniteQueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
 > = Pick<
-  QueryObserverConfig<TQueryParams, TQueryData, null, any, false>,
-  "name" | "callback" | "merge" | "schema"
+  QueryObserverConfig<TQueryParams, TQueryData, TQueryPageParam, any, true>,
+  | "name"
+  | "callback"
+  | "initialPageParam"
+  | "getNextPageParam"
+  | "merge"
+  | "schema"
 >;
 
-const createQuery = <
+const createInfiniteQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryPageParam extends BaseQueryPageParam,
 >(
-  options: CreateQueryOptions<TQueryParams, TQueryData>,
+  options: CreateInfiniteQueryOptions<
+    TQueryParams,
+    TQueryData,
+    TQueryPageParam
+  >,
 ) => {
   const useQuery = ({ params }: HookOptions<TQueryParams>) => {
     return useBaseQuery({
       ...options,
-      isInfinite: false,
+      isInfinite: true,
       isLazy: false,
       params,
     });
@@ -42,7 +53,7 @@ const createQuery = <
   const useLazyQuery = ({ params }: HookOptions<TQueryParams>) => {
     return useBaseQuery({
       ...options,
-      isInfinite: false,
+      isInfinite: true,
       isLazy: true,
       params,
     });
@@ -54,7 +65,11 @@ const createQuery = <
   ) => {
     const query = queryCache
       .getQueryRepository()
-      .get<TQueryParams, TQueryData>({ name: options.name, params });
+      .get<
+        TQueryParams,
+        TQueryData,
+        TQueryPageParam
+      >({ name: options.name, params });
     const prevData = query.data;
 
     if (prevData) {
@@ -70,7 +85,7 @@ const createQuery = <
   };
 };
 
-export { createQuery };
+export { createInfiniteQuery };
 
 // useEffect(() => {
 //   queryCache.initQuery({

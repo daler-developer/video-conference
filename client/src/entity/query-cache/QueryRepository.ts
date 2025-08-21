@@ -32,7 +32,7 @@ export class QueryRepository {
   get<
     TQueryParams extends BaseQueryParams,
     TQueryData extends BaseQueryData,
-    TQueryPageParam extends BaseQueryPageParam,
+    TQueryPageParam extends BaseQueryPageParam = never,
   >({
     name,
     params,
