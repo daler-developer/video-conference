@@ -9,11 +9,12 @@ import {
   QueryObserver,
   type QueryObserverConfig,
 } from "../query-cache/QueryObserver";
+import { type BaseQueryErrorMap, QueryError } from "@/entity/QueryError.ts";
 
 export const useBaseQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryErrorMap extends BaseQueryErrorMap,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryObserverIsLazy extends boolean,
   TQueryIsInfinite extends boolean,
@@ -21,7 +22,7 @@ export const useBaseQuery = <
   queryObserverOptions: QueryObserverConfig<
     TQueryParams,
     TQueryData,
-    TQueryError,
+    TQueryErrorMap,
     TQueryPageParam,
     TQueryObserverIsLazy,
     TQueryIsInfinite
@@ -34,7 +35,7 @@ export const useBaseQuery = <
       new QueryObserver<
         TQueryParams,
         TQueryData,
-        TQueryError,
+        TQueryErrorMap,
         TQueryPageParam,
         TQueryObserverIsLazy,
         TQueryIsInfinite

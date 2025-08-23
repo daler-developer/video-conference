@@ -1,6 +1,7 @@
 import { type Schema } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
+import { type BaseQueryErrorMap, QueryError } from "@/entity/QueryError.ts";
 
 export type QueryStatus = "pending" | "success" | "error";
 
@@ -46,25 +47,25 @@ export type QueryOptions<
   isInfinite: TQueryIsInfinite;
   initialPageParam?: TQueryPageParam;
   getNextPageParam?: QueryGetNextPageParam<TQueryPageParam>;
-  merge: QueryMerge<TQueryData>;
+  merge?: QueryMerge<TQueryData>;
 };
 
-export type QueryState<TQueryError extends object> = {
+export type QueryState<TQueryErrorMap extends BaseQueryErrorMap> = {
   status: QueryStatus;
   fetchStatus: QueryFetchStatus;
   fetchMeta: QueryFetchMeta;
   normalizedData: any;
-  error: TQueryError | null;
+  error: QueryError<TQueryErrorMap> | null;
 };
 
 type BaseFetchOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryErrorMap extends BaseQueryErrorMap,
   TQueryPageParam extends BaseQueryPageParam,
 > = {
   onFetch: (
-    this: Query<TQueryParams, TQueryData, TQueryError, TQueryPageParam>,
+    this: Query<TQueryParams, TQueryData, TQueryErrorMap, TQueryPageParam>,
   ) => Promise<TQueryData>;
   fetchMeta?: QueryFetchMeta;
   onSuccess?: () => void;
@@ -91,12 +92,12 @@ const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
 export class Query<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryErrorMap extends BaseQueryErrorMap,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean = any,
 > extends Subscribable<Listener> {
   #queryCache: QueryCache;
-  #state: QueryState<TQueryError>;
+  #state: QueryState<TQueryErrorMap>;
   #options: QueryOptions<
     TQueryParams,
     TQueryData,
@@ -155,7 +156,7 @@ export class Query<
     });
   }
 
-  private getInitialState(): QueryState<TQueryError> {
+  private getInitialState(): QueryState<TQueryErrorMap> {
     return {
       normalizedData: null,
       status: "pending",
@@ -188,7 +189,7 @@ export class Query<
     });
   }
 
-  updateState(newState: Partial<QueryState<TQueryError>>) {
+  updateState(newState: Partial<QueryState<TQueryErrorMap>>) {
     this.#state = {
       ...this.#state,
       ...newState,
@@ -251,7 +252,7 @@ export class Query<
             continue;
           }
 
-          res = this.#options.merge({
+          res = this.#options.merge!({
             existingData: res,
             incomingData: data,
           });
@@ -290,7 +291,7 @@ export class Query<
         this.#pageParams.push(nextPageParam);
 
         if (this.data) {
-          return this.#options.merge({
+          return this.#options.merge!({
             existingData: this.data,
             incomingData,
           });
@@ -308,7 +309,7 @@ export class Query<
     options: BaseFetchOptions<
       TQueryParams,
       TQueryData,
-      TQueryError,
+      TQueryErrorMap,
       TQueryPageParam
     >,
   ) {
@@ -353,13 +354,18 @@ export class Query<
 
       return data;
     } catch (e) {
-      this.updateState({
-        status: "error",
-        fetchStatus: "idle",
-        normalizedData: null,
-        fetchMeta: prevFetchMeta,
-      });
-      options.onError?.();
+      if (e instanceof QueryError) {
+        this.updateState({
+          status: "error",
+          fetchStatus: "idle",
+          normalizedData: null,
+          fetchMeta: prevFetchMeta,
+          error: e,
+        });
+        options.onError?.(e);
+      } else {
+        alert("test");
+      }
       throw e;
     } finally {
       this.#fetchPromise = null;

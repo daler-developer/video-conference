@@ -2,6 +2,7 @@ import {
   useGetUsersQuery,
   useGetUsersLazyQuery,
   useNewMediaFrameSub,
+  GetUsersQueryError,
 } from "@/entity";
 import { useForceRender } from "@/shared/hooks";
 import { useEffect } from "react";
@@ -24,6 +25,34 @@ const Subscribe = () => {
       },
     }),
   };
+
+  // if (queries.getUsers.error!.errorIs('age')) {
+  //   queries.getUsers.error!.details.age1
+  // }
+
+  const func = () => {
+    const test = "ad" as unknown;
+
+    if (test instanceof GetUsersQueryError) {
+      const e = test as InstanceType<typeof GetUsersQueryError>;
+
+      if (e.errorIs("foo")) {
+      }
+    }
+
+    // const e = test as InstanceType<typeof GetUsersQueryError>;
+    // if (e.errorIs("age")) {
+    //   e
+    // }
+  };
+
+  // if (queries.getUsers.error?.errorIs("foo")) {
+  //   console.log(queries.getUsers.error?.details.foo1);
+  // }
+  //
+  // if (queries.getUsers.error?.errorIs("age")) {
+  //   console.log(queries.getUsers.error?.details.age1);
+  // }
 
   // console.log(queries.getUsers.data?.list[0].name);
   // console.log(queries.getUsers.data?.list[0].age);

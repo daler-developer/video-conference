@@ -38,6 +38,10 @@ type QueryData = {
   list: UserEntity[];
 };
 
+type QueryPageParam = {
+  page: number;
+};
+
 type QueryErrorMap = {
   foo: {
     foo1: string;
@@ -52,30 +56,42 @@ type QueryErrorMap = {
 export const {
   useQuery: useGetUsersQuery,
   useLazyQuery: useGetUsersLazyQuery,
-  Error: GetUsersQueryError,
-} = createQuery<QueryParams, QueryData, QueryErrorMap>({
+} = createInfiniteQuery<
+  QueryParams,
+  QueryData,
+  QueryError<QueryErrorMap>,
+  QueryPageParam
+>({
   name: GET_USERS,
   callback: createWebsocketQueryCallback({
     outgoingMessageType: GET_USERS,
-    createPayload({ params }) {
+    createPayload({ params, pageParam }) {
       return {
         limit: params.limit,
         search: params.search,
+        page: pageParam.page,
       };
     },
   }),
+  initialPageParam: {
+    page: 1,
+  },
+  getNextPageParam: ({ lastPageParam }) => {
+    return {
+      ...lastPageParam,
+      page: lastPageParam.page + 1,
+    };
+  },
+  merge: ({ existingData, incomingData }) => {
+    return {
+      ...existingData,
+      list: [...existingData.list, ...incomingData.list],
+    };
+  },
   schema: {
     list: [UserEntitySchema],
   },
 });
-
-// export { Error as GetUsersQueryError };
-
-// const error = new GetUsersQueryError("", "foo", { hi: 2 });
-
-// if (error.errorIs("age")) {
-//
-// }
 
 // const adapter = createEventSubAdapterForWebsocket<Params, PageParam>({
 //   name: GET_USERS,

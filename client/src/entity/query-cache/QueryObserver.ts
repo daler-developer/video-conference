@@ -8,11 +8,12 @@ import {
   Query,
 } from "./Query";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
+import { type BaseQueryErrorMap, QueryError } from "@/entity/QueryError.ts";
 
-type QueryResult<
+type QueryObserverResult<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryErrorMap extends BaseQueryErrorMap,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
@@ -27,11 +28,11 @@ type QueryResult<
   isError: boolean;
   isLoading: boolean;
   isRefetching: boolean;
-  error: TQueryError | null;
+  error: QueryError<TQueryErrorMap> | null;
   refetch: Query<
     TQueryParams,
     TQueryData,
-    TQueryError,
+    TQueryErrorMap,
     TQueryPageParam
   >["refetch"];
 } & (TQueryIsInfinite extends true
@@ -39,13 +40,13 @@ type QueryResult<
       fetchMore: Query<
         TQueryParams,
         TQueryData,
-        TQueryError,
+        TQueryErrorMap,
         TQueryPageParam
       >["fetchMore"];
       isFetchingMore: Query<
         TQueryParams,
         TQueryData,
-        TQueryError,
+        TQueryErrorMap,
         TQueryPageParam
       >["isFetchingMore"];
     }
@@ -55,7 +56,7 @@ type QueryResult<
         fetch: Query<
           TQueryParams,
           TQueryData,
-          TQueryError,
+          TQueryErrorMap,
           TQueryPageParam
         >["fetch"];
       }
@@ -68,7 +69,7 @@ export type QueryObserverOptions<TQueryObserverIsLazy extends boolean> = {
 export type QueryObserverConfig<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryErrorMap extends BaseQueryErrorMap,
   TQueryPageParam extends BaseQueryPageParam,
   TQueryObserverIsLazy extends boolean,
   TQueryIsInfinite extends boolean,
@@ -78,19 +79,19 @@ export type QueryObserverConfig<
 export class QueryObserver<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryErrorMap extends BaseQueryErrorMap,
   TQueryPageParam extends BaseQueryPageParam,
-  TQueryIsInfinite extends boolean,
   TQueryObserverIsLazy extends boolean,
+  TQueryIsInfinite extends boolean,
 > {
-  #query: Query<TQueryParams, TQueryData, TQueryError, TQueryPageParam>;
+  #query: Query<TQueryParams, TQueryData, TQueryErrorMap, TQueryPageParam>;
   #options: QueryObserverOptions<TQueryObserverIsLazy>;
 
   constructor(
     queryObserverConfig: QueryObserverConfig<
       TQueryParams,
       TQueryData,
-      TQueryError,
+      TQueryErrorMap,
       TQueryPageParam,
       TQueryObserverIsLazy,
       TQueryIsInfinite
@@ -134,10 +135,10 @@ export class QueryObserver<
   }
 
   createResult() {
-    const result = {} as QueryResult<
+    const result = {} as QueryObserverResult<
       TQueryParams,
       TQueryData,
-      TQueryError,
+      TQueryErrorMap,
       TQueryPageParam,
       TQueryIsInfinite,
       TQueryObserverIsLazy
@@ -157,20 +158,20 @@ export class QueryObserver<
 
     if (this.query.options.isInfinite) {
       (
-        result as QueryResult<
+        result as QueryObserverResult<
           TQueryParams,
           TQueryData,
-          TQueryError,
+          TQueryErrorMap,
           TQueryPageParam,
           true,
           TQueryObserverIsLazy
         >
       ).fetchMore = this.query.fetchMore;
       (
-        result as QueryResult<
+        result as QueryObserverResult<
           TQueryParams,
           TQueryData,
-          TQueryError,
+          TQueryErrorMap,
           TQueryPageParam,
           true,
           TQueryObserverIsLazy
@@ -180,10 +181,10 @@ export class QueryObserver<
 
     if (this.#options.isLazy) {
       (
-        result as QueryResult<
+        result as QueryObserverResult<
           TQueryParams,
           TQueryData,
-          TQueryError,
+          TQueryErrorMap,
           TQueryPageParam,
           TQueryIsInfinite,
           true

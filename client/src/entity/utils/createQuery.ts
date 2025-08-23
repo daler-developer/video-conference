@@ -7,6 +7,7 @@ import {
 import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { useBaseQuery } from "./useBaseQuery";
 import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
+import { QueryError, type BaseQueryErrorMap } from "@/entity/QueryError.ts";
 
 type HookOptions<TQueryParams extends BaseQueryParams> = {
   params: TQueryParams;
@@ -19,19 +20,28 @@ type UpdateDataCallback<TQueryData extends BaseQueryData> = (
 type CreateQueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryError extends BaseQueryErrorMap,
 > = Pick<
-  QueryObserverConfig<TQueryParams, TQueryData, null, any, false>,
-  "name" | "callback" | "merge" | "schema"
+  QueryObserverConfig<TQueryParams, TQueryData, TQueryError, null, any, false>,
+  "name" | "callback" | "schema"
 >;
 
 const createQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
+  TQueryErrorMap extends BaseQueryErrorMap,
 >(
-  options: CreateQueryOptions<TQueryParams, TQueryData>,
+  options: CreateQueryOptions<TQueryParams, TQueryData, TQueryErrorMap>,
 ) => {
   const useQuery = ({ params }: HookOptions<TQueryParams>) => {
-    return useBaseQuery({
+    return useBaseQuery<
+      TQueryParams,
+      TQueryData,
+      TQueryErrorMap,
+      null,
+      false,
+      false
+    >({
       ...options,
       isInfinite: false,
       isLazy: false,
@@ -40,7 +50,14 @@ const createQuery = <
   };
 
   const useLazyQuery = ({ params }: HookOptions<TQueryParams>) => {
-    return useBaseQuery({
+    return useBaseQuery<
+      TQueryParams,
+      TQueryData,
+      TQueryErrorMap,
+      null,
+      true,
+      false
+    >({
       ...options,
       isInfinite: false,
       isLazy: true,
@@ -67,6 +84,7 @@ const createQuery = <
     useQuery,
     useLazyQuery,
     updateData,
+    Error: QueryError as typeof QueryError<TQueryErrorMap>,
   };
 };
 

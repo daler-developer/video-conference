@@ -7,6 +7,7 @@ import {
 import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { useBaseQuery } from "./useBaseQuery";
 import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
+import { QueryError } from "@/entity/QueryError.ts";
 
 type HookOptions<TQueryParams extends BaseQueryParams> = {
   params: TQueryParams;
@@ -19,7 +20,7 @@ type UpdateDataCallback<TQueryData extends BaseQueryData> = (
 type CreateInfiniteQueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryError extends QueryError<any>,
   TQueryPageParam extends BaseQueryPageParam,
 > = Pick<
   QueryObserverConfig<
@@ -41,7 +42,7 @@ type CreateInfiniteQueryOptions<
 const createInfiniteQuery = <
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends object,
+  TQueryError extends QueryError<any>,
   TQueryPageParam extends BaseQueryPageParam,
 >(
   options: CreateInfiniteQueryOptions<
