@@ -6,6 +6,7 @@ import {
   type QueryOptions,
 } from "./Query";
 import { QueryCache } from "./QueryCache";
+import type { BaseQueryErrorMap } from "@/entity/QueryError.ts";
 
 export class QueryRepository {
   #queryCache: QueryCache;
@@ -18,13 +19,19 @@ export class QueryRepository {
   add<
     TQueryParams extends BaseQueryParams,
     TQueryData extends BaseQueryData,
+    TQueryErrorMap extends BaseQueryErrorMap,
     TQueryPageParam extends BaseQueryPageParam,
   >(queryOptions: QueryOptions<TQueryParams, TQueryData, TQueryPageParam>) {
     const queryHash = Query.hashQuery({
       name: queryOptions.name,
       params: queryOptions.params,
     });
-    const newQuery = new Query(this.#queryCache, queryOptions);
+    const newQuery = new Query<
+      TQueryParams,
+      TQueryData,
+      TQueryErrorMap,
+      TQueryPageParam
+    >(this.#queryCache, queryOptions);
     this.#queries.set(queryHash, newQuery);
     return newQuery;
   }
@@ -32,6 +39,7 @@ export class QueryRepository {
   get<
     TQueryParams extends BaseQueryParams,
     TQueryData extends BaseQueryData,
+    TQueryErrorMap extends BaseQueryErrorMap,
     TQueryPageParam extends BaseQueryPageParam = never,
   >({
     name,
@@ -45,6 +53,7 @@ export class QueryRepository {
     return this.#queries.get(queryHash) as Query<
       TQueryParams,
       TQueryData,
+      TQueryErrorMap,
       TQueryPageParam
     >;
   }

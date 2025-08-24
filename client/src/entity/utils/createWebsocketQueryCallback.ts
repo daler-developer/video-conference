@@ -14,6 +14,7 @@ import {
 } from "../query-cache/Query";
 import { type QueryCallback } from "../query-cache/Query.ts";
 import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
+import { QueryError } from "@/entity/QueryError.ts";
 
 type Options<
   TQueryParams extends BaseQueryParams,
@@ -40,19 +41,31 @@ export const createWebsocketQueryCallback = <
   TQueryPageParam
 > => {
   return async ({ params, pageParam }) => {
-    const payload = createPayload({ params, pageParam: pageParam! });
+    try {
+      const payload = createPayload({ params, pageParam: pageParam! });
 
-    const createOutgoingMessage = createOutgoingMessageCreator({
-      type: outgoingMessageType,
-    });
+      const createOutgoingMessage = createOutgoingMessageCreator({
+        type: outgoingMessageType,
+      });
 
-    const outgoingMessage = createOutgoingMessage({
-      payload,
-    });
+      const outgoingMessage = createOutgoingMessage({
+        payload,
+      });
 
-    const incomingResponseMessage =
-      await websocketClient.sendMessage(outgoingMessage);
+      const incomingResponseMessage =
+        await websocketClient.sendMessage(outgoingMessage);
 
-    return incomingResponseMessage.payload as TQueryData;
+      return incomingResponseMessage.payload as TQueryData;
+    } catch {
+      throw new QueryError("Validation Errors", "VALIDATION", {
+        detail: {
+          age: 20,
+          foo: "bar",
+          inner: {
+            name: false,
+          },
+        },
+      });
+    }
   };
 };

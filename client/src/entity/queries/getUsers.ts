@@ -47,6 +47,12 @@ type QueryErrorMap = {
     age1: string;
     age2: string;
   };
+  VALIDATION: {
+    age: number;
+    inner: {
+      name: boolean;
+    };
+  };
 };
 
 export const {
@@ -61,6 +67,7 @@ export const {
       return {
         limit: params.limit,
         search: params.search,
+        page: 1,
       };
     },
   }),

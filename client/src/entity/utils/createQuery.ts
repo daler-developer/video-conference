@@ -71,7 +71,11 @@ const createQuery = <
   ) => {
     const query = queryCache
       .getQueryRepository()
-      .get<TQueryParams, TQueryData>({ name: options.name, params });
+      .get<
+        TQueryParams,
+        TQueryData,
+        TQueryErrorMap
+      >({ name: options.name, params });
     const prevData = query.data;
 
     if (prevData) {

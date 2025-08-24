@@ -102,7 +102,7 @@ export class QueryObserver<
     };
     const existingQuery = queryCache
       .getQueryRepository()
-      .get<TQueryParams, TQueryData, TQueryPageParam>({
+      .get<TQueryParams, TQueryData, TQueryErrorMap, TQueryPageParam>({
         name: queryObserverConfig.name,
         params: queryObserverConfig.params,
       });
@@ -115,7 +115,12 @@ export class QueryObserver<
 
     const newQuery = queryCache
       .getQueryRepository()
-      .add<TQueryParams, TQueryData, TQueryPageParam>(queryObserverConfig);
+      .add<
+        TQueryParams,
+        TQueryData,
+        TQueryErrorMap,
+        TQueryPageParam
+      >(queryObserverConfig);
     if (!queryObserverConfig.isLazy) {
       void newQuery.fetch();
     }

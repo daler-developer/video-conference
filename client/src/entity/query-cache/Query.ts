@@ -67,9 +67,19 @@ type BaseFetchOptions<
   onFetch: (
     this: Query<TQueryParams, TQueryData, TQueryErrorMap, TQueryPageParam>,
   ) => Promise<TQueryData>;
-  fetchMeta?: QueryFetchMeta;
-  onSuccess?: () => void;
-  onError?: () => void;
+  onFetchStart?: () => {
+    newState?: Partial<Omit<QueryState<TQueryErrorMap>, "fetchStatus">>;
+  };
+  onFetchSuccess?: () => {
+    newState?: Partial<
+      Omit<QueryState<TQueryErrorMap>, "status" | "fetchStatus">
+    >;
+  };
+  onFetchError?: () => {
+    newState?: Partial<
+      Omit<QueryState<TQueryErrorMap>, "status" | "fetchStatus" | "error">
+    >;
+  };
 };
 
 type HashQueryOptions = {
@@ -204,7 +214,7 @@ export class Query<
 
   async fetch() {
     if (this.isSuccess) {
-      return;
+      return this.refetch();
     }
 
     return this.#baseFetch({
@@ -268,17 +278,21 @@ export class Query<
       throw new Error(`Query ${this.#options.name} is not infinite`);
     }
 
+    if (this.isPending) {
+      return this.fetch();
+    }
+
     return this.#baseFetch({
+      onFetchStart() {
+        return {
+          newState: {
+            fetchMeta: {
+              isFetchingMore: true,
+            },
+          },
+        };
+      },
       async onFetch() {
-        if (this.isPending) {
-          this.#pageParams.push(this.#options.initialPageParam!);
-
-          return this.#options.callback({
-            params: this.#options.params,
-            pageParam: this.#options.initialPageParam!,
-          });
-        }
-
         const nextPageParam = this.#options.getNextPageParam!({
           lastPageParam: this.#pageParams[this.#pageParams.length - 1],
         });
@@ -299,8 +313,23 @@ export class Query<
 
         return incomingData;
       },
-      fetchMeta: {
-        isFetchingMore: true,
+      onFetchSuccess() {
+        return {
+          newState: {
+            fetchMeta: {
+              isFetchingMore: false,
+            },
+          },
+        };
+      },
+      onFetchError() {
+        return {
+          newState: {
+            fetchMeta: {
+              isFetchingMore: false,
+            },
+          },
+        };
       },
     });
   }
@@ -313,16 +342,22 @@ export class Query<
       TQueryPageParam
     >,
   ) {
-    const prevFetchMeta = this.#state.fetchMeta;
+    // const prevFetchMeta = this.#state.fetchMeta;
 
     try {
       if (this.isFetching) {
         return this.#fetchPromise!;
       }
 
+      const onFetchStartResult = options.onFetchStart?.();
+
       this.updateState({
         fetchStatus: "fetching",
-        fetchMeta: options.fetchMeta || this.#state.fetchMeta,
+        ...(onFetchStartResult?.newState
+          ? {
+              ...onFetchStartResult?.newState,
+            }
+          : {}),
       });
 
       await sleep();
@@ -343,30 +378,42 @@ export class Query<
       //   entity.subscribe(() => {});
       // }
 
+      const onFetchSuccessResult = options.onFetchSuccess?.();
+
       this.updateState({
         status: "success",
         fetchStatus: "idle",
         normalizedData,
-        fetchMeta: prevFetchMeta,
+        ...(onFetchSuccessResult?.newState
+          ? {
+              ...onFetchSuccessResult.newState,
+            }
+          : {}),
       });
 
-      options.onSuccess?.();
+      // fetchMeta: prevFetchMeta,
 
       return data;
-    } catch (e) {
-      if (e instanceof QueryError) {
+    } catch (error) {
+      if (error instanceof QueryError) {
+        const onFetchErrorResult = options.onFetchError?.();
+
         this.updateState({
           status: "error",
           fetchStatus: "idle",
-          normalizedData: null,
-          fetchMeta: prevFetchMeta,
-          error: e,
+          error,
+          ...(onFetchErrorResult?.newState
+            ? {
+                ...onFetchErrorResult?.newState,
+              }
+            : {}),
         });
-        options.onError?.(e);
+
+        // fetchMeta: prevFetchMeta,
       } else {
         alert("test");
       }
-      throw e;
+      throw error;
     } finally {
       this.#fetchPromise = null;
     }
@@ -445,5 +492,9 @@ export class Query<
 
   get error() {
     return this.#state.error;
+  }
+
+  get isFetchMoreError() {
+    return this.isError && Boolean(this.data);
   }
 }

@@ -48,7 +48,6 @@ const App = () => {
       {/*>*/}
       {/*  Show*/}
       {/*</Button>*/}
-      {isSub && <Subscribe />}
       <div>
         <Button
           type="button"
@@ -67,7 +66,8 @@ const App = () => {
           Unsub
         </Button>
       </div>
-      <RecordVideo />
+      {isSub && <Subscribe />}
+      {/*<RecordVideo />*/}
     </div>
   );
 };

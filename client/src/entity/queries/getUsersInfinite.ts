@@ -54,14 +54,9 @@ type QueryErrorMap = {
 };
 
 export const {
-  useQuery: useGetUsersQuery,
-  useLazyQuery: useGetUsersLazyQuery,
-} = createInfiniteQuery<
-  QueryParams,
-  QueryData,
-  QueryError<QueryErrorMap>,
-  QueryPageParam
->({
+  useQuery: useGetUsersInfiniteQuery,
+  useLazyQuery: useGetUsersInfiniteLazyQuery,
+} = createInfiniteQuery<QueryParams, QueryData, QueryErrorMap, QueryPageParam>({
   name: GET_USERS,
   callback: createWebsocketQueryCallback({
     outgoingMessageType: GET_USERS,

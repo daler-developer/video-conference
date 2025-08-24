@@ -3,6 +3,8 @@ import {
   useGetUsersLazyQuery,
   useNewMediaFrameSub,
   GetUsersQueryError,
+  useGetUsersInfiniteQuery,
+  useGetUsersInfiniteLazyQuery,
 } from "@/entity";
 import { useForceRender } from "@/shared/hooks";
 import { useEffect } from "react";
@@ -18,7 +20,7 @@ const Subscribe = () => {
   // }, []);
 
   const queries = {
-    getUsers: useGetUsersQuery({
+    getUsers: useGetUsersLazyQuery({
       params: {
         limit: 23,
         search: "adf",
@@ -70,8 +72,12 @@ const Subscribe = () => {
     <div>
       <Button
         type="button"
-        onClick={() => {
-          // queries.getUsers.fetch();
+        onClick={async () => {
+          try {
+            await queries.getUsers.fetch();
+          } catch (e) {
+            console.dir(e);
+          }
         }}
       >
         Fetch
@@ -96,17 +102,17 @@ const Subscribe = () => {
       </Button>
 
       <div>
-        {queries.getUsers.isIdle && (
-          <div>
-            <h1>Idle</h1>
-          </div>
-        )}
+        {/*{queries.getUsers.isIdle && (*/}
+        {/*  <div>*/}
+        {/*    <h1>Idle</h1>*/}
+        {/*  </div>*/}
+        {/*)}*/}
 
-        {queries.getUsers.isRefetching && (
-          <div>
-            <h1>Refetching</h1>
-          </div>
-        )}
+        {/*{queries.getUsers.isRefetching && (*/}
+        {/*  <div>*/}
+        {/*    <h1>Refetching</h1>*/}
+        {/*  </div>*/}
+        {/*)}*/}
 
         {queries.getUsers.isLoading && (
           <div>
@@ -137,6 +143,11 @@ const Subscribe = () => {
             </ul>
           </div>
         )}
+
+        {queries.getUsers.error &&
+          queries.getUsers.error.errorIs("VALIDATION") && (
+            <div>{JSON.stringify(queries.getUsers.error.details)}</div>
+          )}
       </div>
     </div>
   );

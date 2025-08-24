@@ -12,6 +12,7 @@ type IncomingMessage = BaseIncomingMessage<
   {
     limit: number;
     search: string;
+    page: number;
   }
 >;
 
@@ -31,20 +32,24 @@ let counter = 0;
 export default createResolverByMessageType<IncomingMessage, OutgoingResponseMessage>(MESSAGE_TYPE, {
   responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
   validator() {
-    return true;
+    return false;
   },
   middleware: [],
   execute({ client, message, respond }) {
+    const page = message.payload.page;
+
+    console.log('page', page);
+
     respond({
       payload: {
         list: [
           {
-            id: 1,
+            id: page * 2,
             name: 'Daler',
             age: getRandom1to10(),
           },
           {
-            id: 2,
+            id: page * 2 + 1,
             name: 'Aziz',
             age: getRandom1to10(),
           },
