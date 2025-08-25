@@ -4,10 +4,9 @@ import {
   type BaseQueryParams,
   type BaseQueryPageParam,
 } from "../query-cache/Query";
-import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { useBaseQuery } from "./useBaseQuery";
 import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
-import { type BaseQueryErrorMap, QueryError } from "@/entity/QueryError.ts";
+import { type BaseQueryErrorMap } from "@/entity/QueryError.ts";
 
 type HookOptions<TQueryParams extends BaseQueryParams> = {
   params: TQueryParams;
@@ -22,22 +21,30 @@ type CreateInfiniteQueryOptions<
   TQueryData extends BaseQueryData,
   TQueryErrorMap extends BaseQueryErrorMap,
   TQueryPageParam extends BaseQueryPageParam,
-> = Pick<
-  QueryObserverConfig<
-    TQueryParams,
-    TQueryData,
-    TQueryErrorMap,
-    TQueryPageParam,
-    any,
-    true
-  >,
-  | "name"
-  | "callback"
-  | "initialPageParam"
-  | "getNextPageParam"
-  | "merge"
-  | "schema"
->;
+> = Required<
+  Pick<
+    QueryObserverConfig<
+      TQueryParams,
+      TQueryData,
+      TQueryErrorMap,
+      TQueryPageParam,
+      any,
+      true
+    >,
+    "initialPageParam" | "getNextPageParam" | "merge" | "getPageParamsFromData"
+  >
+> &
+  Pick<
+    QueryObserverConfig<
+      TQueryParams,
+      TQueryData,
+      TQueryErrorMap,
+      TQueryPageParam,
+      any,
+      true
+    >,
+    "name" | "callback" | "schema"
+  >;
 
 const createInfiniteQuery = <
   TQueryParams extends BaseQueryParams,
@@ -93,6 +100,7 @@ const createInfiniteQuery = <
       .get<
         TQueryParams,
         TQueryData,
+        TQueryErrorMap,
         TQueryPageParam
       >({ name: options.name, params });
     const prevData = query.data;

@@ -71,8 +71,6 @@ export const createEventSubAdapterForWebsocket = <
         if (incomingMessageIsOfTypeEventSubData(message)) {
           if (message.payload.eventName === eventName) {
             if (_.isEqual(message.payload.eventParams, params)) {
-              console.log(message.payload.eventParams);
-              console.log(params);
               onData({
                 data: message.payload.eventData as TEventData,
               });

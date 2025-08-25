@@ -1,7 +1,7 @@
 import type {
   BaseIncomingMessage,
   BaseOutgoingMessage,
-  IncomingErrorMessage,
+  BaseIncomingErrorMessage,
 } from "./types.ts";
 import {
   incomingMessageIsOfTypeError,
@@ -153,7 +153,7 @@ class WebsocketClient {
           message.meta.messageId === outgoingMessage.meta.messageId
         ) {
           unsubscribe();
-          rej(message as IncomingErrorMessage);
+          rej(message as BaseIncomingErrorMessage);
         }
       });
 

@@ -9,7 +9,7 @@ import {
   QueryObserver,
   type QueryObserverConfig,
 } from "../query-cache/QueryObserver";
-import { type BaseQueryErrorMap, QueryError } from "@/entity/QueryError.ts";
+import { type BaseQueryErrorMap } from "@/entity/QueryError.ts";
 
 export const useBaseQuery = <
   TQueryParams extends BaseQueryParams,

@@ -1,5 +1,3 @@
-import { createEventSubAdapterForWebsocket } from "../adapters/createQueryAdapterForWebsocket";
-import { createQuery } from "../utils/createQuery";
 import { createInfiniteQuery } from "../utils/createInfiniteQuery.ts";
 import {
   type BaseIncomingMessage,
@@ -8,7 +6,6 @@ import {
 import { UserEntitySchema } from "../query-cache/entity-manager/UserRepository";
 import { type UserEntity } from "../types";
 import { createWebsocketQueryCallback } from "../utils/createWebsocketQueryCallback.ts";
-import { QueryError } from "../QueryError.ts";
 
 const GET_USERS = "GET_USERS";
 const GET_USERS_RESULT = "GET_USERS_RESULT";
@@ -51,12 +48,20 @@ type QueryErrorMap = {
     age1: string;
     age2: string;
   };
+  VALIDATION: {
+    age: number;
+    inner: {
+      name: boolean;
+    };
+  };
 };
 
-export const {
-  useQuery: useGetUsersInfiniteQuery,
-  useLazyQuery: useGetUsersInfiniteLazyQuery,
-} = createInfiniteQuery<QueryParams, QueryData, QueryErrorMap, QueryPageParam>({
+export const getUsersInfiniteQuery = createInfiniteQuery<
+  QueryParams,
+  QueryData,
+  QueryErrorMap,
+  QueryPageParam
+>({
   name: GET_USERS,
   callback: createWebsocketQueryCallback({
     outgoingMessageType: GET_USERS,
@@ -86,7 +91,19 @@ export const {
   schema: {
     list: [UserEntitySchema],
   },
+  getPageParamsFromData(data) {
+    return new Array(Math.ceil(data.list.length / 2))
+      .fill(null)
+      .map((_, i) => ({
+        page: i + 1,
+      }));
+  },
 });
+
+export const {
+  useQuery: useGetUsersInfiniteQuery,
+  useLazyQuery: useGetUsersInfiniteLazyQuery,
+} = getUsersInfiniteQuery;
 
 // const adapter = createEventSubAdapterForWebsocket<Params, PageParam>({
 //   name: GET_USERS,

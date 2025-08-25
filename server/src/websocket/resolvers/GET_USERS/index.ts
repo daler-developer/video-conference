@@ -31,14 +31,15 @@ let counter = 0;
 
 export default createResolverByMessageType<IncomingMessage, OutgoingResponseMessage>(MESSAGE_TYPE, {
   responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
-  validator() {
-    return false;
+  validator({ message }) {
+    return true;
+    // return message.payload.page < 5;
   },
   middleware: [],
   execute({ client, message, respond }) {
     const page = message.payload.page;
 
-    console.log('page', page);
+    // console.log('page', page);
 
     respond({
       payload: {

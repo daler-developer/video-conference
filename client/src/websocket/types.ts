@@ -52,7 +52,7 @@ export type OutgoingMessagePayload<
 
 export type BaseIncomingMessagePayload = { [key: string]: JsonValue };
 
-export type IncomingErrorMessage<
+export type BaseIncomingErrorMessage<
   TErrorType extends string = string,
   TErrorDetails extends Record<string, any> = Record<string, any>,
 > = BaseIncomingMessage<

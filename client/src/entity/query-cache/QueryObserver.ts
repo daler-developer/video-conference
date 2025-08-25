@@ -49,6 +49,7 @@ type QueryObserverResult<
         TQueryErrorMap,
         TQueryPageParam
       >["isFetchingMore"];
+      isFetchMoreError: boolean;
     }
   : {}) &
   (TQueryObserverIsLazy extends true
@@ -182,6 +183,16 @@ export class QueryObserver<
           TQueryObserverIsLazy
         >
       ).isFetchingMore = this.query.isFetchingMore;
+      (
+        result as QueryObserverResult<
+          TQueryParams,
+          TQueryData,
+          TQueryErrorMap,
+          TQueryPageParam,
+          true,
+          TQueryObserverIsLazy
+        >
+      ).isFetchMoreError = this.query.isFetchMoreError;
     }
 
     if (this.#options.isLazy) {

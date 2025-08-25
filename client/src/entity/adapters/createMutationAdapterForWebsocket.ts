@@ -5,7 +5,7 @@ import {
   websocketClient,
 } from "@/websocket";
 import { ApiError } from "../ApiError.ts";
-import type { IncomingErrorMessage } from "@/websocket/types.ts";
+import type { BaseIncomingErrorMessage } from "@/websocket/types.ts";
 
 export type MutationAdapter<
   TPayload extends Record<string, unknown> = Record<string, unknown>,
@@ -55,7 +55,7 @@ export const createMutationAdapterFromWebsocket = <
           data: incomingResponseMessage.payload,
         };
       } catch (e) {
-        const incomingErrorResponseMessage = e as IncomingErrorMessage;
+        const incomingErrorResponseMessage = e as BaseIncomingErrorMessage;
 
         throw new MutationError(
           incomingErrorResponseMessage.payload.message,

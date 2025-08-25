@@ -20,7 +20,7 @@ const Subscribe = () => {
   // }, []);
 
   const queries = {
-    getUsers: useGetUsersLazyQuery({
+    getUsers: useGetUsersInfiniteQuery({
       params: {
         limit: 23,
         search: "adf",
@@ -120,6 +120,24 @@ const Subscribe = () => {
           </div>
         )}
 
+        {queries.getUsers.isError && (
+          <div>
+            <h1>Error</h1>
+          </div>
+        )}
+
+        {queries.getUsers.data && (
+          <div>
+            <ul>
+              {queries.getUsers.data.list.map((user) => (
+                <li key={user.id}>
+                  Name {user.name}; Age: {user.age}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {queries.getUsers.isFetchingMore && (
           <div>
             <h1>Fetching more</h1>
@@ -129,18 +147,6 @@ const Subscribe = () => {
         {queries.getUsers.isError && (
           <div>
             <h1>Error</h1>
-          </div>
-        )}
-
-        {queries.getUsers.isSuccess && (
-          <div>
-            <ul>
-              {queries.getUsers.data!.list.map((user) => (
-                <li key={user.id}>
-                  Name {user.name}; Age: {user.age}
-                </li>
-              ))}
-            </ul>
           </div>
         )}
 

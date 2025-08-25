@@ -59,8 +59,8 @@ const createMutation = <
           handleError?.(e);
           throw e;
         } else {
-          alert("test");
           console.log(e);
+          alert("create mutation error");
           throw e;
         }
       }

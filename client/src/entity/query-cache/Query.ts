@@ -48,6 +48,7 @@ export type QueryOptions<
   initialPageParam?: TQueryPageParam;
   getNextPageParam?: QueryGetNextPageParam<TQueryPageParam>;
   merge?: QueryMerge<TQueryData>;
+  getPageParamsFromData?: (data: TQueryData) => TQueryPageParam[];
 };
 
 export type QueryState<TQueryErrorMap extends BaseQueryErrorMap> = {
@@ -129,6 +130,7 @@ export class Query<
       initialPageParam,
       getNextPageParam,
       merge,
+      getPageParamsFromData,
     }: QueryOptions<
       TQueryParams,
       TQueryData,
@@ -148,6 +150,7 @@ export class Query<
       initialPageParam,
       getNextPageParam,
       merge,
+      getPageParamsFromData,
     };
     this.#fetchPromise = null;
     this.#observersCount = 0;
@@ -193,6 +196,10 @@ export class Query<
     const { normalizedData } = this.#queryCache
       .getEntityManager()
       .normalizeAndSave(data, this.#options.schema);
+
+    if (this.#options.isInfinite) {
+      this.#pageParams = this.#options.getPageParamsFromData!(data);
+    }
 
     this.updateState({
       normalizedData,

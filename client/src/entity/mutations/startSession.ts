@@ -4,7 +4,10 @@ import {
   type MutationAdapter,
 } from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
 import type { BaseIncomingMessage, BaseOutgoingMessage } from "@/websocket";
-// import { getUsersQuery } from "../queries/getUsers.ts";
+import {
+  useGetUsersInfiniteQuery,
+  getUsersInfiniteQuery,
+} from "../queries/getUsersInfinite.ts";
 
 const OUTGOING_MESSAGE_TYPE = "START_SESSION";
 const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
@@ -47,6 +50,25 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
     }),
     {
       update({ entityManager }) {
+        getUsersInfiniteQuery.updateData(
+          {
+            limit: 23,
+            search: "adf",
+          },
+          (oldData) => {
+            return {
+              ...oldData,
+              list: [
+                ...oldData.list,
+                {
+                  id: 100,
+                  name: "added name",
+                  age: 111,
+                },
+              ],
+            };
+          },
+        );
         // entityManager.getRepository("users").updateOne({
         //   id: 2,
         //   changes: {
