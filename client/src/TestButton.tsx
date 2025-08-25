@@ -46,9 +46,9 @@ const TestButton = () => {
     //   }
     // });
     try {
-      const { data } = await mutations.startSession.mutate({
+      const data = await mutations.startSession.mutate({
         payload: {
-          fullName: "test",
+          fullName: "asdf",
         },
         handleError(e) {
           // if (e.errorIs("VALIDATION")) {

@@ -6,52 +6,48 @@ import { queryCache } from "../query-cache/QueryCache.ts";
 
 type Status = "pending" | "idle" | "success" | "error";
 
-type Mutate<TMutationAdapter extends MutationAdapter<any, any, any>> =
-  (options: {
-    payload: Parameters<TMutationAdapter["callback"]>[0]["payload"];
-    handleError?: (e: InstanceType<TMutationAdapter["Error"]>) => void;
-  }) => Promise<{
-    data: Awaited<ReturnType<TMutationAdapter["callback"]>>["data"];
-  }>;
+type Mutate<TMutationPayload, TMutationData> = (options: {
+  payload: TMutationPayload;
+  handleError?: (e: any) => void;
+}) => Promise<TMutationData>;
 
 type UpdateOptions = {
   entityManager: EntityManager;
 };
 
-type Options = {
+export type MutationCallback<TMutationPayload, TMutationData> = (options: {
+  payload: TMutationPayload;
+}) => Promise<TMutationData>;
+
+type CreateMutationError<TMutationPayload, TMutationData> = {
+  callback: MutationCallback<TMutationPayload, TMutationData>;
   update?: (updateOptions: UpdateOptions) => void;
 };
 
-const createMutation = <
-  TMutationAdapter extends MutationAdapter<any, any, any>,
->(
-  { callback, Error }: TMutationAdapter,
-  options?: Options,
-) => {
+const createMutation = <TMutationPayload, TMutationData>({
+  callback,
+  update,
+}: CreateMutationError<TMutationPayload, TMutationData>) => {
   const useMutationHook = () => {
-    const [error, setError] = useState<ApiError | null>(null);
-    const [data, setData] = useState<
-      Awaited<ReturnType<TMutationAdapter["callback"]>>["data"] | null
-    >(null);
+    const [error, setError] = useState<any | null>(null);
+    const [data, setData] = useState<TMutationData | null>(null);
     const [status, setStatus] = useState<Status>("idle");
 
-    const mutate: Mutate<TMutationAdapter> = async ({
+    const mutate: Mutate<TMutationPayload, TMutationData> = async ({
       payload,
       handleError,
     }) => {
       try {
         setStatus("pending");
-        const { data } = await callback({
+        const data = await callback({
           payload,
         });
-        options?.update?.({
+        update?.({
           entityManager: queryCache.getEntityManager(),
         });
         setData(data);
         setStatus("success");
-        return {
-          data,
-        };
+        return data;
       } catch (e) {
         if (e instanceof ApiError) {
           setStatus("error");

@@ -8,6 +8,7 @@ import {
   useGetUsersInfiniteQuery,
   getUsersInfiniteQuery,
 } from "../queries/getUsersInfinite.ts";
+import { createWebsocketMutationCallback } from "../utils/createWebsocketMutationCallback.ts";
 
 const OUTGOING_MESSAGE_TYPE = "START_SESSION";
 const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
@@ -36,80 +37,21 @@ type ErrorDetailsMap = {
   };
 };
 
-let counter = 3;
+type MutationPayload = {
+  fullName: string;
+};
+
+type MutationData = {
+  accessToken: string;
+};
 
 export const { useMutationHook: useStartSession, Error: StartSessionError } =
-  createMutation(
-    createMutationAdapterFromWebsocket<
-      OutgoingMessage,
-      IncomingResponseMessage,
-      ErrorDetailsMap
-    >({
-      incomingMessageType: INCOMING_MESSAGE_TYPE,
+  createMutation<MutationPayload, MutationData>({
+    callback: createWebsocketMutationCallback<OutgoingMessage>({
       outgoingMessageType: OUTGOING_MESSAGE_TYPE,
     }),
-    {
-      update({ entityManager }) {
-        getUsersInfiniteQuery.updateData(
-          {
-            limit: 23,
-            search: "adf",
-          },
-          (oldData) => {
-            return {
-              ...oldData,
-              list: [
-                ...oldData.list,
-                {
-                  id: 100,
-                  name: "added name",
-                  age: 111,
-                },
-              ],
-            };
-          },
-        );
-        // entityManager.getRepository("users").updateOne({
-        //   id: 2,
-        //   changes: {
-        //     name: "Aziz test",
-        //   },
-        // });
-        // entityManager.getRepository("users").updateMany([
-        //   {
-        //     id: 1,
-        //     changes: {
-        //       name: "Aziz test",
-        //     },
-        //   },
-        //   {
-        //     id: 2,
-        //     changes: {
-        //       name: "Aziz test 2",
-        //     },
-        //   },
-        // ]);
-        // getUsersQuery.updateData({ limit: 23, search: "adf" }, (prev) => {
-        //   return {
-        //     ...prev,
-        //     list: [
-        //       ...prev.list,
-        //       {
-        //         id: counter++,
-        //         name: "a1",
-        //         age: 20,
-        //       },
-        //     ],
-        //   };
-        // });
-        // const entity = entityManager.getRepository("users").getOne(2);
-        //
-        // entity!.updateData({
-        //   name: "Aziz Test",
-        // });
-      },
-    },
-  );
+    update({ entityManager }) {},
+  });
 
 export const { callback: startMutation, Error: asdf } =
   createMutationAdapterFromWebsocket<
@@ -126,3 +68,42 @@ export const { callback: startMutation, Error: asdf } =
 //
 // if (e.errorIs("VALIDATION")) {
 // }
+
+// entityManager.getRepository("users").updateOne({
+//   id: 2,
+//   changes: {
+//     name: "Aziz test",
+//   },
+// });
+// entityManager.getRepository("users").updateMany([
+//   {
+//     id: 1,
+//     changes: {
+//       name: "Aziz test",
+//     },
+//   },
+//   {
+//     id: 2,
+//     changes: {
+//       name: "Aziz test 2",
+//     },
+//   },
+// ]);
+// getUsersQuery.updateData({ limit: 23, search: "adf" }, (prev) => {
+//   return {
+//     ...prev,
+//     list: [
+//       ...prev.list,
+//       {
+//         id: counter++,
+//         name: "a1",
+//         age: 20,
+//       },
+//     ],
+//   };
+// });
+// const entity = entityManager.getRepository("users").getOne(2);
+//
+// entity!.updateData({
+//   name: "Aziz Test",
+// });
