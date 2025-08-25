@@ -27,7 +27,15 @@ type IncomingResponseMessage = BaseIncomingMessage<
   }
 >;
 
-type ErrorDetailsMap = {
+type MutationPayload = {
+  fullName: string;
+};
+
+type MutationData = {
+  accessToken: string;
+};
+
+type MutationErrorMap = {
   VALIDATION: {
     foo: "bar";
   };
@@ -37,16 +45,8 @@ type ErrorDetailsMap = {
   };
 };
 
-type MutationPayload = {
-  fullName: string;
-};
-
-type MutationData = {
-  accessToken: string;
-};
-
 export const { useMutationHook: useStartSession, Error: StartSessionError } =
-  createMutation<MutationPayload, MutationData>({
+  createMutation<MutationPayload, MutationData, MutationErrorMap>({
     callback: createWebsocketMutationCallback<OutgoingMessage>({
       outgoingMessageType: OUTGOING_MESSAGE_TYPE,
     }),
@@ -57,7 +57,7 @@ export const { callback: startMutation, Error: asdf } =
   createMutationAdapterFromWebsocket<
     OutgoingMessage,
     IncomingResponseMessage,
-    ErrorDetailsMap
+    any
   >({
     incomingMessageType: INCOMING_MESSAGE_TYPE,
     outgoingMessageType: OUTGOING_MESSAGE_TYPE,

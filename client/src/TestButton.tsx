@@ -6,6 +6,10 @@ const TestButton = () => {
     startSession: useStartSession(),
   };
 
+  if (mutations.startSession.error!.errorIs("SECOND")) {
+    console.log(mutations.startSession.error?.details.name);
+  }
+
   const test = async () => {
     // updateData({ limit: 23, search: "adf" }, (prev) => {
     //   return {
@@ -51,6 +55,8 @@ const TestButton = () => {
           fullName: "asdf",
         },
         handleError(e) {
+          if (e.errorIs("SECOND")) {
+          }
           // if (e.errorIs("VALIDATION")) {
           //   console.log(e.details.foo);
           // }
