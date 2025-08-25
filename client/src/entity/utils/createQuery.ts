@@ -20,9 +20,16 @@ type UpdateDataCallback<TQueryData extends BaseQueryData> = (
 type CreateQueryOptions<
   TQueryParams extends BaseQueryParams,
   TQueryData extends BaseQueryData,
-  TQueryError extends BaseQueryErrorMap,
+  TQueryErrorMap extends BaseQueryErrorMap,
 > = Pick<
-  QueryObserverConfig<TQueryParams, TQueryData, TQueryError, null, any, false>,
+  QueryObserverConfig<
+    TQueryParams,
+    TQueryData,
+    TQueryErrorMap,
+    null,
+    any,
+    false
+  >,
   "name" | "callback" | "schema"
 >;
 
