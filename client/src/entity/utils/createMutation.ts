@@ -4,7 +4,7 @@ import { ApiError } from "../ApiError.ts";
 import { type EntityManager } from "../query-cache/entity-manager/EntityManager.ts";
 import { queryCache } from "../query-cache/QueryCache.ts";
 
-type Status = "pending" | "idle" | "success" | "error";
+type MutationStatus = "pending" | "idle" | "success" | "error";
 
 type Mutate<TMutationPayload, TMutationData> = (options: {
   payload: TMutationPayload;
@@ -31,7 +31,7 @@ const createMutation = <TMutationPayload, TMutationData>({
   const useMutationHook = () => {
     const [error, setError] = useState<any | null>(null);
     const [data, setData] = useState<TMutationData | null>(null);
-    const [status, setStatus] = useState<Status>("idle");
+    const [status, setStatus] = useState<MutationStatus>("idle");
 
     const mutate: Mutate<TMutationPayload, TMutationData> = async ({
       payload,
