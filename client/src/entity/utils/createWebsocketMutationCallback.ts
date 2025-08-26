@@ -1,6 +1,4 @@
 import {
-  type BaseIncomingMessage,
-  type BaseOutgoingMessage,
   createOutgoingMessageCreator,
   websocketClient,
   WebsocketError,
@@ -9,15 +7,15 @@ import { type MutationCallback } from "./createMutation.ts";
 import type { BaseIncomingErrorMessage } from "@/websocket/types.ts";
 import { MutationError } from "@/entity/MutationError.ts";
 
-type Options<TOutgoingMessage extends BaseOutgoingMessage> = {
-  outgoingMessageType: TOutgoingMessage["type"];
+type Options<TOutgoingMessageType extends string> = {
+  outgoingMessageType: TOutgoingMessageType;
 };
 
 export const createWebsocketMutationCallback = <
-  TOutgoingMessage extends BaseOutgoingMessage,
+  TOutgoingMessageType extends string,
 >({
   outgoingMessageType,
-}: Options<TOutgoingMessage>): MutationCallback<any, any> => {
+}: Options<TOutgoingMessageType>): MutationCallback<any, any> => {
   return async ({ payload }) => {
     try {
       const createOutgoingMessage = createOutgoingMessageCreator({
@@ -29,11 +27,8 @@ export const createWebsocketMutationCallback = <
           payload,
         }),
       );
-      console.log("success");
-      return {
-        data: incomingResponseMessage.payload,
-        age: 234,
-      };
+
+      return incomingResponseMessage.payload;
     } catch (e) {
       if (e instanceof WebsocketError) {
         throw new MutationError(
@@ -44,13 +39,6 @@ export const createWebsocketMutationCallback = <
       } else {
         alert("createWebsocketMutationCallback error");
       }
-      // const incomingErrorResponseMessage = e as BaseIncomingErrorMessage;
-      //
-      // throw new MutationError(
-      //   incomingErrorResponseMessage.payload.message,
-      //   incomingErrorResponseMessage.payload.errorType,
-      //   incomingErrorResponseMessage.payload.details as any,
-      // );
     }
   };
 };

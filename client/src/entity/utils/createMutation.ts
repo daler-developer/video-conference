@@ -53,12 +53,19 @@ const createMutation = <
     const [data, setData] = useState<TMutationData | null>(null);
     const [status, setStatus] = useState<MutationStatus>("idle");
 
+    const isError = status === "error";
+    const isSuccess = status === "success";
+    const isIdle = status === "idle";
+    const isPending = status === "pending";
+
     const mutate: Mutate<
       TMutationPayload,
       TMutationData,
       TMutationErrorMap
     > = async ({ payload, handleError }) => {
       try {
+        setError(null);
+        setData(null);
         setStatus("pending");
         const data = await callback({
           payload,
@@ -81,11 +88,6 @@ const createMutation = <
         }
       }
     };
-
-    const isError = status === "error";
-    const isSuccess = status === "success";
-    const isIdle = status === "idle";
-    const isPending = status === "pending";
 
     return {
       mutate,

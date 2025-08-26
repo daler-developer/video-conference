@@ -6,7 +6,6 @@ import { websocketClient } from "@/websocket";
 import Subscribe from "./Subscribe.tsx";
 import {
   useStartSession,
-  startMutation,
   StartSessionError,
   useNewMediaFrameSub,
   useGetUsersQuery,

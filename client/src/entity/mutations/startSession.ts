@@ -1,31 +1,7 @@
 import createMutation from "../utils/createMutation.ts";
-import {
-  createMutationAdapterFromWebsocket,
-  type MutationAdapter,
-} from "@/entity/adapters/createMutationAdapterForWebsocket.ts";
-import type { BaseIncomingMessage, BaseOutgoingMessage } from "@/websocket";
-import {
-  useGetUsersInfiniteQuery,
-  getUsersInfiniteQuery,
-} from "../queries/getUsersInfinite.ts";
 import { createWebsocketMutationCallback } from "../utils/createWebsocketMutationCallback.ts";
 
-const OUTGOING_MESSAGE_TYPE = "START_SESSION";
-const INCOMING_MESSAGE_TYPE = "START_SESSION_RESULT";
-
-type OutgoingMessage = BaseOutgoingMessage<
-  typeof OUTGOING_MESSAGE_TYPE,
-  {
-    fullName: string;
-  }
->;
-
-type IncomingResponseMessage = BaseIncomingMessage<
-  typeof INCOMING_MESSAGE_TYPE,
-  {
-    accessToken: string;
-  }
->;
+const START_SESSION = "START_SESSION";
 
 type MutationPayload = {
   fullName: string;
@@ -47,21 +23,21 @@ type MutationErrorMap = {
 
 export const { useMutationHook: useStartSession, Error: StartSessionError } =
   createMutation<MutationPayload, MutationData, MutationErrorMap>({
-    callback: createWebsocketMutationCallback<OutgoingMessage>({
-      outgoingMessageType: OUTGOING_MESSAGE_TYPE,
+    callback: createWebsocketMutationCallback({
+      outgoingMessageType: START_SESSION,
     }),
     update({ entityManager }) {},
   });
 
-export const { callback: startMutation, Error: asdf } =
-  createMutationAdapterFromWebsocket<
-    OutgoingMessage,
-    IncomingResponseMessage,
-    any
-  >({
-    incomingMessageType: INCOMING_MESSAGE_TYPE,
-    outgoingMessageType: OUTGOING_MESSAGE_TYPE,
-  });
+// export const { callback: startMutation } =
+//   createMutationAdapterFromWebsocket<
+//     OutgoingMessage,
+//     IncomingResponseMessage,
+//     any
+//   >({
+//     incomingMessageType: INCOMING_MESSAGE_TYPE,
+//     outgoingMessageType: OUTGOING_MESSAGE_TYPE,
+//   });
 
 //
 // const e = new StartSessionError();

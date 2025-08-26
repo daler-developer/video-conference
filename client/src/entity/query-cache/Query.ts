@@ -349,8 +349,6 @@ export class Query<
       TQueryPageParam
     >,
   ) {
-    // const prevFetchMeta = this.#state.fetchMeta;
-
     try {
       if (this.isFetching) {
         return this.#fetchPromise!;
@@ -398,8 +396,6 @@ export class Query<
           : {}),
       });
 
-      // fetchMeta: prevFetchMeta,
-
       return data;
     } catch (error) {
       if (error instanceof QueryError) {
@@ -415,8 +411,6 @@ export class Query<
               }
             : {}),
         });
-
-        // fetchMeta: prevFetchMeta,
       } else {
         alert("test");
       }

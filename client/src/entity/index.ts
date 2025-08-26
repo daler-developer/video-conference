@@ -1,5 +1,4 @@
 import {
-  startMutation,
   useStartSession,
   StartSessionError,
 } from "./mutations/startSession.ts";
@@ -16,7 +15,6 @@ import {
 import { GetUsersQueryError } from "./queries/getUsers.ts";
 
 export {
-  startMutation,
   useSendMediaFrame,
   SendMediaFrameError,
   useStartSession,
