@@ -1,45 +1,54 @@
 import { useEffect } from "react";
 import { useLatest } from "@/shared/hooks";
 
-export type EventSubAdapter<
-  TParams extends Record<string, any> = Record<string, any>,
-  TData extends Record<string, any> = Record<string, any>,
+export type EventSubCallback<
+  TEventSubParams extends EventSubBaseParams,
+  TEventSubBaseData extends EventSubBaseData,
+> = (options: {
+  params: TEventSubParams;
+  onData: (a: { data: TEventSubBaseData }) => void;
+}) => {
+  unsubscribe: () => void;
+};
+
+export type CreateEventSubOptions<
+  TEventSubParams extends EventSubBaseParams,
+  TEventSubBaseData extends EventSubBaseData,
 > = {
-  subscribe: (o: { params: TParams; onData: (a: { data: TData }) => void }) => {
-    unsubscribe: () => void;
-  };
+  callback: EventSubCallback<TEventSubParams, TEventSubBaseData>;
+  update?: (options: { data: TEventSubBaseData }) => void;
 };
 
 type HookOptions<
-  TParams extends Record<string, any> = Record<string, any>,
-  TData extends Record<string, any> = Record<string, any>,
+  TEventSubParams extends EventSubBaseParams,
+  TEventSubBaseData extends EventSubBaseData,
 > = {
-  params: TParams;
-  onData: (a: { data: TData }) => void;
+  params: TEventSubParams;
+  onData: (a: { data: TEventSubBaseData }) => void;
 };
 
-type Options<TData extends object> = {
-  update?: (updateOptions: { data: TData }) => void;
-};
+export type EventSubBaseParams = Record<string, any>;
+
+export type EventSubBaseData = Record<string, any>;
 
 export const createEventSub = <
-  TParams extends Record<string, any>,
-  TData extends Record<string, any>,
->(
-  { subscribe }: EventSubAdapter<TParams, TData>,
-  options?: Options<TData>,
-) => {
+  TEventSubParams extends EventSubBaseParams,
+  TEventSubBaseData extends EventSubBaseData,
+>({
+  callback,
+  update,
+}: CreateEventSubOptions<TEventSubParams, TEventSubBaseData>) => {
   const hook = function useHook({
     params,
     onData,
-  }: HookOptions<TParams, TData>) {
+  }: HookOptions<TEventSubParams, TEventSubBaseData>) {
     const latestOnData = useLatest(onData);
 
     useEffect(() => {
-      const { unsubscribe } = subscribe({
+      const { unsubscribe } = callback({
         params,
         onData({ data }) {
-          options?.update?.({
+          update?.({
             data,
           });
           latestOnData.current({ data });

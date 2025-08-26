@@ -1,4 +1,3 @@
-import { createEventSubAdapterForWebsocket } from "../adapters/createQueryAdapterForWebsocket";
 import { createQuery } from "../utils/createQuery";
 import { createInfiniteQuery } from "../utils/createInfiniteQuery.ts";
 import {

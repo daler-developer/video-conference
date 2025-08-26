@@ -1,6 +1,6 @@
 import { Button } from "@mantine/core";
 import { useRef, useState } from "react";
-import { useSendMediaFrame } from "@/entity";
+import { useSendMediaFrameMutation } from "@/entity";
 
 const RecordVideo = () => {
   const [recording, setRecording] = useState(false);
@@ -8,7 +8,7 @@ const RecordVideo = () => {
   const mediaRecorder = useRef<MediaRecorder>(null);
 
   const mutations = {
-    sendMediaFrame: useSendMediaFrame(),
+    sendMediaFrame: useSendMediaFrameMutation(),
   };
 
   const start = async () => {
@@ -34,7 +34,7 @@ const RecordVideo = () => {
     recorder.onstop = async () => {
       const videoBlob = new Blob(chunks, { type: "video/webm" });
 
-      const { data } = await mutations.sendMediaFrame.mutate({
+      const data = await mutations.sendMediaFrame.mutate({
         payload: {
           data: await videoBlob.arrayBuffer(),
         },

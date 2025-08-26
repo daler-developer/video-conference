@@ -1,36 +1,32 @@
 import createMutation from "../utils/createMutation.ts";
-import { createMutationAdapterFromWebsocket } from "../adapters/createMutationAdapterForWebsocket.ts";
-import type { BaseIncomingMessage, BaseOutgoingMessage } from "@/websocket";
+import { createWebsocketMutationCallback } from "../utils/createWebsocketMutationCallback.ts";
 
-const OUTGOING_MESSAGE_TYPE = "NEW_MEDIA_FRAME";
-const INCOMING_MESSAGE_TYPE = "OUTGOING_MESSAGE_TYPE";
+const NEW_MEDIA_FRAME = "NEW_MEDIA_FRAME";
 
-type OutgoingMessage = BaseOutgoingMessage<
-  typeof OUTGOING_MESSAGE_TYPE,
-  {
-    data: ArrayBuffer;
-  }
->;
+type MutationPayload = {
+  data: ArrayBuffer;
+};
 
-type IncomingResponseMessage = BaseIncomingMessage<
-  typeof INCOMING_MESSAGE_TYPE,
-  {
-    message: string;
-  }
->;
+type MutationData = {
+  message: string;
+};
 
-type ErrorDetailsMap = {};
+type MutationErrorMap = {
+  VALIDATION: {
+    foo: "bar";
+  };
+  SECOND: {
+    age: number;
+    name: string;
+  };
+};
 
 export const {
-  useMutationHook: useSendMediaFrame,
-  Error: SendMediaFrameError,
-} = createMutation(
-  createMutationAdapterFromWebsocket<
-    OutgoingMessage,
-    IncomingResponseMessage,
-    ErrorDetailsMap
-  >({
-    incomingMessageType: INCOMING_MESSAGE_TYPE,
-    outgoingMessageType: OUTGOING_MESSAGE_TYPE,
+  useMutationHook: useSendMediaFrameMutation,
+  Error: SendMediaFrameMutationError,
+} = createMutation<MutationPayload, MutationData, MutationErrorMap>({
+  callback: createWebsocketMutationCallback({
+    outgoingMessageType: NEW_MEDIA_FRAME,
   }),
-);
+  update({ entityManager }) {},
+});

@@ -3,8 +3,8 @@ import {
   StartSessionError,
 } from "./mutations/startSession.ts";
 import {
-  useSendMediaFrame,
-  SendMediaFrameError,
+  useSendMediaFrameMutation,
+  SendMediaFrameMutationError,
 } from "./mutations/sendMediaFrame.ts";
 import { useNewMediaFrameSub } from "./event-subs/newMediaFrameSub.ts";
 import { useGetUsersQuery, useGetUsersLazyQuery } from "./queries/getUsers.ts";
@@ -15,8 +15,8 @@ import {
 import { GetUsersQueryError } from "./queries/getUsers.ts";
 
 export {
-  useSendMediaFrame,
-  SendMediaFrameError,
+  useSendMediaFrameMutation,
+  SendMediaFrameMutationError,
   useStartSession,
   StartSessionError,
   useNewMediaFrameSub,

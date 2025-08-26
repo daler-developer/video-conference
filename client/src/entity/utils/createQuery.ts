@@ -4,7 +4,6 @@ import {
   type BaseQueryParams,
   type BaseQueryPageParam,
 } from "../query-cache/Query";
-import { type QueryAdapter } from "../adapters/createQueryAdapterForWebsocket";
 import { useBaseQuery } from "./useBaseQuery";
 import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
 import { QueryError, type BaseQueryErrorMap } from "@/entity/QueryError.ts";

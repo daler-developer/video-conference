@@ -1,24 +1,26 @@
 import { createEventSub } from "../utils/createEventSub";
-import { createEventSubAdapterForWebsocket } from "../adapters/createEventSubAdapterForWebsocket";
+import { createWebsocketEventSubCallback } from "@/entity/utils/createWebsocketEventSubCallback.ts";
 
-type Params = {
+type EventSubParams = {
   conferenceId: string;
 };
 
-type Data = {
+type EventSubData = {
   data: ArrayBuffer;
+  foo: "bar";
 };
 
-const EVENT_NAME = "NEW_MEDIA_FRAME";
+const NEW_MEDIA_FRAME = "NEW_MEDIA_FRAME";
 
-export const { hook: useNewMediaFrameSub } = createEventSub(
-  createEventSubAdapterForWebsocket<typeof EVENT_NAME, Params, Data>({
-    eventName: EVENT_NAME,
+export const { hook: useNewMediaFrameSub } = createEventSub<
+  EventSubParams,
+  EventSubData
+>({
+  callback: createWebsocketEventSubCallback({
+    eventName: NEW_MEDIA_FRAME,
   }),
-  {
-    update({ data }) {},
-  },
-);
+  update({ data }) {},
+});
 
 // const adapter = createEventSubAdapterForWebsocket<Params, Data>({});
 
