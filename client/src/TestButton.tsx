@@ -6,7 +6,7 @@ const TestButton = () => {
     startSession: useStartSession(),
   };
 
-  // if (mutations.startSession.error!.errorIs("SECOND")) {
+  // if (mutations.startSession.error!.is("SECOND")) {
   //   console.log(mutations.startSession.error?.details.name);
   // }
 
@@ -44,7 +44,7 @@ const TestButton = () => {
     //     console.log(data.accessToken);
     //   }
     //   if (error) {
-    //     if (error.errorIs("SECOND")) {
+    //     if (error.is("SECOND")) {
     //       console.log(error.details.age);
     //     }
     //   }
@@ -55,10 +55,10 @@ const TestButton = () => {
           fullName: "asdf",
         },
         handleError(e) {
-          if (e.errorIs("SECOND")) {
+          if (e.is("SECOND")) {
             console.log(e.details);
           }
-          // if (e.errorIs("VALIDATION")) {
+          // if (e.is("VALIDATION")) {
           //   console.log(e.details.foo);
           // }
         },
@@ -67,7 +67,7 @@ const TestButton = () => {
       if (e instanceof StartSessionError) {
         const startSessionError = e as InstanceType<typeof StartSessionError>;
 
-        if (startSessionError.errorIs("VALIDATION")) {
+        if (startSessionError.is("VALIDATION")) {
         }
       }
     }

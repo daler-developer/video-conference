@@ -80,7 +80,7 @@ export const {
 
 // const error = new GetUsersQueryError("", "foo", { hi: 2 });
 
-// if (error.errorIs("age")) {
+// if (error.is("age")) {
 //
 // }
 

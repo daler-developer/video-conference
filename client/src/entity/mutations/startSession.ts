@@ -42,7 +42,7 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
 //
 // const e = new StartSessionError();
 //
-// if (e.errorIs("VALIDATION")) {
+// if (e.is("VALIDATION")) {
 // }
 
 // entityManager.getRepository("users").updateOne({

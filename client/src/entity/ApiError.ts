@@ -11,7 +11,7 @@ export class ApiError<
     this.details = details;
   }
 
-  public errorIs<K extends keyof TShape>(
+  public is<K extends keyof TShape>(
     type: K,
   ): this is ApiError<TShape> & { type: K; details: TShape[K] } {
     return this.type === type;

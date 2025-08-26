@@ -28,7 +28,7 @@ const Subscribe = () => {
     }),
   };
 
-  // if (queries.getUsers.error!.errorIs('age')) {
+  // if (queries.getUsers.error!.is('age')) {
   //   queries.getUsers.error!.details.age1
   // }
 
@@ -38,21 +38,21 @@ const Subscribe = () => {
     if (test instanceof GetUsersQueryError) {
       const e = test as InstanceType<typeof GetUsersQueryError>;
 
-      if (e.errorIs("foo")) {
+      if (e.is("foo")) {
       }
     }
 
     // const e = test as InstanceType<typeof GetUsersQueryError>;
-    // if (e.errorIs("age")) {
+    // if (e.is("age")) {
     //   e
     // }
   };
 
-  // if (queries.getUsers.error?.errorIs("foo")) {
+  // if (queries.getUsers.error?.is("foo")) {
   //   console.log(queries.getUsers.error?.details.foo1);
   // }
   //
-  // if (queries.getUsers.error?.errorIs("age")) {
+  // if (queries.getUsers.error?.is("age")) {
   //   console.log(queries.getUsers.error?.details.age1);
   // }
 
@@ -150,10 +150,9 @@ const Subscribe = () => {
           </div>
         )}
 
-        {queries.getUsers.error &&
-          queries.getUsers.error.errorIs("VALIDATION") && (
-            <div>{JSON.stringify(queries.getUsers.error.details)}</div>
-          )}
+        {queries.getUsers.error && queries.getUsers.error.is("VALIDATION") && (
+          <div>{JSON.stringify(queries.getUsers.error.details)}</div>
+        )}
       </div>
     </div>
   );
