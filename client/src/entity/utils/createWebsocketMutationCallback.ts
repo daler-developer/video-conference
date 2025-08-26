@@ -3,6 +3,7 @@ import {
   type BaseOutgoingMessage,
   createOutgoingMessageCreator,
   websocketClient,
+  WebsocketError,
 } from "@/websocket";
 import { type MutationCallback } from "./createMutation.ts";
 import type { BaseIncomingErrorMessage } from "@/websocket/types.ts";
@@ -28,19 +29,28 @@ export const createWebsocketMutationCallback = <
           payload,
         }),
       );
-
+      console.log("success");
       return {
         data: incomingResponseMessage.payload,
         age: 234,
       };
     } catch (e) {
-      const incomingErrorResponseMessage = e as BaseIncomingErrorMessage;
-
-      throw new MutationError(
-        incomingErrorResponseMessage.payload.message,
-        incomingErrorResponseMessage.payload.errorType,
-        incomingErrorResponseMessage.payload.details as any,
-      );
+      if (e instanceof WebsocketError) {
+        throw new MutationError(
+          e.incomingErrorMessage.payload.message,
+          e.incomingErrorMessage.payload.errorType,
+          e.incomingErrorMessage.payload.details,
+        );
+      } else {
+        alert("createWebsocketMutationCallback error");
+      }
+      // const incomingErrorResponseMessage = e as BaseIncomingErrorMessage;
+      //
+      // throw new MutationError(
+      //   incomingErrorResponseMessage.payload.message,
+      //   incomingErrorResponseMessage.payload.errorType,
+      //   incomingErrorResponseMessage.payload.details as any,
+      // );
     }
   };
 };

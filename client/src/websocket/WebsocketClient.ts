@@ -11,6 +11,7 @@ import {
   isSlotForBinary,
   parseSlotForBinary,
 } from "./utils";
+import { WebsocketError } from "./WebsocketError.ts";
 
 type Callback = (event: MessageEvent) => void;
 
@@ -153,7 +154,7 @@ class WebsocketClient {
           message.meta.messageId === outgoingMessage.meta.messageId
         ) {
           unsubscribe();
-          rej(message as BaseIncomingErrorMessage);
+          rej(new WebsocketError(message));
         }
       });
 

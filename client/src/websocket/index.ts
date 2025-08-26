@@ -14,6 +14,7 @@ import {
 } from "./createOutgoingMessageCreator.ts";
 import websocketClient from "./WebsocketClient.ts";
 import { incomingMessageIsOfTypeError } from "./utils.ts";
+import { WebsocketError } from "./WebsocketError.ts";
 
 export {
   createOutgoingMessageCreator,
@@ -28,4 +29,5 @@ export {
   type IncomingMessageExtractType,
   type IncomingMessageExtractPayload,
   incomingMessageIsOfTypeError,
+  WebsocketError,
 };
