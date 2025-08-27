@@ -59,15 +59,6 @@ const Subscribe = () => {
   // console.log(queries.getUsers.data?.list[0].name);
   // console.log(queries.getUsers.data?.list[0].age);
 
-  // useNewMediaFrameSub({
-  //   params: {
-  //     conferenceId: "hello_world",
-  //   },
-  //   onData({ data }) {
-  //     console.log("data", data);
-  //   },
-  // });
-
   return (
     <div>
       <Button

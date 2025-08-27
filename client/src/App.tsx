@@ -38,7 +38,7 @@ const App = () => {
 
   return (
     <div style={{ margin: "50px" }}>
-      <TestButton />
+      {/*<TestButton />*/}
       {/*<Button*/}
       {/*  type="button"*/}
       {/*  onClick={() => {*/}
@@ -47,25 +47,25 @@ const App = () => {
       {/*>*/}
       {/*  Show*/}
       {/*</Button>*/}
-      <div>
-        <Button
-          type="button"
-          onClick={() => {
-            setIsSub(true);
-          }}
-        >
-          Sub
-        </Button>
-        <Button
-          type="button"
-          onClick={() => {
-            setIsSub(false);
-          }}
-        >
-          Unsub
-        </Button>
-      </div>
-      {isSub && <Subscribe />}
+      {/*<div>*/}
+      {/*  <Button*/}
+      {/*    type="button"*/}
+      {/*    onClick={() => {*/}
+      {/*      setIsSub(true);*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    Sub*/}
+      {/*  </Button>*/}
+      {/*  <Button*/}
+      {/*    type="button"*/}
+      {/*    onClick={() => {*/}
+      {/*      setIsSub(false);*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    Unsub*/}
+      {/*  </Button>*/}
+      {/*</div>*/}
+      {/*{isSub && <Subscribe />}*/}
       {/*<RecordVideo />*/}
     </div>
   );

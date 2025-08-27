@@ -1,6 +1,6 @@
 import { Button } from "@mantine/core";
 import { useRef, useState } from "react";
-import { useSendMediaFrameMutation } from "@/entity";
+import { useNewMediaFrameSub, useSendMediaFrameMutation } from "@/entity";
 
 const RecordVideo = () => {
   const [recording, setRecording] = useState(false);
@@ -11,39 +11,55 @@ const RecordVideo = () => {
     sendMediaFrame: useSendMediaFrameMutation(),
   };
 
+  useNewMediaFrameSub({
+    params: {
+      conferenceId: "hello_world",
+    },
+    onData({ data }) {
+      console.log("data", data);
+    },
+  });
+
   const start = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
+    const data = await mutations.sendMediaFrame.mutate({
+      payload: {
+        data: new ArrayBuffer(2),
+      },
     });
 
-    const recorder = new MediaRecorder(stream, {
-      mimeType: "video/webm;codecs=vp9,opus",
-    });
-
-    mediaRecorder.current = recorder;
-
-    let chunks: any[] = [];
-
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
-      }
-    };
-
-    recorder.onstop = async () => {
-      const videoBlob = new Blob(chunks, { type: "video/webm" });
-
-      const data = await mutations.sendMediaFrame.mutate({
-        payload: {
-          data: await videoBlob.arrayBuffer(),
-        },
-      });
-    };
-
-    recorder.start(1000);
-    video.current.srcObject = stream;
-    video.current.autoplay = true;
+    return;
+    // const stream = await navigator.mediaDevices.getUserMedia({
+    //   video: true,
+    //   audio: true,
+    // });
+    //
+    // const recorder = new MediaRecorder(stream, {
+    //   mimeType: "video/webm;codecs=vp9,opus",
+    // });
+    //
+    // mediaRecorder.current = recorder;
+    //
+    // let chunks: any[] = [];
+    //
+    // recorder.ondataavailable = (event) => {
+    //   if (event.data.size > 0) {
+    //     chunks.push(event.data);
+    //   }
+    // };
+    //
+    // recorder.onstop = async () => {
+    //   const videoBlob = new Blob(chunks, { type: "video/webm" });
+    //
+    //   const data = await mutations.sendMediaFrame.mutate({
+    //     payload: {
+    //       data: await videoBlob.arrayBuffer(),
+    //     },
+    //   });
+    // };
+    //
+    // recorder.start(1000);
+    // video.current.srcObject = stream;
+    // video.current.autoplay = true;
   };
 
   const handleStop = () => {
