@@ -1,7 +1,7 @@
 import { RequestData, RequestHandler, requestHandler } from 'mediatr-ts';
 import { inject, injectable } from 'inversify';
 import { UseCase } from '../../UseCase';
-import { container } from '../../iocContainer';
+import { container } from '../../../iocContainer';
 
 // type Result = {
 //   accessToken: string;
@@ -30,4 +30,4 @@ export class StartSessionCommandUseCase extends UseCase<Request, Result> {
   }
 }
 
-container.bind(StartSessionCommandUseCase).toSelf();
+// container.bind(StartSessionCommandUseCase).toSelf();

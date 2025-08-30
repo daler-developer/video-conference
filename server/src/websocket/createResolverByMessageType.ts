@@ -6,7 +6,7 @@ import { wss } from './init';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
 import { Mediator } from 'mediatr-ts';
 import { mediator } from '../mediator';
-import { useCaseManager } from '../application/UseCaseManager';
+import { useCaseManager } from '../application';
 
 type Options<
   TIncomingMessage extends BaseIncomingMessage,

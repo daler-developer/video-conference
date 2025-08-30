@@ -1,9 +1,9 @@
 import 'reflect-metadata';
+import './iocContainer';
 import express from 'express';
 import http from 'http';
 import initWebsocket from './websocket/init';
 import redisClient from './redis/client';
-import './mediator';
 
 const app = express();
 const port = process.env.PORT || 3000;
