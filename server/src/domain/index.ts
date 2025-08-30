@@ -1,4 +1,4 @@
 import { User } from './entities/User';
-import { IUserRepository } from './repositories/UserRepository/IUserRepository';
+import { type IUserRepo } from './repos/UserRepo/IUserRepo';
 
-export { User, IUserRepository };
+export { User, IUserRepo };

@@ -1,4 +1,4 @@
-import { User, IUserRepository } from '@/domain';
+import { User, IUserRepo } from '@/domain';
 
 const page = 1;
 
@@ -6,7 +6,7 @@ function getRandom1to10() {
   return Math.floor(Math.random() * 10) + 1;
 }
 
-export class UserRepository implements IUserRepository {
+export class UserRepo implements IUserRepo {
   async addOne(): Promise<void> {
     return;
   }
