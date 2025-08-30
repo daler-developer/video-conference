@@ -1,5 +1,5 @@
 import { UseCase } from './UseCase';
-import { container } from '../iocContainer';
+import { container } from '@/iocContainer';
 
 type SubclassOf<T> = abstract new (...args: any[]) => T;
 
