@@ -4,8 +4,6 @@ import { createOutgoingValidationErrorMessage } from './outgoing-message-creator
 import processMiddleware from './middleware/processMiddleware';
 import { wss } from './init';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
-import { Mediator } from 'mediatr-ts';
-import { mediator } from '../mediator';
 import { useCaseManager } from '../application';
 
 type Options<

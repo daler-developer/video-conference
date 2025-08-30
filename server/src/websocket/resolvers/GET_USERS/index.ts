@@ -1,9 +1,6 @@
 import createResolverByMessageType from '../../createResolverByMessageType';
 import { z } from 'zod/v4';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
-import { BaseError } from '../../errors';
-import { createOutgoingMessageCreator } from '../../createOutgoingMessageCreator';
-import { Mediator } from 'mediatr-ts';
 import { GetUsersQueryUseCase, useCaseManager } from '../../../application';
 
 const MESSAGE_TYPE = 'GET_USERS';
