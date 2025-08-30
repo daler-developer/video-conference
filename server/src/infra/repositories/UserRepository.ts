@@ -1,5 +1,4 @@
-import { IUserRepository } from '../../application';
-import { User } from '../../domain';
+import { User, IUserRepository } from '@/domain';
 
 const page = 1;
 
