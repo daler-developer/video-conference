@@ -7,9 +7,12 @@
   "dependencies": {
     "@redis/json": "^5.1.1",
     "express": "^5.1.0",
+    "inversify": "^7.9.1",
     "lodash": "^4.17.21",
+    "mediatr-ts": "^2.2.0",
     "pubsub-js": "^1.9.5",
     "redis": "^5.1.1",
+    "reflect-metadata": "^0.2.2",
     "ws": "^8.18.2",
     "zod": "^3.25.42"
   },

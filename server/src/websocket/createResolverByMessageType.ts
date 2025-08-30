@@ -4,6 +4,9 @@ import { createOutgoingValidationErrorMessage } from './outgoing-message-creator
 import processMiddleware from './middleware/processMiddleware';
 import { wss } from './init';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
+import { Mediator } from 'mediatr-ts';
+import { mediator } from '../mediator';
+import { useCaseManager } from '../application/UseCaseManager';
 
 type Options<
   TIncomingMessage extends BaseIncomingMessage,
@@ -13,13 +16,17 @@ type Options<
   responseOutgoingMessageType: TResponseOutgoingMessage['type'];
   middleware: any[];
   execute: (options: {
-    ctx: TContext;
+    ctx: BaseContext & TContext;
     message: TIncomingMessage;
     client: WebSocketWrapper;
     respond: (options: Pick<TResponseOutgoingMessage, 'payload'>) => void;
   }) => unknown;
   validator?: (options: { message: TIncomingMessage }) => boolean;
   init?: () => void;
+};
+
+type BaseContext = {
+  useCaseManager: typeof useCaseManager;
 };
 
 const createResolverByMessageType = <
@@ -61,7 +68,9 @@ const createResolverByMessageType = <
         return;
       }
 
-      const ctx: TContext = {} as TContext;
+      const ctx: BaseContext & TContext = {
+        useCaseManager,
+      } as BaseContext & TContext;
 
       processMiddleware(options.middleware, { ctx, message, request });
 

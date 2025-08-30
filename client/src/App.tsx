@@ -38,7 +38,7 @@ const App = () => {
 
   return (
     <div style={{ margin: "50px" }}>
-      {/*<TestButton />*/}
+      <TestButton />
       {/*<Button*/}
       {/*  type="button"*/}
       {/*  onClick={() => {*/}
@@ -65,7 +65,7 @@ const App = () => {
       {/*    Unsub*/}
       {/*  </Button>*/}
       {/*</div>*/}
-      {/*{isSub && <Subscribe />}*/}
+      {/*{<Subscribe />}*/}
       {/*<RecordVideo />*/}
     </div>
   );

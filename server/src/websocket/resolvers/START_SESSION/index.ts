@@ -3,6 +3,8 @@ import { z } from 'zod/v4';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
 import { BaseError } from '../../errors';
 import { createOutgoingMessageCreator } from '../../createOutgoingMessageCreator';
+import { Mediator } from 'mediatr-ts';
+import { StartSessionCommandUseCase } from '../../../application/commands/StartSession/StartSessionCommand';
 
 const MESSAGE_TYPE = 'START_SESSION';
 const OUTGOING_MESSAGE_TYPE = 'START_SESSION_RESULT';
@@ -27,10 +29,14 @@ export default createResolverByMessageType<IncomingMessage, OutgoingResponseMess
     return true;
   },
   middleware: [],
-  execute({ client, message, respond }) {
+  async execute({ ctx, message, respond }) {
+    const result = await ctx.useCaseManager.run(StartSessionCommandUseCase, {
+      fullName: message.payload.fullName,
+    });
+
     respond({
       payload: {
-        accessToken: 'Hello World',
+        accessToken: result.accessToken,
       },
     });
   },

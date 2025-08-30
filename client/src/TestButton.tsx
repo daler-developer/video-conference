@@ -63,6 +63,8 @@ const TestButton = () => {
           // }
         },
       });
+
+      console.log("data", data);
     } catch (e) {
       if (e instanceof StartSessionError) {
         const startSessionError = e as InstanceType<typeof StartSessionError>;
