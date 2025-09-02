@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { EVENT_NAME } from './types';
 import WebSocketWrapper from './WebSocketWrapper';
 
 class SubscriptionManager {

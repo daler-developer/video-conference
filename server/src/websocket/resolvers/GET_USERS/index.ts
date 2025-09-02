@@ -1,26 +1,20 @@
 import createResolverByMessageType from '../../createResolverByMessageType';
 import { z } from 'zod/v4';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
-import { GetUsersQueryUseCase, useCaseManager } from '../../../application';
+import { GetUsersQueryUseCase, useCaseManager } from '@/application';
 
-const MESSAGE_TYPE = 'GET_USERS';
+const GET_USERS = 'GET_USERS';
 const OUTGOING_MESSAGE_TYPE = 'GET_USERS_RESULT';
 
-type IncomingMessage = BaseIncomingMessage<
-  typeof MESSAGE_TYPE,
-  {
-    limit: number;
-    search: string;
-    page: number;
-  }
->;
+type IncomingPayload = {
+  limit: number;
+  search: string;
+  page: number;
+};
 
-type OutgoingResponseMessage = BaseOutgoingMessage<
-  typeof OUTGOING_MESSAGE_TYPE,
-  {
-    list: Array<{ id: number; name: string; age: number }>;
-  }
->;
+type OutgoingPayload = {
+  list: Array<{ id: number; name: string; age: number }>;
+};
 
 function getRandom1to10() {
   return Math.floor(Math.random() * 10) + 1;
@@ -28,17 +22,16 @@ function getRandom1to10() {
 
 let counter = 0;
 
-export default createResolverByMessageType<IncomingMessage, OutgoingResponseMessage>(MESSAGE_TYPE, {
-  responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
-  validator({ message }) {
+export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(GET_USERS, {
+  validator({ payload }) {
     return true;
     // return message.payload.page < 5;
   },
   middleware: [],
-  async execute({ client, message, ctx }) {
+  async execute({ client, payload, ctx }) {
     const result = await useCaseManager.run(GetUsersQueryUseCase, {
-      limit: message.payload.limit,
-      page: message.payload.page,
+      limit: payload.limit,
+      page: payload.page,
     });
 
     return {

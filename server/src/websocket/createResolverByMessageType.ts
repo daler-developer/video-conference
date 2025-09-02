@@ -7,18 +7,17 @@ import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
 import { ApplicationError, useCaseManager } from '@/application';
 
 type Options<
-  TIncomingMessage extends BaseIncomingMessage,
-  TResponseOutgoingMessage extends BaseOutgoingMessage,
+  TIncomingPayload extends BaseIncomingMessage['payload'],
+  TOutgoingPayload extends BaseOutgoingMessage['payload'],
   TContext extends Record<string, any>,
 > = {
-  responseOutgoingMessageType: TResponseOutgoingMessage['type'];
   middleware: any[];
   execute: (options: {
     ctx: BaseContext & TContext;
-    message: TIncomingMessage;
     client: WebSocketWrapper;
-  }) => Promise<TResponseOutgoingMessage['payload']>;
-  validator?: (options: { message: TIncomingMessage }) => boolean;
+    payload: TIncomingPayload;
+  }) => TOutgoingPayload | Promise<TOutgoingPayload>;
+  validator?: (options: { payload: TIncomingPayload }) => boolean;
   init?: () => void;
 };
 
@@ -27,12 +26,12 @@ type BaseContext = {
 };
 
 const createResolverByMessageType = <
-  TIncomingMessage extends BaseIncomingMessage,
-  TResponseOutgoingMessage extends BaseOutgoingMessage,
+  TIncomingPayload extends BaseIncomingMessage['payload'],
+  TOutgoingPayload extends BaseOutgoingMessage['payload'],
   TContext extends Record<string, any> = Record<string, any>,
 >(
-  messageType: TIncomingMessage['type'],
-  options: Options<TIncomingMessage, TResponseOutgoingMessage, TContext>
+  messageType: string,
+  options: Options<TIncomingPayload, TOutgoingPayload, TContext>
 ) => {
   options.init?.();
 
@@ -46,7 +45,7 @@ const createResolverByMessageType = <
         return;
       }
 
-      const isInvalid = options.validator && !options.validator({ message: message as TIncomingMessage });
+      const isInvalid = options.validator && !options.validator({ payload: message.payload as TIncomingPayload });
 
       if (isInvalid) {
         client.respondTo(
@@ -71,41 +70,51 @@ const createResolverByMessageType = <
 
       processMiddleware(options.middleware, { ctx, message, request });
 
-      const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
-        type: options.responseOutgoingMessageType,
-      });
+      // const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
+      //   type: options.responseOutgoingMessageType,
+      // });
 
       try {
         const payload = await options.execute({
           ctx,
-          message: message as TIncomingMessage,
+          payload: message.payload as TIncomingPayload,
           client,
         });
 
-        client.respondTo(
-          message,
-          createResponseOutgoingMessage({
-            payload,
-          })
-        );
+        client.respondTo(message, {
+          type: messageType + '_RESULT',
+          payload,
+        });
       } catch (e) {
         if (e instanceof ApplicationError) {
-          const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
+          // const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
+          //   type: 'ERROR',
+          // });
+
+          client.respondTo(message, {
             type: 'ERROR',
+            payload: {
+              errorType: e.type,
+              message: e.message,
+              details: e.details,
+            },
           });
 
-          client.respondTo(
-            message,
-            createResponseOutgoingMessage({
-              payload: {
-                errorType: e.type,
-                message: e.message,
-                details: e.details,
-              },
-            })
-          );
+          // createResponseOutgoingMessage({
+          //   payload: {
+          //     errorType: e.type,
+          //     message: e.message,
+          //     details: e.details,
+          //   },
+          // })
         } else {
-          console.log('----------------');
+          client.respondTo(message, {
+            type: 'ERROR',
+            payload: {
+              errorType: 'unknown',
+              message: 'Unknown error',
+            },
+          });
         }
       }
     });
