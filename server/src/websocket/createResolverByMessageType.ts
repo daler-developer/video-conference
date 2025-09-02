@@ -4,7 +4,7 @@ import { createOutgoingValidationErrorMessage } from './outgoing-message-creator
 import processMiddleware from './middleware/processMiddleware';
 import { wss } from './init';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
-import { useCaseManager } from '../application';
+import { ApplicationError, useCaseManager } from '@/application';
 
 type Options<
   TIncomingMessage extends BaseIncomingMessage,
@@ -17,8 +17,7 @@ type Options<
     ctx: BaseContext & TContext;
     message: TIncomingMessage;
     client: WebSocketWrapper;
-    respond: (options: Pick<TResponseOutgoingMessage, 'payload'>) => void;
-  }) => unknown;
+  }) => Promise<TResponseOutgoingMessage['payload']>;
   validator?: (options: { message: TIncomingMessage }) => boolean;
   init?: () => void;
 };
@@ -76,19 +75,39 @@ const createResolverByMessageType = <
         type: options.responseOutgoingMessageType,
       });
 
-      options.execute({
-        ctx,
-        message: message as TIncomingMessage,
-        client,
-        respond({ payload }) {
+      try {
+        const payload = await options.execute({
+          ctx,
+          message: message as TIncomingMessage,
+          client,
+        });
+
+        client.respondTo(
+          message,
+          createResponseOutgoingMessage({
+            payload,
+          })
+        );
+      } catch (e) {
+        if (e instanceof ApplicationError) {
+          const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
+            type: 'ERROR',
+          });
+
           client.respondTo(
             message,
             createResponseOutgoingMessage({
-              payload,
+              payload: {
+                errorType: e.type,
+                message: e.message,
+                details: e.details,
+              },
             })
           );
-        },
-      });
+        } else {
+          console.log('----------------');
+        }
+      }
     });
   });
 

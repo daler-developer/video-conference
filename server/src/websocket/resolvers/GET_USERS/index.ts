@@ -35,17 +35,15 @@ export default createResolverByMessageType<IncomingMessage, OutgoingResponseMess
     // return message.payload.page < 5;
   },
   middleware: [],
-  async execute({ client, message, respond, ctx }) {
+  async execute({ client, message, ctx }) {
     const result = await useCaseManager.run(GetUsersQueryUseCase, {
       limit: message.payload.limit,
       page: message.payload.page,
     });
 
-    respond({
-      payload: {
-        list: result,
-      },
-    });
+    return {
+      list: result,
+    };
 
     // const page = message.payload.page;
     // console.log('page', page);

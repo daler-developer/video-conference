@@ -23,16 +23,14 @@ type ResponseOutgoingMessage = BaseOutgoingMessage<
 export default createResolverByMessageType<IncomingMessage, ResponseOutgoingMessage>(MESSAGE_TYPE, {
   responseOutgoingMessageType: OUTGOING_MESSAGE_TYPE,
   middleware: [],
-  async execute({ client, message, respond }) {
+  async execute({ client, message }) {
     subscriptionManager.unsubscribe(message.payload.eventName as any, {
       client,
       params: message.payload.eventParams,
     });
 
-    respond({
-      payload: {
-        message: 'Success',
-      },
-    });
+    return {
+      message: 'Success',
+    };
   },
 });

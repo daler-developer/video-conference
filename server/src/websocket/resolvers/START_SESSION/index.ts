@@ -26,15 +26,13 @@ export default createResolverByMessageType<IncomingMessage, OutgoingResponseMess
     return true;
   },
   middleware: [],
-  async execute({ ctx, message, respond }) {
+  async execute({ ctx, message }) {
     const result = await ctx.useCaseManager.run(StartSessionCommandUseCase, {
       fullName: message.payload.fullName,
     });
 
-    respond({
-      payload: {
-        accessToken: result.accessToken,
-      },
-    });
+    return {
+      accessToken: result.accessToken,
+    };
   },
 });

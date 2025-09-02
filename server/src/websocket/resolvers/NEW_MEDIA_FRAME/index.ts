@@ -23,15 +23,13 @@ type ResponseOutgoingMessage = BaseOutgoingMessage<
 export default createResolverByMessageType<IncomingMessage, ResponseOutgoingMessage>(MESSAGE_TYPE, {
   responseOutgoingMessageType: RESPONSE_OUTGOING_MESSAGE_TYPE,
   middleware: [],
-  async execute({ client, message, respond }) {
+  async execute({ client, message }) {
     pubsub.publish('NEW_MEDIA_FRAME', {
       data: message.payload.data!,
     });
 
-    respond({
-      payload: {
-        message: 'Success',
-      },
-    });
+    return {
+      message: 'Success',
+    };
   },
 });
