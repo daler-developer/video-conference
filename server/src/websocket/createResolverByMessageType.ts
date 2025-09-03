@@ -25,6 +25,12 @@ type BaseContext = {
   useCaseManager: typeof useCaseManager;
 };
 
+const createOutgoingErrorMessage = createOutgoingMessageCreator<{
+  message: string;
+  errorType: string;
+  details?: object;
+}>('ERROR');
+
 const createResolverByMessageType = <
   TIncomingPayload extends BaseIncomingMessage['payload'],
   TOutgoingPayload extends BaseOutgoingMessage['payload'],
@@ -70,10 +76,6 @@ const createResolverByMessageType = <
 
       processMiddleware(options.middleware, { ctx, message, request });
 
-      // const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
-      //   type: options.responseOutgoingMessageType,
-      // });
-
       try {
         const payload = await options.execute({
           ctx,
@@ -81,40 +83,27 @@ const createResolverByMessageType = <
           client,
         });
 
-        client.respondTo(message, {
-          type: messageType + '_RESULT',
-          payload,
-        });
+        const createResponseOutgoingMessage = createOutgoingMessageCreator<any>(messageType + '_RESULT');
+
+        client.respondTo(message, createResponseOutgoingMessage(payload));
       } catch (e) {
         if (e instanceof ApplicationError) {
-          // const createResponseOutgoingMessage = createOutgoingMessageCreator<TResponseOutgoingMessage>({
-          //   type: 'ERROR',
-          // });
-
-          client.respondTo(message, {
-            type: 'ERROR',
-            payload: {
+          client.respondTo(
+            message,
+            createOutgoingErrorMessage({
               errorType: e.type,
               message: e.message,
               details: e.details,
-            },
-          });
-
-          // createResponseOutgoingMessage({
-          //   payload: {
-          //     errorType: e.type,
-          //     message: e.message,
-          //     details: e.details,
-          //   },
-          // })
+            })
+          );
         } else {
-          client.respondTo(message, {
-            type: 'ERROR',
-            payload: {
+          client.respondTo(
+            message,
+            createOutgoingErrorMessage({
               errorType: 'unknown',
               message: 'Unknown error',
-            },
-          });
+            })
+          );
         }
       }
     });

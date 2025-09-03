@@ -1,5 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLatest } from "@/shared/hooks";
+import {
+  EventSubObserver,
+  type EventSubObserverConfig,
+} from "../event-sub-manager/EventSubObserver.ts";
 
 export type EventSubCallback<
   TEventSubParams extends EventSubBaseParams,
@@ -14,10 +18,13 @@ export type EventSubCallback<
 export type CreateEventSubOptions<
   TEventSubParams extends EventSubBaseParams,
   TEventSubBaseData extends EventSubBaseData,
-> = {
-  callback: EventSubCallback<TEventSubParams, TEventSubBaseData>;
-  update?: (options: { data: TEventSubBaseData }) => void;
-};
+> = Omit<EventSubObserverConfig<TEventSubParams, TEventSubBaseData>, "params">;
+
+// {
+//   name: string;
+//   callback: EventSubCallback<TEventSubParams, TEventSubBaseData>;
+//   update?: (options: { data: TEventSubBaseData }) => void;
+// };
 
 type HookOptions<
   TEventSubParams extends EventSubBaseParams,
@@ -35,6 +42,7 @@ export const createEventSub = <
   TEventSubParams extends EventSubBaseParams,
   TEventSubBaseData extends EventSubBaseData,
 >({
+  name,
   callback,
   update,
 }: CreateEventSubOptions<TEventSubParams, TEventSubBaseData>) => {
@@ -44,21 +52,30 @@ export const createEventSub = <
   }: HookOptions<TEventSubParams, TEventSubBaseData>) {
     const latestOnData = useLatest(onData);
 
+    const [eventSubObserver] = useState(
+      () => new EventSubObserver({ name, params, callback, update }),
+    );
+
     useEffect(() => {
-      const { unsubscribe } = callback({
-        params,
-        onData({ data }) {
-          update?.({
-            data,
-          });
-          latestOnData.current({ data });
-        },
-      });
+      eventSubObserver.ensureSubscribed({ params });
 
       return () => {
-        unsubscribe();
+        eventSubObserver.onDestroyed();
       };
-    }, [latestOnData]);
+      // const { unsubscribe } = callback({
+      //   params,
+      //   onData({ data }) {
+      //     update?.({
+      //       data,
+      //     });
+      //     latestOnData.current({ data });
+      //   },
+      // });
+      //
+      // return () => {
+      //   unsubscribe();
+      // };
+    }, [latestOnData, eventSubObserver]);
   };
 
   return {

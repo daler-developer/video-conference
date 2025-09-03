@@ -43,9 +43,8 @@ const createEventSubResolver = <
   pubsub.subscribe(options.subscribe.channelName, (payload) => {
     const subscribers = subscriptionManager.getSubscribers(eventName);
 
-    const createEventSubDataOutgoingMessage = createOutgoingMessageCreator<TEventSubDataOutgoingMessage>({
-      type: 'EVENT_SUB_DATA',
-    });
+    const createEventSubDataOutgoingMessage =
+      createOutgoingMessageCreator<TEventSubDataOutgoingMessage['payload']>('EVENT_SUB_DATA');
 
     subscribers.forEach(async (subscriber) => {
       const activate = options.subscribe.filter({
@@ -59,11 +58,9 @@ const createEventSubResolver = <
         });
         subscriber.client.sendMessage(
           createEventSubDataOutgoingMessage({
-            payload: {
-              eventName,
-              eventParams: subscriber.params,
-              eventData,
-            },
+            eventName,
+            eventParams: subscriber.params,
+            eventData,
           })
         );
       }

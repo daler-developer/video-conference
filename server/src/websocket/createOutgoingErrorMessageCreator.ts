@@ -24,22 +24,16 @@ type CallbackOptions<TOutgoingMessage extends BaseOutgoingErrorMessage> = {
   details: TOutgoingMessage['payload']['details'];
 };
 
-export const createOutgoingErrorMessageCreator = <
-  TOutgoingMessage extends BaseOutgoingErrorMessage,
->({
+export const createOutgoingErrorMessageCreator = <TOutgoingMessage extends BaseOutgoingErrorMessage>({
   errorType,
 }: Options<TOutgoingMessage>) => {
-  const createMessage = createOutgoingMessageCreator<TOutgoingMessage>({
-    type: MESSAGE_TYPE,
-  });
+  const createMessage = createOutgoingMessageCreator<TOutgoingMessage['payload']>(MESSAGE_TYPE);
 
   return ({ message, details }: CallbackOptions<TOutgoingMessage>) => {
     return createMessage({
-      payload: {
-        errorType,
-        message,
-        details,
-      },
+      errorType,
+      message,
+      details,
     });
   };
 };

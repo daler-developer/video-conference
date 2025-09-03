@@ -1,15 +1,11 @@
 import { BaseOutgoingMessage } from './types';
 
-type Options<TOutgoingMessage extends BaseOutgoingMessage> = {
-  type: TOutgoingMessage['type'];
+type Options = {
+  type: string;
 };
 
-export const createOutgoingMessageCreator = <
-  TOutgoingMessage extends BaseOutgoingMessage,
->({
-  type,
-}: Options<TOutgoingMessage>) => {
-  return ({ payload }: { payload: TOutgoingMessage['payload'] }) => {
+export const createOutgoingMessageCreator = <TMessagePayload extends BaseOutgoingMessage['payload']>(type: string) => {
+  return (payload: TMessagePayload): Pick<BaseOutgoingMessage, 'payload' | 'type'> => {
     return {
       type,
       payload,
