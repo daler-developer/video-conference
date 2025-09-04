@@ -16,6 +16,7 @@ import TestButton from "@/TestButton.tsx";
 let counter = 3;
 
 const App = () => {
+  const [counter, setCounter] = useState(0);
   const [show, setShow] = useState(false);
   const [isSub, setIsSub] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -38,6 +39,20 @@ const App = () => {
 
   return (
     <div style={{ margin: "50px" }}>
+      <Button
+        onClick={() => {
+          setCounter((prev) => prev + 1);
+        }}
+      >
+        +
+      </Button>
+      <Button
+        onClick={() => {
+          setCounter((prev) => prev - 1);
+        }}
+      >
+        -
+      </Button>
       {/*<TestButton />*/}
       {/*<Button*/}
       {/*  type="button"*/}
@@ -66,9 +81,9 @@ const App = () => {
       {/*  </Button>*/}
       {/*</div>*/}
       {/*{<Subscribe />}*/}
-      <RecordVideo />
-      <RecordVideo />
-      <RecordVideo />
+      {new Array(counter).fill(0).map((_, i) => (
+        <RecordVideo key={i} />
+      ))}
     </div>
   );
 };

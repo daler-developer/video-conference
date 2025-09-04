@@ -47,6 +47,13 @@ class EventSubManager {
     this.#eventSubs.set(eventSub.hash, eventSub);
     return eventSub;
   }
+
+  delete<
+    TEventSubParams extends EventSubBaseParams,
+    TEventSubData extends EventSubBaseData,
+  >(eventSub: EventSub<TEventSubParams, TEventSubData>) {
+    return this.#eventSubs.delete(eventSub.hash);
+  }
 }
 
 export const eventSubManager = new EventSubManager();

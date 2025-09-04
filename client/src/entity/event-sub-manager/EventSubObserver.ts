@@ -63,6 +63,11 @@ export class EventSubObserver<
   }
 
   onDestroyed() {
-    this.#eventSub.unsubscribe();
+    this.#eventSub.observersCount--;
+
+    if (this.#eventSub.observersCount === 0) {
+      this.#eventSub.unsubscribe();
+      eventSubManager.delete(this.#eventSub);
+    }
   }
 }
