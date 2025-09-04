@@ -4,7 +4,10 @@ import type {
   EventSubBaseParams,
 } from "@/entity/utils/createEventSub.ts";
 import { eventSubManager } from "@/entity/event-sub-manager/EventSubManager.ts";
-import { eventSubEmitter } from "@/entity/event-sub-manager/EventSubEmitter.ts";
+import {
+  eventSubEmitter,
+  type EventSubEmitterEventCallback,
+} from "@/entity/event-sub-manager/EventSubEmitter.ts";
 
 export type EventSubObserverConfig<
   TEventSubParams extends EventSubBaseParams,
@@ -23,6 +26,7 @@ export class EventSubObserver<
 > {
   #eventSub: EventSub<TEventSubParams, TEventSubData>;
   #options: EventSubObserverOptions<TEventSubData>;
+  #newDataUnsubscribeFn?: null | (() => void) = null;
 
   constructor(config: EventSubObserverConfig<TEventSubParams, TEventSubData>) {
     const existingEventSub = eventSubManager.get<
@@ -47,11 +51,20 @@ export class EventSubObserver<
   }
 
   subscribeToNewData() {
-    eventSubEmitter.on("NEW_DATA", ({ eventSubHash, data }) => {
+    const listener: EventSubEmitterEventCallback<"NEW_DATA"> = ({
+      eventSubHash,
+      data,
+    }) => {
       if (this.#eventSub.hash === eventSubHash) {
         this.#options.onData({ data: data as TEventSubData });
       }
-    });
+    };
+
+    eventSubEmitter.on("NEW_DATA", listener);
+
+    this.#newDataUnsubscribeFn = () => {
+      eventSubEmitter.off("NEW_DATA", listener);
+    };
   }
 
   ensureSubscribed({ params }: { params: TEventSubParams }) {
@@ -68,6 +81,10 @@ export class EventSubObserver<
     if (this.#eventSub.observersCount === 0) {
       this.#eventSub.unsubscribe();
       eventSubManager.delete(this.#eventSub);
+    }
+
+    if (this.#newDataUnsubscribeFn) {
+      eventSubEmitter.off("NEW_DATA", this.#newDataUnsubscribeFn);
     }
   }
 }

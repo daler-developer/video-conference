@@ -7,6 +7,10 @@ type Events = {
   };
 };
 
+export type EventSubEmitterEventCallback<K extends keyof Events> = (
+  payload: Events[K],
+) => void;
+
 export const eventSubEmitter = mitt<Events>();
 
 // emitter.on("event", (e) => console.log("Got:", e));
