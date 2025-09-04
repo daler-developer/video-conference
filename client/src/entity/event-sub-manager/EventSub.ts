@@ -2,6 +2,8 @@ import type {
   EventSubBaseData,
   EventSubBaseParams,
 } from "@/entity/utils/createEventSub.ts";
+import { Subscribable } from "@/entity/query-cache/Subscribable.ts";
+import { eventSubEmitter } from "@/entity/event-sub-manager/OnDataEmiter.ts";
 
 type HashEventSubOptions<
   TEventSubParams extends EventSubBaseParams,
@@ -31,6 +33,8 @@ export type EventSubOptions<
   update?: (options: { data: TEventSubData }) => void;
 };
 
+type Listener = () => void;
+
 export class EventSub<
   TEventSubParams extends EventSubBaseParams,
   TEventSubData extends EventSubBaseData,
@@ -45,7 +49,18 @@ export class EventSub<
   }
 
   subscribe({ params }: { params: TEventSubParams }) {
-    const { unsubscribe } = this.#options.callback({ params, onData() {} });
+    const { unsubscribe } = this.#options.callback({
+      params,
+      onData: ({ data }) => {
+        eventSubEmitter.emit("NEW_DATA", {
+          eventSubHash: EventSub.hashEventSub({
+            name: this.#options.name,
+            params: this.#options.params,
+          }),
+          data: data,
+        });
+      },
+    });
     this.#isSubscribed = true;
     this.#unsubscribeFn = unsubscribe;
 

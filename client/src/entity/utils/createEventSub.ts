@@ -18,7 +18,10 @@ export type EventSubCallback<
 export type CreateEventSubOptions<
   TEventSubParams extends EventSubBaseParams,
   TEventSubBaseData extends EventSubBaseData,
-> = Omit<EventSubObserverConfig<TEventSubParams, TEventSubBaseData>, "params">;
+> = Omit<
+  EventSubObserverConfig<TEventSubParams, TEventSubBaseData>,
+  "params" | "onData"
+>;
 
 // {
 //   name: string;
@@ -53,7 +56,16 @@ export const createEventSub = <
     const latestOnData = useLatest(onData);
 
     const [eventSubObserver] = useState(
-      () => new EventSubObserver({ name, params, callback, update }),
+      () =>
+        new EventSubObserver({
+          name,
+          params,
+          callback,
+          onData({ data }) {
+            update?.({ data });
+            onData({ data });
+          },
+        }),
     );
 
     useEffect(() => {
