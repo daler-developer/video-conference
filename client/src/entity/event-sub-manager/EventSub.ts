@@ -3,7 +3,7 @@ import type {
   EventSubBaseParams,
 } from "@/entity/utils/createEventSub.ts";
 import { Subscribable } from "@/entity/query-cache/Subscribable.ts";
-import { eventSubEmitter } from "@/entity/event-sub-manager/OnDataEmiter.ts";
+import { eventSubEmitter } from "@/entity/event-sub-manager/EventSubEmitter.ts";
 
 type HashEventSubOptions<
   TEventSubParams extends EventSubBaseParams,

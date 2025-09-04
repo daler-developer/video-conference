@@ -4,7 +4,7 @@ import type {
   EventSubBaseParams,
 } from "@/entity/utils/createEventSub.ts";
 import { eventSubManager } from "@/entity/event-sub-manager/EventSubManager.ts";
-import { eventSubEmitter } from "@/entity/event-sub-manager/OnDataEmiter.ts";
+import { eventSubEmitter } from "@/entity/event-sub-manager/EventSubEmitter.ts";
 
 export type EventSubObserverConfig<
   TEventSubParams extends EventSubBaseParams,
