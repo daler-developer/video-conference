@@ -61,8 +61,8 @@ export const createEventSub = <
           name,
           params,
           callback,
+          update,
           onData({ data }) {
-            update?.({ data });
             onData({ data });
           },
         }),

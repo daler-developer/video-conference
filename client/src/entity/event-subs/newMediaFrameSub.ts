@@ -20,7 +20,9 @@ export const { hook: useNewMediaFrameSub } = createEventSub<
   callback: createWebsocketEventSubCallback({
     eventName: NEW_MEDIA_FRAME,
   }),
-  update({ data }) {},
+  update({ data }) {
+    console.log("update");
+  },
 });
 
 // const adapter = createEventSubAdapterForWebsocket<Params, Data>({});

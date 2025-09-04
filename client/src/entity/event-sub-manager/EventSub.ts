@@ -30,7 +30,7 @@ export type EventSubOptions<
   name: string;
   params: TEventSubParams;
   callback: EventSubCallback<TEventSubParams, TEventSubData>;
-  update?: (options: { data: TEventSubData }) => void;
+  update: (options: { data: TEventSubData }) => void;
 };
 
 type Listener = () => void;
@@ -52,6 +52,7 @@ export class EventSub<
     const { unsubscribe } = this.#options.callback({
       params,
       onData: ({ data }) => {
+        this.#options.update({ data });
         eventSubEmitter.emit("NEW_DATA", {
           eventSubHash: EventSub.hashEventSub({
             name: this.#options.name,
