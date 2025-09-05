@@ -84,7 +84,7 @@ export class EventSubObserver<
     }
 
     if (this.#newDataUnsubscribeFn) {
-      eventSubEmitter.off("NEW_DATA", this.#newDataUnsubscribeFn);
+      this.#newDataUnsubscribeFn();
     }
   }
 }
