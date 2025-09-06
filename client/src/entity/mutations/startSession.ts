@@ -27,12 +27,23 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       outgoingMessageType: START_SESSION,
     }),
     update({ entityManager }) {
-      entityManager.updateEntity("users", 1, (old) => {
+      entityManager.updateEntity("messages", 1, (old) => {
         return {
           ...old,
-          name: "Changed 2",
+          sender: {
+            id: 3,
+            name: "Aziz changed",
+            age: 222,
+          },
         };
       });
+      // entityManager.updateEntity("users", 1, (old) => {
+      //   return {
+      //     ...old,
+      //     name: "Daler changed",
+      //     age: 20,
+      //   };
+      // });
       // const repo = entityManager.getRepository('messages');
       //
       // repo.updateOne({

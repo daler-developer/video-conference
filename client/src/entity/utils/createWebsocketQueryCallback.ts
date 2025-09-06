@@ -6,6 +6,7 @@ import {
   type OutgoingMessageExtractPayload,
   type IncomingMessageExtractPayload,
   type OutgoingMessageExtractType,
+  WebsocketError,
 } from "@/websocket";
 import {
   type BaseQueryData,
@@ -56,16 +57,16 @@ export const createWebsocketQueryCallback = <
         await websocketClient.sendMessage(outgoingMessage);
 
       return incomingResponseMessage.payload as TQueryData;
-    } catch {
-      throw new QueryError("Validation Errors", "VALIDATION", {
-        detail: {
-          age: 20,
-          foo: "bar",
-          inner: {
-            name: false,
-          },
-        },
-      });
+    } catch (e) {
+      if (e instanceof WebsocketError) {
+        throw new QueryError(
+          e.incomingErrorMessage.payload.message,
+          e.incomingErrorMessage.payload.errorType,
+          e.incomingErrorMessage.payload.details,
+        );
+      } else {
+        alert("something is wrong in createWebsocketQueryCallback");
+      }
     }
   };
 };

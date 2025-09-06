@@ -12,6 +12,8 @@ import {
 } from "@/entity";
 import { useForceRender } from "@/shared/hooks";
 import TestButton from "@/TestButton.tsx";
+import MessagesList from "@/MessagesList.tsx";
+import UsersList from "@/UsersList.tsx";
 
 let counter = 3;
 
@@ -54,6 +56,8 @@ const App = () => {
       {/*  -*/}
       {/*</Button>*/}
       <TestButton />
+      <MessagesList />
+      <UsersList />
       {/*<Button*/}
       {/*  type="button"*/}
       {/*  onClick={() => {*/}
@@ -80,7 +84,7 @@ const App = () => {
       {/*    Unsub*/}
       {/*  </Button>*/}
       {/*</div>*/}
-      {<Subscribe />}
+      {/*{<Subscribe />}*/}
       {/*{new Array(counter).fill(0).map((_, i) => (*/}
       {/*  <RecordVideo key={i} />*/}
       {/*))}*/}

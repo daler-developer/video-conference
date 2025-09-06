@@ -9,6 +9,10 @@ import {
 import { useNewMediaFrameSub } from "./event-subs/newMediaFrameSub.ts";
 import { useGetUsersQuery, useGetUsersLazyQuery } from "./queries/getUsers.ts";
 import {
+  useGetMessagesQuery,
+  useGetMessagesLazyQuery,
+} from "./queries/getMessages.ts";
+import {
   useGetUsersInfiniteQuery,
   useGetUsersInfiniteLazyQuery,
 } from "./queries/getUsersInfinite.ts";
@@ -21,6 +25,8 @@ export {
   StartSessionError,
   useNewMediaFrameSub,
   useGetUsersQuery,
+  useGetMessagesQuery,
+  useGetMessagesLazyQuery,
   useGetUsersInfiniteQuery,
   useGetUsersInfiniteLazyQuery,
   useGetUsersLazyQuery,

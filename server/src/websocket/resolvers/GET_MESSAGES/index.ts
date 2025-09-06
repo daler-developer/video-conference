@@ -6,11 +6,7 @@ import { Message } from '@/application/queries/GetMessages/GetMessagesQuery';
 
 const GET_MESSAGES = 'GET_MESSAGES';
 
-type IncomingPayload = {
-  limit: number;
-  search: string;
-  page: number;
-};
+type IncomingPayload = {};
 
 type OutgoingPayload = {
   list: Message[];
@@ -23,10 +19,7 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(GET
   },
   middleware: [],
   async execute({ client, payload, ctx }) {
-    const result = await useCaseManager.run(GetMessagesQueryUseCase, {
-      limit: payload.limit,
-      page: payload.page,
-    });
+    const result = await useCaseManager.run(GetMessagesQueryUseCase, {});
 
     return {
       list: result,
