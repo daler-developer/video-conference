@@ -11,9 +11,7 @@ import {
   MessageRepository,
   type NormalizedMessageEntity,
 } from "./MessageRepository.ts";
-import { Entity } from "./Entity.ts";
 import { Subscribable } from "../Subscribable.ts";
-import type { BaseEntity } from "@/entity/query-cache/entity-manager/Repository.ts";
 
 export type EntityName =
   | typeof UserRepository.entityName

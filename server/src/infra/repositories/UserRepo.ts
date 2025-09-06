@@ -20,12 +20,12 @@ export class UserRepo implements IUserRepo {
       {
         id: 1,
         name: 'Daler',
-        age: getRandom1to10(),
+        age: 11,
       },
       {
         id: 2,
         name: 'Aziz',
-        age: getRandom1to10(),
+        age: 22,
       },
     ];
   }
