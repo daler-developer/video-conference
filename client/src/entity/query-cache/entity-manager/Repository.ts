@@ -2,7 +2,7 @@ import { Entity } from "./Entity.ts";
 import { Subscribable } from "../Subscribable.ts";
 import { type EntityName } from "../entity-manager/EntityManager.ts";
 
-type BaseEntity = {
+export type BaseEntity = {
   id: number;
 };
 

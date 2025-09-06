@@ -1,7 +1,12 @@
 import { schema } from "normalizr";
 import { Repository } from "./Repository";
-import { type UserEntity } from "../../types";
-import { Entity } from "./Entity";
+// import { type UserEntity } from "../../types";
+
+export type UserEntity = {
+  id: number;
+  name: string;
+  age: number;
+};
 
 export type NormalizedUserEntity = UserEntity;
 

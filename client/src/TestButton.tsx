@@ -55,8 +55,8 @@ const TestButton = () => {
           fullName: "asdf",
         },
         handleError(e) {
-          console.log("error");
-          console.log(e);
+          // console.log("error");
+          // console.log(e);
           // if (e.is("SECOND")) {
           //   console.log(e.details);
           // }
@@ -66,7 +66,7 @@ const TestButton = () => {
         },
       });
 
-      console.log("data", data);
+      // console.log("data", data);
     } catch (e) {
       if (e instanceof StartSessionError) {
         const startSessionError = e as InstanceType<typeof StartSessionError>;

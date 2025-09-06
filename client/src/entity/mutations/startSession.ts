@@ -26,4 +26,20 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
     callback: createWebsocketMutationCallback({
       outgoingMessageType: START_SESSION,
     }),
+    update({ entityManager }) {
+      entityManager.updateEntity("users", 1, (old) => {
+        return {
+          ...old,
+          name: "Changed 2",
+        };
+      });
+      // const repo = entityManager.getRepository('messages');
+      //
+      // repo.updateOne({
+      //   id: 1,
+      //   changes: {
+      //     likesCount: 10
+      //   },
+      // });
+    },
   });

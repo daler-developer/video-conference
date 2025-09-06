@@ -7,5 +7,5 @@ export type UserEntity = {
 export type MessageEntity = {
   id: number;
   text: string;
-  likesCount: 20;
+  likesCount: number;
 };

@@ -396,6 +396,8 @@ export class Query<
           : {}),
       });
 
+      // console.log("state", this.#state);
+
       return data;
     } catch (error) {
       if (error instanceof QueryError) {

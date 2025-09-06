@@ -39,21 +39,21 @@ const App = () => {
 
   return (
     <div style={{ margin: "50px" }}>
-      <Button
-        onClick={() => {
-          setCounter((prev) => prev + 1);
-        }}
-      >
-        +
-      </Button>
-      <Button
-        onClick={() => {
-          setCounter((prev) => prev - 1);
-        }}
-      >
-        -
-      </Button>
-      {/*<TestButton />*/}
+      {/*<Button*/}
+      {/*  onClick={() => {*/}
+      {/*    setCounter((prev) => prev + 1);*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  +*/}
+      {/*</Button>*/}
+      {/*<Button*/}
+      {/*  onClick={() => {*/}
+      {/*    setCounter((prev) => prev - 1);*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  -*/}
+      {/*</Button>*/}
+      <TestButton />
       {/*<Button*/}
       {/*  type="button"*/}
       {/*  onClick={() => {*/}
@@ -80,10 +80,10 @@ const App = () => {
       {/*    Unsub*/}
       {/*  </Button>*/}
       {/*</div>*/}
-      {/*{<Subscribe />}*/}
-      {new Array(counter).fill(0).map((_, i) => (
-        <RecordVideo key={i} />
-      ))}
+      {<Subscribe />}
+      {/*{new Array(counter).fill(0).map((_, i) => (*/}
+      {/*  <RecordVideo key={i} />*/}
+      {/*))}*/}
     </div>
   );
 };

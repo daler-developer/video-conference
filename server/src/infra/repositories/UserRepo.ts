@@ -18,12 +18,12 @@ export class UserRepo implements IUserRepo {
   async getMany(): Promise<User[]> {
     return [
       {
-        id: page * 2,
+        id: 1,
         name: 'Daler',
         age: getRandom1to10(),
       },
       {
-        id: page * 2 + 1,
+        id: 2,
         name: 'Aziz',
         age: getRandom1to10(),
       },

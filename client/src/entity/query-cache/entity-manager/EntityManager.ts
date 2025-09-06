@@ -1,11 +1,19 @@
 import { denormalize, normalize, type Schema } from "normalizr";
-import { UserRepository, type NormalizedUserEntity } from "./UserRepository.ts";
 import {
+  UserRepository,
+  type NormalizedUserEntity,
+  UserEntitySchema,
+  type UserEntity,
+} from "./UserRepository.ts";
+import {
+  type MessageEntity,
+  MessageEntitySchema,
   MessageRepository,
   type NormalizedMessageEntity,
 } from "./MessageRepository.ts";
 import { Entity } from "./Entity.ts";
 import { Subscribable } from "../Subscribable.ts";
+import type { BaseEntity } from "@/entity/query-cache/entity-manager/Repository.ts";
 
 export type EntityName =
   | typeof UserRepository.entityName
@@ -19,6 +27,21 @@ type Entities = {
 type EntityManagerNotifyEvent = {
   type: "entity-updated";
 };
+
+const entityNameToSchemaMap = {
+  [UserRepository.entityName]: UserEntitySchema,
+  [MessageRepository.entityName]: MessageEntitySchema,
+};
+
+type EntityNameToEntityMap = {
+  [UserRepository.entityName]: UserEntity;
+  [MessageRepository.entityName]: MessageEntity;
+};
+
+// type Update<TEntity extends BaseEntity> = {
+//   id: number;
+//   changes: Omit<Partial<TEntity>, "id">;
+// };
 
 type Listener = (event: EntityManagerNotifyEvent) => void;
 
@@ -49,7 +72,7 @@ export class EntityManager extends Subscribable<Listener> {
     return res;
   }
 
-  getRepository(entityName: EntityName) {
+  getRepository<TEntityName extends EntityName>(entityName: TEntityName) {
     return this.#repositories[entityName];
   }
 
@@ -90,5 +113,26 @@ export class EntityManager extends Subscribable<Listener> {
     }
 
     return denormalize(normalizedData, schema, res) as TResult;
+  }
+
+  updateEntity<TEntityName extends EntityName>(
+    entityName: TEntityName,
+    entityId: number,
+    updateCallback: (
+      old: EntityNameToEntityMap[TEntityName],
+    ) => EntityNameToEntityMap[TEntityName],
+  ) {
+    const oldEntity = this.denormalizeData(
+      entityId,
+      entityNameToSchemaMap[entityName],
+    ) as EntityNameToEntityMap[TEntityName];
+
+    const updated = updateCallback(oldEntity);
+
+    this.normalizeAndSave(updated, entityNameToSchemaMap[entityName]);
+
+    this.listeners.forEach((listener) => {
+      listener({ type: "entity-updated" });
+    });
   }
 }
