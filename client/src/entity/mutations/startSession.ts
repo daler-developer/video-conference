@@ -1,5 +1,6 @@
 import createMutation from "../utils/createMutation.ts";
 import { createWebsocketMutationCallback } from "../utils/createWebsocketMutationCallback.ts";
+import { getMessagesQuery } from "@/entity/queries/getMessages.ts";
 
 const START_SESSION = "START_SESSION";
 
@@ -27,16 +28,34 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       outgoingMessageType: START_SESSION,
     }),
     update({ entityManager }) {
-      entityManager.updateEntity("messages", 1, (old) => {
-        return {
-          ...old,
-          sender: {
-            id: 1,
-            name: "Aziz changed",
-            age: 222,
-          },
-        };
-      });
+      // getMessagesQuery.updateData({}, (data) => {
+      //   return {
+      //     ...data,
+      //     list: [
+      //       ...data.list,
+      //       {
+      //         id: 3,
+      //         text: "Third message",
+      //         likesCount: 33,
+      //         sender: {
+      //           id: 3,
+      //           name: "Nazir",
+      //           age: 22,
+      //         },
+      //       },
+      //     ],
+      //   };
+      // });
+      // entityManager.updateEntity("messages", 1, (old) => {
+      //   return {
+      //     ...old,
+      //     sender: {
+      //       id: 1,
+      //       name: "Aziz changed",
+      //       age: 222,
+      //     },
+      //   };
+      // });
       // entityManager.updateEntity("users", 1, (old) => {
       //   return {
       //     ...old,

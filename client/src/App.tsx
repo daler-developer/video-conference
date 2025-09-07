@@ -55,9 +55,10 @@ const App = () => {
       {/*>*/}
       {/*  -*/}
       {/*</Button>*/}
+      <Button onClick={() => setShow((prev) => !prev)}>Show/Hide</Button>
       <TestButton />
-      <MessagesList />
-      <UsersList />
+      {show && <MessagesList />}
+      {/*<UsersList />*/}
       {/*<Button*/}
       {/*  type="button"*/}
       {/*  onClick={() => {*/}

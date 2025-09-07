@@ -20,6 +20,8 @@ export abstract class Repository<TEntity extends BaseEntity> {
   #byId: Map<number, TEntity> = new Map();
   #allIds = new Set<number>();
 
+  abstract getId(normalizedEntity: TEntity): string | number;
+
   getOne(id: number): TEntity | null {
     return this.#byId.get(id) || null;
   }
@@ -29,11 +31,12 @@ export abstract class Repository<TEntity extends BaseEntity> {
   }
 
   addOne(data: TEntity): void {
-    const exists = this.#allIds.has(data.id);
+    const id = this.getId(data);
+    const exists = this.#allIds.has(id);
 
     if (!exists) {
-      this.#byId.set(data.id, data);
-      this.#allIds.add(data.id);
+      this.#byId.set(id, data);
+      this.#allIds.add(id);
     }
   }
 
@@ -44,8 +47,9 @@ export abstract class Repository<TEntity extends BaseEntity> {
   }
 
   setOne(data: TEntity): void {
-    this.#byId.set(data.id, data);
-    this.#allIds.add(data.id);
+    const id = this.getId(data);
+    this.#byId.set(id, data);
+    this.#allIds.add(id);
   }
 
   setMany(entities: TEntity[]): void {
@@ -77,7 +81,10 @@ export abstract class Repository<TEntity extends BaseEntity> {
       // this.listeners.forEach((listener) => {
       //   listener({ type: "entity-updated" });
       // });
-      queryCacheEventBus.emit("ENTITY_UPDATED");
+      queryCacheEventBus.emit("ENTITY_UPDATED", {
+        entityId: "user",
+        entityType: entity.id,
+      });
     }
   }
 
@@ -88,14 +95,18 @@ export abstract class Repository<TEntity extends BaseEntity> {
   }
 
   upsertOne(entity: TEntity): void {
-    const existingEntity = this.#byId.get(entity.id);
+    const id = this.getId(entity);
+    const existingEntity = this.#byId.get(id);
 
     if (existingEntity) {
       this.#byId.set(entity.id, {
         ...existingEntity,
         ...entity,
       });
-      queryCacheEventBus.emit("ENTITY_UPDATED");
+      queryCacheEventBus.emit("ENTITY_UPDATED", {
+        entityId: "user",
+        entityType: id,
+      });
     } else {
       this.addOne(entity);
     }

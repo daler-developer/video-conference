@@ -16,11 +16,11 @@ type QueryData = {
 
 type QueryErrorMap = {};
 
-export const {
-  useQuery: useGetMessagesQuery,
-  useLazyQuery: useGetMessagesLazyQuery,
-  Error: GetMessagesQueryError,
-} = createQuery<QueryParams, QueryData, QueryErrorMap>({
+export const getMessagesQuery = createQuery<
+  QueryParams,
+  QueryData,
+  QueryErrorMap
+>({
   name: GET_MESSAGES,
   callback: createWebsocketQueryCallback({
     outgoingMessageType: GET_MESSAGES,
@@ -32,3 +32,9 @@ export const {
     list: [MessageEntitySchema],
   },
 });
+
+export const {
+  useQuery: useGetMessagesQuery,
+  useLazyQuery: useGetMessagesLazyQuery,
+  Error: GetMessagesQueryError,
+} = getMessagesQuery;

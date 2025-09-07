@@ -23,4 +23,8 @@ export const MessageEntitySchema = new schema.Entity(ENTITY_NAME, {
 
 export class MessageRepository extends Repository<NormalizedMessageEntity> {
   static entityName = ENTITY_NAME;
+
+  getId(entity: NormalizedMessageEntity) {
+    return entity.id;
+  }
 }

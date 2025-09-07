@@ -16,4 +16,8 @@ export const UserEntitySchema = new schema.Entity(ENTITY_NAME);
 
 export class UserRepository extends Repository<NormalizedUserEntity> {
   static entityName = ENTITY_NAME;
+
+  getId(entity: NormalizedUserEntity) {
+    return entity.id;
+  }
 }

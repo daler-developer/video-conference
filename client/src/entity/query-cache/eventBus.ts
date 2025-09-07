@@ -1,7 +1,10 @@
 import mitt from "mitt";
 
 type Events = {
-  ENTITY_UPDATED: void;
+  ENTITY_UPDATED: {
+    entityType: string;
+    entityId: string;
+  };
 };
 
 export type QueryCacheEventBusCallback<K extends keyof Events> = (
@@ -10,6 +13,6 @@ export type QueryCacheEventBusCallback<K extends keyof Events> = (
 
 export const queryCacheEventBus = mitt<Events>();
 
-// queryCacheEventBus.on("ENTITY_UPDATED", () => {
-//   console.log("test");
-// });
+queryCacheEventBus.on("ENTITY_UPDATED", (arg) => {
+  console.log("ENTITY_UPDATED", arg);
+});

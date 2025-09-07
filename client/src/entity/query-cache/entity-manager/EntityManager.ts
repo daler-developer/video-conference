@@ -12,6 +12,7 @@ import {
   type NormalizedMessageEntity,
 } from "./MessageRepository.ts";
 import { Subscribable } from "../Subscribable.ts";
+import { queryCacheEventBus } from "@/entity/query-cache/eventBus.ts";
 
 export type EntityName =
   | typeof UserRepository.entityName
@@ -131,7 +132,6 @@ export class EntityManager {
     const updated = updateCallback(oldEntity);
 
     this.normalizeAndSave(updated, entityNameToSchemaMap[entityName]);
-
     // this.listeners.forEach((listener) => {
     //   listener({ type: "entity-updated" });
     // });
