@@ -31,7 +31,7 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
         return {
           ...old,
           sender: {
-            id: 3,
+            id: 1,
             name: "Aziz changed",
             age: 222,
           },

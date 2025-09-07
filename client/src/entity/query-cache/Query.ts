@@ -2,6 +2,10 @@ import { type Schema } from "normalizr";
 import { Subscribable } from "./Subscribable.ts";
 import { QueryCache } from "./QueryCache.ts";
 import { type BaseQueryErrorMap, QueryError } from "@/entity/QueryError.ts";
+import {
+  queryCacheEventBus,
+  type QueryCacheEventBusCallback,
+} from "@/entity/query-cache/eventBus.ts";
 
 export type QueryStatus = "pending" | "success" | "error";
 
@@ -118,6 +122,7 @@ export class Query<
   #observersCount: number;
   #fetchPromise: Promise<TQueryData> | null;
   #pageParams: TQueryPageParam[];
+  #unsubscribeEntityUpdatedFn: () => void = null!;
 
   constructor(
     queryCache: QueryCache,
@@ -159,14 +164,30 @@ export class Query<
     this.subscribeToEntitiesUpdate();
   }
 
+  onDestroy() {
+    this.#unsubscribeEntityUpdatedFn();
+  }
+
   private subscribeToEntitiesUpdate() {
-    this.#queryCache.getEntityManager().subscribe((event) => {
-      if (event.type === "entity-updated") {
-        this.listeners.forEach((listener) => {
-          listener({ type: "state-updated" });
-        });
-      }
-    });
+    const handler: QueryCacheEventBusCallback<"ENTITY_UPDATED"> = () => {
+      this.listeners.forEach((listener) => {
+        listener({ type: "state-updated" });
+      });
+    };
+
+    queryCacheEventBus.on("ENTITY_UPDATED", handler);
+
+    this.#unsubscribeEntityUpdatedFn = () => {
+      queryCacheEventBus.off("ENTITY_UPDATED", handler);
+    };
+
+    // this.#queryCache.getEntityManager().subscribe((event) => {
+    //   if (event.type === "entity-updated") {
+    //     this.listeners.forEach((listener) => {
+    //       listener({ type: "state-updated" });
+    //     });
+    //   }
+    // });
   }
 
   private getInitialState(): QueryState<TQueryErrorMap> {

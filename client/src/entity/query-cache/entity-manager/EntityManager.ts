@@ -41,38 +41,38 @@ type EntityNameToEntityMap = {
 //   changes: Omit<Partial<TEntity>, "id">;
 // };
 
-type Listener = (event: EntityManagerNotifyEvent) => void;
+// type Listener = (event: EntityManagerNotifyEvent) => void;
 
-export class EntityManager extends Subscribable<Listener> {
+export class EntityManager {
   #repositories = {
     [UserRepository.entityName]: new UserRepository(),
     [MessageRepository.entityName]: new MessageRepository(),
   };
 
   constructor() {
-    super();
-    Object.values(this.#repositories).forEach((repository) => {
-      repository.subscribe((event) => {
-        if (event.type === "entity-updated") {
-          this.listeners.forEach((listener) => {
-            listener({ type: "entity-updated" });
-          });
-        }
-      });
-    });
+    // Object.values(this.#repositories).forEach((repository) => {
+    //   repository.subscribe((event) => {
+    //     if (event.type === "entity-updated") {
+    //       this.listeners.forEach((listener) => {
+    //         listener({ type: "entity-updated" });
+    //       });
+    //     }
+    //   });
+    // });
   }
 
   private getAllEntities() {
-    const res: Entities = {} as any;
-    for (const [entityName, repository] of Object.entries(this.#repositories)) {
+    const res: Entities = {} as Entities;
+    for (const entityName of Object.keys(this.#repositories) as EntityName[]) {
+      const repository = this.#repositories[entityName];
       res[entityName] = repository.getAllById();
     }
     return res;
   }
 
-  getRepository<TEntityName extends EntityName>(entityName: TEntityName) {
-    return this.#repositories[entityName];
-  }
+  // getRepository<TEntityName extends EntityName>(entityName: TEntityName) {
+  //   return this.#repositories[entityName];
+  // }
 
   normalizeAndSave<TResult, TData, TSchema extends Schema>(
     data: TData,
@@ -88,7 +88,7 @@ export class EntityManager extends Subscribable<Listener> {
     for (const entityName of Object.keys(entities) as EntityName[]) {
       const allEntities = Object.values(entities[entityName]);
       for (const entity of allEntities) {
-        this.getRepository(entityName).upsertOne(entity);
+        this.#repositories[entityName].upsertOne(entity);
         // allEntities.push(entity_);
       }
     }
@@ -103,7 +103,10 @@ export class EntityManager extends Subscribable<Listener> {
     const allEntities = this.getAllEntities();
 
     const res: Entities = {} as Entities;
-    for (const [entityName, map] of Object.entries(allEntities)) {
+
+    for (const entityName of Object.keys(allEntities) as EntityName[]) {
+      const map = allEntities[entityName];
+
       res[entityName] = [...map.values()].reduce((accum, entity) => {
         accum[entity.id] = entity;
         return accum;
@@ -129,8 +132,8 @@ export class EntityManager extends Subscribable<Listener> {
 
     this.normalizeAndSave(updated, entityNameToSchemaMap[entityName]);
 
-    this.listeners.forEach((listener) => {
-      listener({ type: "entity-updated" });
-    });
+    // this.listeners.forEach((listener) => {
+    //   listener({ type: "entity-updated" });
+    // });
   }
 }

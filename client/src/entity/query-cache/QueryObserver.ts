@@ -133,6 +133,7 @@ export class QueryObserver<
     this.#query.observersCount--;
 
     if (this.#query.observersCount === 0) {
+      this.#query.onDestroy();
       queryCache.getQueryRepository().delete({
         name: this.#query.options.name,
         params: this.#query.options.params,

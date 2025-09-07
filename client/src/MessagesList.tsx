@@ -6,6 +6,8 @@ import { Button } from "@mantine/core";
 const MessagesList = () => {
   const forceRender = useForceRender();
 
+  console.log("render");
+
   // useEffect(() => {
   //   setInterval(() => {
   //     forceRender();

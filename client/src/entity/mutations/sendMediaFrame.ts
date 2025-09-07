@@ -30,13 +30,12 @@ export const {
   }),
   update({ entityManager }) {
     // console.log("test");
-    entityManager.getRepository("users").updateOne({
-      id: 1,
-      changes: {
-        name: "Changed",
-      },
-    });
-
+    // entityManager.getRepository("users").updateOne({
+    //   id: 1,
+    //   changes: {
+    //     name: "Changed",
+    //   },
+    // });
     // "users", {
     //   id: 1,
     //   changes: {
