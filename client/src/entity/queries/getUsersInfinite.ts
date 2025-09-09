@@ -8,23 +8,23 @@ import { type UserEntity } from "../types";
 import { createWebsocketQueryCallback } from "../utils/createWebsocketQueryCallback.ts";
 
 const GET_USERS = "GET_USERS";
-const GET_USERS_RESULT = "GET_USERS_RESULT";
+// const GET_USERS_RESULT = "GET_USERS_RESULT";
 
-type OutgoingMessage = BaseOutgoingMessage<
-  typeof GET_USERS,
-  {
-    limit: number;
-    search: string;
-    page: number;
-  }
->;
-
-type IncomingMessage = BaseIncomingMessage<
-  typeof GET_USERS_RESULT,
-  {
-    list: UserEntity[];
-  }
->;
+// type OutgoingMessage = BaseOutgoingMessage<
+//   typeof GET_USERS,
+//   {
+//     limit: number;
+//     search: string;
+//     page: number;
+//   }
+// >;
+//
+// type IncomingMessage = BaseIncomingMessage<
+//   typeof GET_USERS_RESULT,
+//   {
+//     list: UserEntity[];
+//   }
+// >;
 
 type QueryParams = {
   limit: number;

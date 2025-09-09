@@ -1,10 +1,8 @@
-import { Repository } from "./Repository";
+import { Repository } from "@/entity/query-cache/entity-manager/Repository.ts";
 import { schema } from "normalizr";
-import {
-  type UserEntity,
-  UserEntitySchema,
-} from "@/entity/query-cache/entity-manager/UserRepository.ts";
-// import { type MessageEntity } from "../../types";
+import { type UserEntity, UserEntitySchema } from "./user.ts";
+
+export const ENTITY_NAME = "message";
 
 export type MessageEntity = {
   id: number;
@@ -15,11 +13,13 @@ export type MessageEntity = {
 
 export type NormalizedMessageEntity = MessageEntity;
 
-const ENTITY_NAME = "message" as const;
-
 export const MessageEntitySchema = new schema.Entity(ENTITY_NAME, {
   sender: UserEntitySchema,
 });
+
+export const identify = (entity: MessageEntity) => {
+  return entity.id;
+};
 
 export class MessageRepository extends Repository<NormalizedMessageEntity> {
   static entityName = ENTITY_NAME;

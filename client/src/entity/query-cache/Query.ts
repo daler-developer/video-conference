@@ -6,6 +6,16 @@ import {
   queryCacheEventBus,
   type QueryCacheEventBusCallback,
 } from "@/entity/query-cache/eventBus.ts";
+import type {
+  NormalizedUserEntity,
+  UserEntity,
+} from "@/entity/query-cache/entity-manager/UserRepository.ts";
+import type {
+  MessageEntity,
+  NormalizedMessageEntity,
+} from "@/entity/query-cache/entity-manager/MessageRepository.ts";
+import { isArray, isRealObject } from "@/entity/query-cache/utils.ts";
+import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/Repository.ts";
 
 export type QueryStatus = "pending" | "success" | "error";
 
@@ -102,6 +112,8 @@ type QueryNotifyEvent = QueryNotifyEventStateUpdated;
 
 type Listener = (event: QueryNotifyEvent) => void;
 
+type Entities = Array<UserEntity | MessageEntity>;
+
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 export class Query<
@@ -169,10 +181,15 @@ export class Query<
   }
 
   private subscribeToEntitiesUpdate() {
-    const handler: QueryCacheEventBusCallback<"ENTITY_UPDATED"> = () => {
-      this.listeners.forEach((listener) => {
-        listener({ type: "state-updated" });
-      });
+    const handler: QueryCacheEventBusCallback<"ENTITY_UPDATED"> = ({
+      entityType,
+      entityId,
+    }) => {
+      if (this.containsEntity(entityType, entityId)) {
+        this.listeners.forEach((listener) => {
+          listener({ type: "state-updated" });
+        });
+      }
     };
 
     queryCacheEventBus.on("ENTITY_UPDATED", handler);
@@ -188,6 +205,45 @@ export class Query<
     //     });
     //   }
     // });
+  }
+
+  private containsEntity(entityType: string, entityId: string) {
+    const helper = (v: unknown) => {
+      if (isRealObject(v)) {
+        const isEntity = entityTypeSymbol in v;
+
+        if (
+          isEntity &&
+          v[entityTypeSymbol] === entityType &&
+          v.id === entityId
+        ) {
+          return true;
+        }
+
+        const values = Object.values(v);
+
+        for (const value of values) {
+          if (helper(value)) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+      if (isArray(v)) {
+        for (let i = 0; i < v.length; i++) {
+          if (helper(v[i])) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      return false;
+    };
+
+    return helper(this.data);
   }
 
   private getInitialState(): QueryState<TQueryErrorMap> {
@@ -394,7 +450,7 @@ export class Query<
 
       const data = await fetchPromise;
 
-      const { normalizedData } = this.#queryCache
+      const { normalizedData, allEntities } = this.#queryCache
         .getEntityManager()
         .normalizeAndSave(data, this.#options.schema);
 
@@ -403,6 +459,8 @@ export class Query<
       // for (const entity of this.#allEntities) {
       //   entity.subscribe(() => {});
       // }
+
+      // this.#allEntities = allEntities;
 
       const onFetchSuccessResult = options.onFetchSuccess?.();
 

@@ -46,9 +46,33 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       //     ],
       //   };
       // });
-      // entityManager.updateEntity("messages", 1, (old) => {
+
+      const message1 = entityManager.getEntity("message", 1);
+      const message2 = entityManager.getEntity("message", 2);
+
+      entityManager.updateEntity(
+        "message",
+        entityManager.identifyEntity(message2),
+        (message) => {
+          return {
+            ...message,
+            likesCount: message.likesCount + 1,
+            sender: {
+              ...message.sender,
+              name: "aziz changed",
+              age: message.sender.age + 1,
+            },
+          };
+        },
+      );
+
+      // console.log("message1", entityManager.identifyEntity(message1));
+      // console.log("message2", entityManager.identifyEntity(message2));
+
+      // entityManager.updateEntity("message", 1, (old) => {
       //   return {
       //     ...old,
+      //     likesCount: 100,
       //     sender: {
       //       id: 1,
       //       name: "Aziz changed",
@@ -56,7 +80,7 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       //     },
       //   };
       // });
-      // entityManager.updateEntity("users", 1, (old) => {
+      // entityManager.updateEntity("user", 1, (old) => {
       //   return {
       //     ...old,
       //     name: "Daler changed",

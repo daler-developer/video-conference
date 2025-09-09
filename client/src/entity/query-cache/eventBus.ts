@@ -14,5 +14,5 @@ export type QueryCacheEventBusCallback<K extends keyof Events> = (
 export const queryCacheEventBus = mitt<Events>();
 
 queryCacheEventBus.on("ENTITY_UPDATED", (arg) => {
-  console.log("ENTITY_UPDATED", arg);
+  // console.log("ENTITY_UPDATED", arg);
 });

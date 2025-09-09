@@ -1,13 +1,11 @@
 // import { Subscribable } from "../Subscribable.ts";
 import { queryCacheEventBus } from "@/entity/query-cache/eventBus.ts";
 
-export type BaseEntity = {
-  id: number;
-};
+export type BaseEntity = {};
 
-type Update<TEntity extends BaseEntity> = {
+type Update<TNormalizedEntity extends BaseEntity> = {
   id: number;
-  changes: Omit<Partial<TEntity>, "id">;
+  changes: Omit<Partial<TNormalizedEntity>, "id">;
 };
 
 // type RepositoryNotifyEvent = {
@@ -16,13 +14,20 @@ type Update<TEntity extends BaseEntity> = {
 
 // type Listener = (event: RepositoryNotifyEvent) => void;
 
-export abstract class Repository<TEntity extends BaseEntity> {
-  #byId: Map<number, TEntity> = new Map();
+export const entityTypeSymbol = Symbol("entityType");
+
+export abstract class Repository<TNormalizedEntity extends BaseEntity> {
+  #byId: Map<number, TNormalizedEntity> = new Map();
   #allIds = new Set<number>();
+  #entityType: string;
 
-  abstract getId(normalizedEntity: TEntity): string | number;
+  constructor(entityType: string) {
+    this.#entityType = entityType;
+  }
 
-  getOne(id: number): TEntity | null {
+  abstract getId(normalizedEntity: TNormalizedEntity): string | number;
+
+  getOne(id: number): TNormalizedEntity | null {
     return this.#byId.get(id) || null;
   }
 
@@ -30,31 +35,34 @@ export abstract class Repository<TEntity extends BaseEntity> {
     return this.#byId;
   }
 
-  addOne(data: TEntity): void {
-    const id = this.getId(data);
+  addOne(normalizedEntity: TNormalizedEntity): void {
+    const id = this.getId(normalizedEntity);
     const exists = this.#allIds.has(id);
 
     if (!exists) {
-      this.#byId.set(id, data);
+      this.#byId.set(id, {
+        ...normalizedEntity,
+        [entityTypeSymbol]: this.#entityType,
+      });
       this.#allIds.add(id);
     }
   }
 
-  addMany(entities: TEntity[]) {
-    for (const entity of entities) {
-      this.addOne(entity);
+  addMany(normalizedEntities: TNormalizedEntity[]) {
+    for (const normalizedEntity of normalizedEntities) {
+      this.addOne(normalizedEntity);
     }
   }
 
-  setOne(data: TEntity): void {
-    const id = this.getId(data);
-    this.#byId.set(id, data);
+  setOne(normalizedEntity: TNormalizedEntity): void {
+    const id = this.getId(normalizedEntity);
+    this.#byId.set(id, normalizedEntity);
     this.#allIds.add(id);
   }
 
-  setMany(entities: TEntity[]): void {
-    for (const entity of entities) {
-      this.setOne(entity);
+  setMany(normalizedEntities: TNormalizedEntity[]): void {
+    for (const normalizedEntity of normalizedEntities) {
+      this.setOne(normalizedEntity);
     }
   }
 
@@ -69,12 +77,12 @@ export abstract class Repository<TEntity extends BaseEntity> {
     }
   }
 
-  updateOne({ id, changes }: Update<TEntity>): void {
-    const entity = this.#byId.get(id);
+  updateOne({ id, changes }: Update<TNormalizedEntity>): void {
+    const normalizedEntity = this.#byId.get(id);
 
-    if (entity) {
+    if (normalizedEntity) {
       this.#byId.set(id, {
-        ...entity,
+        ...normalizedEntity,
         ...changes,
       });
 
@@ -82,39 +90,39 @@ export abstract class Repository<TEntity extends BaseEntity> {
       //   listener({ type: "entity-updated" });
       // });
       queryCacheEventBus.emit("ENTITY_UPDATED", {
-        entityId: "user",
-        entityType: entity.id,
+        entityId: this.getId(normalizedEntity),
+        entityType: this.#entityType,
       });
     }
   }
 
-  updateMany(updates: Update<TEntity>[]) {
+  updateMany(updates: Update<TNormalizedEntity>[]) {
     for (const update of updates) {
       this.updateOne(update);
     }
   }
 
-  upsertOne(entity: TEntity): void {
-    const id = this.getId(entity);
-    const existingEntity = this.#byId.get(id);
+  upsertOne(normalizedEntity: TNormalizedEntity): void {
+    const id = this.getId(normalizedEntity);
+    const existingNormalizedEntity = this.#byId.get(id);
 
-    if (existingEntity) {
-      this.#byId.set(entity.id, {
-        ...existingEntity,
-        ...entity,
+    if (existingNormalizedEntity) {
+      this.#byId.set(id, {
+        ...existingNormalizedEntity,
+        ...normalizedEntity,
       });
       queryCacheEventBus.emit("ENTITY_UPDATED", {
-        entityId: "user",
-        entityType: id,
+        entityId: id,
+        entityType: this.#entityType,
       });
     } else {
-      this.addOne(entity);
+      this.addOne(normalizedEntity);
     }
   }
 
-  upsertMany(entities: TEntity[]): void {
-    for (const entity of entities) {
-      this.upsertOne(entity);
+  upsertMany(normalizedEntities: TNormalizedEntity[]): void {
+    for (const normalizedEntity of normalizedEntities) {
+      this.upsertOne(normalizedEntity);
     }
   }
 }

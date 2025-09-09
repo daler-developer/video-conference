@@ -14,6 +14,7 @@ import { useForceRender } from "@/shared/hooks";
 import TestButton from "@/TestButton.tsx";
 import MessagesList from "@/MessagesList.tsx";
 import UsersList from "@/UsersList.tsx";
+import { queryCache } from "@/entity/query-cache/QueryCache.ts";
 
 let counter = 3;
 
@@ -55,6 +56,13 @@ const App = () => {
       {/*>*/}
       {/*  -*/}
       {/*</Button>*/}
+      <Button
+        onClick={() => {
+          queryCache.getEntityManager().printAll();
+        }}
+      >
+        Show entities
+      </Button>
       <Button onClick={() => setShow((prev) => !prev)}>Show/Hide</Button>
       <TestButton />
       {show && <MessagesList />}

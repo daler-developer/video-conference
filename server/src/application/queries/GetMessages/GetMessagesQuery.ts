@@ -43,7 +43,7 @@ export class GetMessagesQueryUseCase extends UseCase<Request, Result> {
         sender: {
           id: 2,
           name: 'Aziz',
-          age: 22,
+          age: 23,
         },
       },
     ];
