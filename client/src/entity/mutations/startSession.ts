@@ -47,7 +47,7 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       //   };
       // });
 
-      const message1 = entityManager.getEntity("message", 1);
+      const message1 = entityManager.getEntity("message", 2);
       // const message2 = entityManager.getEntity("message", 2);
 
       // console.log("message1", message1);
@@ -62,6 +62,7 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       //       likesCount: message.likesCount + 1,
       //       sender: {
       //         ...message.sender,
+      //         name: "Daler changed",
       //         age: message.sender.age + 2,
       //       },
       //     };

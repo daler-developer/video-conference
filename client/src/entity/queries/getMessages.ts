@@ -1,10 +1,9 @@
 import { createQuery } from "../utils/createQuery";
-import { UserEntitySchema } from "../query-cache/entity-manager/UserRepository";
 import { createWebsocketQueryCallback } from "../utils/createWebsocketQueryCallback.ts";
 import {
-  type MessageEntity,
-  MessageEntitySchema,
-} from "@/entity/query-cache/entity-manager/entities/_message.ts";
+  type Entity as MessageEntity,
+  EntitySchema as MessageEntitySchema,
+} from "@/entity/query-cache/entity-manager/entities/message.ts";
 
 const GET_MESSAGES = "GET_MESSAGES";
 

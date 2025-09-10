@@ -18,25 +18,40 @@ import { denormalize, normalize, type Schema } from "normalizr";
 import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/Repository.ts";
 
 import {
-  type UserEntity,
-  type NormalizedUserEntity,
-  userEntity,
-  USER_ENTITY_TYPE,
-} from "./entities/_user.ts";
+  type Entity as UserEntity,
+  type NormalizedEntity as NormalizedUserEntity,
+  ENTITY_TYPE as USER_ENTITY_TYPE,
+  UserRepository,
+  identify as identifyUser,
+  EntitySchema as UserEntitySchema,
+} from "./entities/user.ts";
 
 import {
-  type MessageEntity,
-  type NormalizedMessageEntity,
-  messageEntity,
-  MESSAGE_ENTITY_TYPE,
-} from "./entities/_message.ts";
+  type Entity as MessageEntity,
+  type NormalizedEntity as NormalizedMessageEntity,
+  ENTITY_TYPE as MESSAGE_ENTITY_TYPE,
+  MessageRepository,
+  identify as identifyMessage,
+  EntitySchema as MessageEntitySchema,
+} from "./entities/message.ts";
+
+// import {
+//   // type UserEntity,
+//   // type NormalizedUserEntity,
+//   userEntity,
+//   // USER_ENTITY_TYPE,
+// } from "./entities/_user.ts";
+//
+// import {
+//   // type MessageEntity,
+//   // type NormalizedMessageEntity,
+//   messageEntity,
+//   // MESSAGE_ENTITY_TYPE,
+// } from "./entities/_message.ts";
 
 export type EntityType = typeof USER_ENTITY_TYPE | typeof MESSAGE_ENTITY_TYPE;
 
-const entities = {
-  [userEntity.type]: userEntity,
-  [messageEntity.type]: messageEntity,
-};
+type Entity = UserEntity | MessageEntity;
 
 type AllEntities = {
   [USER_ENTITY_TYPE]: Map<number, NormalizedUserEntity>;
@@ -44,11 +59,19 @@ type AllEntities = {
 };
 
 type EntityTypeToEntityMap = {
-  [userEntity.type]: UserEntity;
-  [messageEntity.type]: MessageEntity;
+  [USER_ENTITY_TYPE]: UserEntity;
+  [MESSAGE_ENTITY_TYPE]: MessageEntity;
 };
 
-type Entity = UserEntity | MessageEntity;
+const entityTypeToIdentifyMap = {
+  [USER_ENTITY_TYPE]: identifyUser,
+  [MESSAGE_ENTITY_TYPE]: identifyMessage,
+};
+
+const entityTypeToSchemaMap = {
+  [USER_ENTITY_TYPE]: UserEntitySchema,
+  [MESSAGE_ENTITY_TYPE]: MessageEntitySchema,
+};
 
 // export type EntityName = typeof USER_ENTITY_NAME | typeof MESSAGE_ENTITY_NAME;
 
@@ -75,8 +98,8 @@ type Entity = UserEntity | MessageEntity;
 
 export class EntityManager {
   #repositories = {
-    [entities.user.type]: new entities.user.Repository(),
-    [entities.message.type]: new entities.message.Repository(),
+    [USER_ENTITY_TYPE]: new UserRepository(),
+    [MESSAGE_ENTITY_TYPE]: new MessageRepository(),
   };
 
   constructor() {
@@ -94,7 +117,7 @@ export class EntityManager {
   identifyEntity(entity: Entity) {
     const entityType = entity[entityTypeSymbol] as EntityType;
 
-    return entities[entityType].identify(entity);
+    return entityTypeToIdentifyMap[entityType](entity);
   }
 
   private getAllEntities() {
@@ -153,7 +176,7 @@ export class EntityManager {
 
     return this.denormalizeData<EntityTypeToEntityMap[TEntityType]>(
       normalizedEntity,
-      entities[entityType].schema,
+      entityTypeToSchemaMap[entityType],
     );
   }
 
@@ -166,12 +189,12 @@ export class EntityManager {
   ) {
     const oldEntity = this.denormalizeData(
       entityId,
-      entities[entityType].schema,
+      entityTypeToSchemaMap[entityType],
     ) as EntityTypeToEntityMap[TEntityName];
 
     const updated = updateCallback(oldEntity);
 
-    this.normalizeAndSave(updated, entities[entityType].schema);
+    this.normalizeAndSave(updated, entityTypeToSchemaMap[entityType]);
   }
 
   printAll() {

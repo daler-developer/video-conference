@@ -16,7 +16,7 @@ export type Entity = {
 
 export type NormalizedEntity = Entity;
 
-export const MessageEntitySchema = new schema.Entity(ENTITY_TYPE, {
+export const EntitySchema = new schema.Entity(ENTITY_TYPE, {
   sender: UserEntitySchema,
 });
 

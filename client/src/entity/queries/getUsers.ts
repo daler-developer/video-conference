@@ -4,7 +4,7 @@ import {
   type BaseIncomingMessage,
   type BaseOutgoingMessage,
 } from "@/websocket";
-import { UserEntitySchema } from "../query-cache/entity-manager/UserRepository";
+import { EntitySchema as UserEntitySchema } from "../query-cache/entity-manager/entities/user.ts";
 import { type UserEntity } from "../types";
 import { createWebsocketQueryCallback } from "../utils/createWebsocketQueryCallback.ts";
 import { QueryError } from "../QueryError.ts";
