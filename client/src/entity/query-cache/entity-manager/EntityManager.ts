@@ -1,49 +1,70 @@
 import { denormalize, normalize, type Schema } from "normalizr";
-import {
-  UserRepository,
-  ENTITY_NAME as USER_ENTITY_NAME,
-  UserEntitySchema,
-  identify as identifyUserEntity,
-  type NormalizedUserEntity,
-  type UserEntity,
-} from "./entities/user.ts";
-import {
-  MessageRepository,
-  ENTITY_NAME as MESSAGE_ENTITY_NAME,
-  MessageEntitySchema,
-  identify as identifyMessageEntity,
-  type NormalizedMessageEntity,
-  type MessageEntity,
-} from "./entities/message.ts";
+// import {
+//   UserRepository,
+//   // ENTITY_NAME as USER_ENTITY_NAME,
+//   UserEntitySchema,
+//   identify as identifyUserEntity,
+//   // type NormalizedUserEntity,
+//   // type UserEntity,
+// } from "./entities/user.ts";
+// import {
+//   MessageRepository,
+//   // ENTITY_NAME as MESSAGE_ENTITY_NAME,
+//   MessageEntitySchema,
+//   identify as identifyMessageEntity,
+//   // type NormalizedMessageEntity,
+//   // type MessageEntity,
+// } from "./entities/message.ts";
 import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/Repository.ts";
 
-export type EntityName = typeof USER_ENTITY_NAME | typeof MESSAGE_ENTITY_NAME;
+import {
+  type UserEntity,
+  type NormalizedUserEntity,
+  userEntity,
+  USER_ENTITY_TYPE,
+} from "./entities/_user.ts";
 
-type Entities = {
-  [USER_ENTITY_NAME]: Map<number, NormalizedUserEntity>;
-  [MESSAGE_ENTITY_NAME]: Map<number, NormalizedMessageEntity>;
+import {
+  type MessageEntity,
+  type NormalizedMessageEntity,
+  messageEntity,
+  MESSAGE_ENTITY_TYPE,
+} from "./entities/_message.ts";
+
+export type EntityType = typeof USER_ENTITY_TYPE | typeof MESSAGE_ENTITY_TYPE;
+
+const entities = {
+  [userEntity.type]: userEntity,
+  [messageEntity.type]: messageEntity,
 };
+
+type AllEntities = {
+  [USER_ENTITY_TYPE]: Map<number, NormalizedUserEntity>;
+  [MESSAGE_ENTITY_TYPE]: Map<number, NormalizedMessageEntity>;
+};
+
+type EntityTypeToEntityMap = {
+  [userEntity.type]: UserEntity;
+  [messageEntity.type]: MessageEntity;
+};
+
+type Entity = UserEntity | MessageEntity;
+
+// export type EntityName = typeof USER_ENTITY_NAME | typeof MESSAGE_ENTITY_NAME;
 
 // type EntityManagerNotifyEvent = {
 //   type: "entity-updated";
 // };
 
-const entityNameToSchemaMap = {
-  [USER_ENTITY_NAME]: UserEntitySchema,
-  [MESSAGE_ENTITY_NAME]: MessageEntitySchema,
-};
-
-const entityTypeToIdentifierMap = {
-  [USER_ENTITY_NAME]: identifyUserEntity,
-  [MESSAGE_ENTITY_NAME]: identifyMessageEntity,
-};
-
-type EntityNameToEntityMap = {
-  [USER_ENTITY_NAME]: UserEntity;
-  [MESSAGE_ENTITY_NAME]: MessageEntity;
-};
-
-type Entity = UserEntity | MessageEntity;
+// const entityNameToSchemaMap = {
+//   [USER_ENTITY_NAME]: UserEntitySchema,
+//   [MESSAGE_ENTITY_NAME]: MessageEntitySchema,
+// };
+//
+// const entityTypeToIdentifierMap = {
+//   [USER_ENTITY_NAME]: identifyUserEntity,
+//   [MESSAGE_ENTITY_NAME]: identifyMessageEntity,
+// };
 
 // type Update<TEntity extends BaseEntity> = {
 //   id: number;
@@ -54,8 +75,8 @@ type Entity = UserEntity | MessageEntity;
 
 export class EntityManager {
   #repositories = {
-    [USER_ENTITY_NAME]: new UserRepository(),
-    [MESSAGE_ENTITY_NAME]: new MessageRepository(),
+    [entities.user.type]: new entities.user.Repository(),
+    [entities.message.type]: new entities.message.Repository(),
   };
 
   constructor() {
@@ -71,14 +92,14 @@ export class EntityManager {
   }
 
   identifyEntity(entity: Entity) {
-    const entityType = entity[entityTypeSymbol];
+    const entityType = entity[entityTypeSymbol] as EntityType;
 
-    return entityTypeToIdentifierMap[entityType](entity);
+    return entities[entityType].identify(entity);
   }
 
   private getAllEntities() {
-    const res: Entities = {} as Entities;
-    for (const entityName of Object.keys(this.#repositories) as EntityName[]) {
+    const res: AllEntities = {} as AllEntities;
+    for (const entityName of Object.keys(this.#repositories) as EntityType[]) {
       const repository = this.#repositories[entityName];
       res[entityName] = repository.getAllById();
     }
@@ -89,12 +110,12 @@ export class EntityManager {
     data: TData,
     schema: TSchema,
   ) {
-    const { result, entities } = normalize<any, Entities, TResult>(
+    const { result, entities } = normalize<any, AllEntities, TResult>(
       data,
       schema,
     );
 
-    for (const entityName of Object.keys(entities) as EntityName[]) {
+    for (const entityName of Object.keys(entities) as EntityType[]) {
       const allEntities = Object.values(entities[entityName]);
       for (const entity of allEntities) {
         this.#repositories[entityName].upsertOne(entity);
@@ -110,9 +131,9 @@ export class EntityManager {
   denormalizeData<TResult>(normalizedData: unknown, schema: Schema) {
     const allEntities = this.getAllEntities();
 
-    const res: Entities = {} as Entities;
+    const res: AllEntities = {} as AllEntities;
 
-    for (const entityName of Object.keys(allEntities) as EntityName[]) {
+    for (const entityName of Object.keys(allEntities) as EntityType[]) {
       const map = allEntities[entityName];
 
       res[entityName] = [...map.values()].reduce((accum, entity) => {
@@ -124,30 +145,33 @@ export class EntityManager {
     return denormalize(normalizedData, schema, res) as TResult;
   }
 
-  getEntity(entityType: EntityName, entityId: string | number) {
+  getEntity<TEntityType extends EntityType>(
+    entityType: TEntityType,
+    entityId: string | number,
+  ) {
     const normalizedEntity = this.#repositories[entityType].getOne(entityId);
 
-    return this.denormalizeData(
+    return this.denormalizeData<EntityTypeToEntityMap[TEntityType]>(
       normalizedEntity,
-      entityNameToSchemaMap[entityType],
+      entities[entityType].schema,
     );
   }
 
-  updateEntity<TEntityName extends EntityName>(
-    entityName: TEntityName,
+  updateEntity<TEntityName extends EntityType>(
+    entityType: TEntityName,
     entityId: number,
     updateCallback: (
-      old: EntityNameToEntityMap[TEntityName],
-    ) => EntityNameToEntityMap[TEntityName],
+      old: EntityTypeToEntityMap[TEntityName],
+    ) => EntityTypeToEntityMap[TEntityName],
   ) {
     const oldEntity = this.denormalizeData(
       entityId,
-      entityNameToSchemaMap[entityName],
-    ) as EntityNameToEntityMap[TEntityName];
+      entities[entityType].schema,
+    ) as EntityTypeToEntityMap[TEntityName];
 
     const updated = updateCallback(oldEntity);
 
-    this.normalizeAndSave(updated, entityNameToSchemaMap[entityName]);
+    this.normalizeAndSave(updated, entities[entityType].schema);
   }
 
   printAll() {

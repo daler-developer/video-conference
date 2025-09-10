@@ -1,5 +1,6 @@
 // import { Subscribable } from "../Subscribable.ts";
 import { queryCacheEventBus } from "@/entity/query-cache/eventBus.ts";
+import type { EntityId } from "@/entity/query-cache/entity-manager/createEntity.ts";
 
 export type BaseEntity = {};
 
@@ -17,17 +18,17 @@ type Update<TNormalizedEntity extends BaseEntity> = {
 export const entityTypeSymbol = Symbol("entityType");
 
 export abstract class Repository<TNormalizedEntity extends BaseEntity> {
-  #byId: Map<number, TNormalizedEntity> = new Map();
-  #allIds = new Set<number>();
+  #byId: Map<EntityId, TNormalizedEntity> = new Map();
+  #allIds = new Set<EntityId>();
   #entityType: string;
 
   constructor(entityType: string) {
     this.#entityType = entityType;
   }
 
-  abstract getId(normalizedEntity: TNormalizedEntity): string | number;
+  abstract getId(normalizedEntity: TNormalizedEntity): EntityId;
 
-  getOne(id: number): TNormalizedEntity | null {
+  getOne(id: EntityId): TNormalizedEntity | null {
     return this.#byId.get(id) || null;
   }
 

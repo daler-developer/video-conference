@@ -48,23 +48,25 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       // });
 
       const message1 = entityManager.getEntity("message", 1);
-      const message2 = entityManager.getEntity("message", 2);
+      // const message2 = entityManager.getEntity("message", 2);
 
-      entityManager.updateEntity(
-        "message",
-        entityManager.identifyEntity(message2),
-        (message) => {
-          return {
-            ...message,
-            likesCount: message.likesCount + 1,
-            sender: {
-              ...message.sender,
-              name: "aziz changed",
-              age: message.sender.age + 1,
-            },
-          };
-        },
-      );
+      // console.log("message1", message1);
+      // console.log(message2);
+
+      // entityManager.updateEntity(
+      //   "message",
+      //   entityManager.identifyEntity(message1),
+      //   (message) => {
+      //     return {
+      //       ...message,
+      //       likesCount: message.likesCount + 1,
+      //       sender: {
+      //         ...message.sender,
+      //         age: message.sender.age + 2,
+      //       },
+      //     };
+      //   },
+      // );
 
       // console.log("message1", entityManager.identifyEntity(message1));
       // console.log("message2", entityManager.identifyEntity(message2));

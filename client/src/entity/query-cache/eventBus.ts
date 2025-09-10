@@ -1,9 +1,10 @@
 import mitt from "mitt";
+import type { EntityId } from "@/entity/query-cache/entity-manager/createEntity.ts";
 
 type Events = {
   ENTITY_UPDATED: {
     entityType: string;
-    entityId: string;
+    entityId: EntityId;
   };
 };
 

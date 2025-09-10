@@ -20,8 +20,6 @@ const MessagesList = () => {
     }),
   };
 
-  // console.log(queries.messages.data);
-
   return (
     <div style={{ border: "1px solid black", padding: "10px" }}>
       <Button

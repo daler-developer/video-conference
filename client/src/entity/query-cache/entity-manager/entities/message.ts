@@ -1,34 +1,35 @@
 import { Repository } from "@/entity/query-cache/entity-manager/Repository.ts";
 import { schema } from "normalizr";
-import { type UserEntity, UserEntitySchema } from "./user.ts";
+import {
+  type Entity as UserEntity,
+  EntitySchema as UserEntitySchema,
+} from "./user";
 
-export const ENTITY_NAME = "message";
+export const ENTITY_TYPE = "message";
 
-export type MessageEntity = {
+export type Entity = {
   id: number;
   text: string;
   likesCount: number;
   sender: UserEntity;
 };
 
-export type NormalizedMessageEntity = MessageEntity;
+export type NormalizedEntity = Entity;
 
-export const MessageEntitySchema = new schema.Entity(ENTITY_NAME, {
+export const MessageEntitySchema = new schema.Entity(ENTITY_TYPE, {
   sender: UserEntitySchema,
 });
 
-export const identify = (entity: MessageEntity) => {
+export const identify = (entity: Entity) => {
   return entity.id;
 };
 
-export class MessageRepository extends Repository<NormalizedMessageEntity> {
-  static entityName = ENTITY_NAME;
-
+export class MessageRepository extends Repository<NormalizedEntity> {
   constructor() {
-    super(ENTITY_NAME);
+    super(ENTITY_TYPE);
   }
 
-  getId(entity: NormalizedMessageEntity) {
+  getId(entity: NormalizedEntity) {
     return entity.id;
   }
 }

@@ -4,7 +4,7 @@ import { createWebsocketQueryCallback } from "../utils/createWebsocketQueryCallb
 import {
   type MessageEntity,
   MessageEntitySchema,
-} from "@/entity/query-cache/entity-manager/MessageRepository.ts";
+} from "@/entity/query-cache/entity-manager/entities/_message.ts";
 
 const GET_MESSAGES = "GET_MESSAGES";
 
