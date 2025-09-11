@@ -1,4 +1,4 @@
-import { Repository } from "@/entity/query-cache/entity-manager/Repository.ts";
+import { BaseRepository } from "@/entity/query-cache/entity-manager/BaseRepository.ts";
 import { schema } from "normalizr";
 import {
   type Entity as UserEntity,
@@ -24,7 +24,7 @@ export const identify = (entity: Entity) => {
   return entity.id;
 };
 
-export class MessageRepository extends Repository<NormalizedEntity> {
+export class Repository extends BaseRepository<NormalizedEntity> {
   constructor() {
     super(ENTITY_TYPE);
   }

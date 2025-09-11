@@ -1,27 +1,11 @@
 import { denormalize, normalize, type Schema } from "normalizr";
-// import {
-//   UserRepository,
-//   // ENTITY_NAME as USER_ENTITY_NAME,
-//   UserEntitySchema,
-//   identify as identifyUserEntity,
-//   // type NormalizedUserEntity,
-//   // type UserEntity,
-// } from "./entities/user.ts";
-// import {
-//   MessageRepository,
-//   // ENTITY_NAME as MESSAGE_ENTITY_NAME,
-//   MessageEntitySchema,
-//   identify as identifyMessageEntity,
-//   // type NormalizedMessageEntity,
-//   // type MessageEntity,
-// } from "./entities/message.ts";
-import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/Repository.ts";
+import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/BaseRepository.ts";
 
 import {
   type Entity as UserEntity,
   type NormalizedEntity as NormalizedUserEntity,
   ENTITY_TYPE as USER_ENTITY_TYPE,
-  UserRepository,
+  Repository as UserRepository,
   identify as identifyUser,
   EntitySchema as UserEntitySchema,
 } from "./entities/user.ts";
@@ -30,26 +14,14 @@ import {
   type Entity as MessageEntity,
   type NormalizedEntity as NormalizedMessageEntity,
   ENTITY_TYPE as MESSAGE_ENTITY_TYPE,
-  MessageRepository,
+  Repository as MessageRepository,
   identify as identifyMessage,
   EntitySchema as MessageEntitySchema,
 } from "./entities/message.ts";
 
-// import {
-//   // type UserEntity,
-//   // type NormalizedUserEntity,
-//   userEntity,
-//   // USER_ENTITY_TYPE,
-// } from "./entities/_user.ts";
-//
-// import {
-//   // type MessageEntity,
-//   // type NormalizedMessageEntity,
-//   messageEntity,
-//   // MESSAGE_ENTITY_TYPE,
-// } from "./entities/_message.ts";
-
 export type EntityType = typeof USER_ENTITY_TYPE | typeof MESSAGE_ENTITY_TYPE;
+
+export type EntityId = string | number;
 
 type Entity = UserEntity | MessageEntity;
 

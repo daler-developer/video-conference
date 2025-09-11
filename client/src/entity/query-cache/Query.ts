@@ -15,7 +15,7 @@ import type {
   NormalizedMessageEntity,
 } from "@/entity/query-cache/entity-manager/MessageRepository.ts";
 import { isArray, isRealObject } from "@/entity/query-cache/utils.ts";
-import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/Repository.ts";
+import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/BaseRepository.ts";
 
 export type QueryStatus = "pending" | "success" | "error";
 

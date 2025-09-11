@@ -47,7 +47,7 @@ export const { useMutationHook: useStartSession, Error: StartSessionError } =
       //   };
       // });
 
-      const message1 = entityManager.getEntity("message", 2);
+      const message1 = entityManager.getEntity("message", 1);
       // const message2 = entityManager.getEntity("message", 2);
 
       // console.log("message1", message1);
