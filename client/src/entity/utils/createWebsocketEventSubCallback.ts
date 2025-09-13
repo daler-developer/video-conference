@@ -1,6 +1,5 @@
 import {
   type BaseIncomingMessage,
-  type BaseOutgoingMessage,
   createOutgoingMessageCreator,
   websocketClient,
 } from "@/websocket";
@@ -14,17 +13,6 @@ type Options<TEventName extends string = string> = {
 const EVENT_SUB = "EVENT_SUB";
 const EVENT_UNSUB = "EVENT_UNSUB";
 const EVENT_SUB_DATA = "EVENT_SUB_DATA";
-
-export type BaseEventSubOutgoingMessage<
-  TEventName extends string = string,
-  TEventParams extends Record<string, any> = Record<string, any>,
-> = BaseOutgoingMessage<
-  typeof EVENT_SUB,
-  {
-    eventName: TEventName;
-    eventParams: TEventParams;
-  }
->;
 
 export type BaseEventSubDataIncomingMessage<
   TEventName extends string = string,

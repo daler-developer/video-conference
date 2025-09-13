@@ -10,7 +10,7 @@ import type { BaseQueryErrorMap } from "@/entity/QueryError.ts";
 
 export class QueryRepository {
   #queryCache: QueryCache;
-  #queries: Map<string, Query<any, any, any>> = new Map();
+  #queries: Map<string, Query<any, any, any, any>> = new Map();
 
   constructor(queryCache: QueryCache) {
     this.#queryCache = queryCache;

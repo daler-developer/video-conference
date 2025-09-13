@@ -1,9 +1,5 @@
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
-import {
-  type BaseQueryData,
-  type BaseQueryParams,
-  type BaseQueryPageParam,
-} from "../query-cache/Query";
+import { type BaseQueryData, type BaseQueryParams } from "../query-cache/Query";
 import { useBaseQuery } from "./useBaseQuery";
 import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
 import { QueryError, type BaseQueryErrorMap } from "@/entity/QueryError.ts";
@@ -99,58 +95,3 @@ const createQuery = <
 };
 
 export { createQuery };
-
-// useEffect(() => {
-//   queryCache.initQuery({
-//     schema,
-//     name,
-//     params,
-//     async fn({ params }) {
-//       await sleep();
-//       const { data } = await callback({ params });
-//
-//       return data;
-//     },
-//   });
-//
-//   return () => {
-//     queryCache.destroyQuery({
-//       name,
-//       params,
-//     });
-//   };
-// }, []);
-
-// queryCache.initQuery({
-//   schema,
-//   name,
-//   params,
-//   async fn({ params }) {
-//     await sleep();
-//     const { data } = await callback({ params });
-//
-//     return data;
-//   },
-// });
-
-// const state = useSyncExternalStore(
-//   useCallback((callback) => {
-//     const query = queryCache.getQuery<TParams, TData>({ name, params });
-//
-//     return query.subscribe((event) => {
-//       if (event.type === "state-updated") {
-//         callback();
-//       }
-//     });
-//   }, []),
-//   () => {
-//     const query = queryCache.getQuery<TParams, TData>({ name, params });
-//
-//     console.log(query);
-//
-//     return {
-//       status: query.getStatus(),
-//       data: query.getData(),
-//     };
-//   },
-// );

@@ -4,7 +4,6 @@ import {
   WebsocketError,
 } from "@/websocket";
 import { type MutationCallback } from "./createMutation.ts";
-import type { BaseIncomingErrorMessage } from "@/websocket/types.ts";
 import { MutationError } from "@/entity/MutationError.ts";
 
 type Options<TOutgoingMessageType extends string> = {

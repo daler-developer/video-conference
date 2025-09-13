@@ -23,12 +23,6 @@ export type CreateEventSubOptions<
   "params" | "onData"
 >;
 
-// {
-//   name: string;
-//   callback: EventSubCallback<TEventSubParams, TEventSubBaseData>;
-//   update?: (options: { data: TEventSubBaseData }) => void;
-// };
-
 type HookOptions<
   TEventSubParams extends EventSubBaseParams,
   TEventSubBaseData extends EventSubBaseData,
@@ -74,19 +68,6 @@ export const createEventSub = <
       return () => {
         eventSubObserver.onDestroyed();
       };
-      // const { unsubscribe } = callback({
-      //   params,
-      //   onData({ data }) {
-      //     update?.({
-      //       data,
-      //     });
-      //     latestOnData.current({ data });
-      //   },
-      // });
-      //
-      // return () => {
-      //   unsubscribe();
-      // };
     }, [latestOnData, eventSubObserver]);
   };
 

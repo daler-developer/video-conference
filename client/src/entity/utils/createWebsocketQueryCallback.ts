@@ -1,11 +1,7 @@
 import {
-  type BaseIncomingMessage,
-  type BaseOutgoingMessage,
+  type BaseOutgoingMessagePayload,
   createOutgoingMessageCreator,
   websocketClient,
-  type OutgoingMessageExtractPayload,
-  type IncomingMessageExtractPayload,
-  type OutgoingMessageExtractType,
   WebsocketError,
 } from "@/websocket";
 import {
@@ -14,7 +10,6 @@ import {
   type BaseQueryPageParam,
 } from "../query-cache/Query";
 import { type QueryCallback } from "../query-cache/Query.ts";
-import { type QueryObserverConfig } from "../query-cache/QueryObserver.ts";
 import { QueryError } from "@/entity/QueryError.ts";
 
 type Options<
@@ -26,7 +21,7 @@ type Options<
   createPayload: (options: {
     params: TQueryParams;
     pageParam: TQueryPageParam;
-  }) => unknown;
+  }) => BaseOutgoingMessagePayload;
 };
 
 export const createWebsocketQueryCallback = <
@@ -66,6 +61,7 @@ export const createWebsocketQueryCallback = <
         );
       } else {
         alert("something is wrong in createWebsocketQueryCallback");
+        throw e;
       }
     }
   };

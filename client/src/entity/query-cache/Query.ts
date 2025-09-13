@@ -6,16 +6,17 @@ import {
   queryCacheEventBus,
   type QueryCacheEventBusCallback,
 } from "@/entity/query-cache/eventBus.ts";
-import type {
-  NormalizedUserEntity,
-  UserEntity,
-} from "@/entity/query-cache/entity-manager/UserRepository.ts";
-import type {
-  MessageEntity,
-  NormalizedMessageEntity,
-} from "@/entity/query-cache/entity-manager/MessageRepository.ts";
 import { isArray, isRealObject } from "@/entity/query-cache/utils.ts";
 import { entityTypeSymbol } from "@/entity/query-cache/entity-manager/BaseRepository.ts";
+import type { EntityId } from "@/entity/query-cache/entity-manager/EntityManager.ts";
+
+type JSONPrimitive = string | number | boolean | null;
+
+type JSONValue = JSONPrimitive | JSONObject;
+
+interface JSONObject {
+  [key: string]: JSONValue;
+}
 
 export type QueryStatus = "pending" | "success" | "error";
 
@@ -112,8 +113,6 @@ type QueryNotifyEvent = QueryNotifyEventStateUpdated;
 
 type Listener = (event: QueryNotifyEvent) => void;
 
-type Entities = Array<UserEntity | MessageEntity>;
-
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 export class Query<
@@ -197,17 +196,9 @@ export class Query<
     this.#unsubscribeEntityUpdatedFn = () => {
       queryCacheEventBus.off("ENTITY_UPDATED", handler);
     };
-
-    // this.#queryCache.getEntityManager().subscribe((event) => {
-    //   if (event.type === "entity-updated") {
-    //     this.listeners.forEach((listener) => {
-    //       listener({ type: "state-updated" });
-    //     });
-    //   }
-    // });
   }
 
-  private containsEntity(entityType: string, entityId: string) {
+  private containsEntity(entityType: string, entityId: EntityId) {
     const helper = (v: unknown) => {
       if (isRealObject(v)) {
         const isEntity = entityTypeSymbol in v;
@@ -450,17 +441,9 @@ export class Query<
 
       const data = await fetchPromise;
 
-      const { normalizedData, allEntities } = this.#queryCache
+      const { normalizedData } = this.#queryCache
         .getEntityManager()
         .normalizeAndSave(data, this.#options.schema);
-
-      // this.#allEntities = allEntities;
-      //
-      // for (const entity of this.#allEntities) {
-      //   entity.subscribe(() => {});
-      // }
-
-      // this.#allEntities = allEntities;
 
       const onFetchSuccessResult = options.onFetchSuccess?.();
 
