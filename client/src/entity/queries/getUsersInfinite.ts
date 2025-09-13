@@ -44,7 +44,7 @@ export const getUsersInfiniteQuery = createInfiniteQuery<
   name: GET_USERS,
   callback: createWebsocketQueryCallback({
     outgoingMessageType: GET_USERS,
-    createPayload({ params, pageParam }) {
+    createPayload({ pageParam, params }) {
       return {
         limit: params.limit,
         search: params.search,

@@ -7,7 +7,9 @@ import {
 
 const GET_MESSAGES = "GET_MESSAGES";
 
-type QueryParams = {};
+type QueryParams = {
+  limit: number;
+};
 
 type QueryData = {
   list: MessageEntity[];
@@ -16,16 +18,13 @@ type QueryData = {
 type QueryErrorMap = {};
 
 export const getMessagesQuery = createQuery<
-  QueryParams,
+  undefined,
   QueryData,
   QueryErrorMap
 >({
   name: GET_MESSAGES,
   callback: createWebsocketQueryCallback({
     outgoingMessageType: GET_MESSAGES,
-    createPayload({ params }) {
-      return params;
-    },
   }),
   schema: {
     list: [MessageEntitySchema],

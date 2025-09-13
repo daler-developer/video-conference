@@ -18,7 +18,7 @@ type Options<
   TQueryPageParam extends BaseQueryPageParam,
 > = {
   outgoingMessageType: string;
-  createPayload: (options: {
+  createPayload?: (options: {
     params: TQueryParams;
     pageParam: TQueryPageParam;
   }) => BaseOutgoingMessagePayload;
@@ -30,7 +30,7 @@ export const createWebsocketQueryCallback = <
   TQueryPageParam extends BaseQueryPageParam,
 >({
   outgoingMessageType,
-  createPayload,
+  createPayload = () => ({}),
 }: Options<TQueryParams, TQueryData, TQueryPageParam>): QueryCallback<
   TQueryParams,
   TQueryData,

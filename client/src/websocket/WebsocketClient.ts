@@ -129,6 +129,8 @@ class WebsocketClient {
       throw new Error("not connected");
     }
 
+    console.log("m", outgoingMessage);
+
     const serialized = await this.serializeMessage(outgoingMessage);
 
     this.ws!.send(serialized);

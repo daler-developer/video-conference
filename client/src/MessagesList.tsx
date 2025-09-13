@@ -16,7 +16,7 @@ const MessagesList = () => {
 
   const queries = {
     messages: useGetMessagesQuery({
-      params: {},
+      params: undefined,
     }),
   };
 

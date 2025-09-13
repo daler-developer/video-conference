@@ -26,7 +26,7 @@ export type QueryFetchMeta = {
   isFetchingMore: boolean;
 };
 
-export type BaseQueryParams = Record<string, any>;
+export type BaseQueryParams = Record<string, any> | undefined;
 
 export type BaseQueryData = Record<string, any>;
 
