@@ -9,13 +9,26 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  fullName  String
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now()) @map("created_at")
+  fullName   String
+
+  @@map("users")
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  text       String
+  likesCount Int      @map("likes_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("messages")
 }
 
 model Conference {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
   name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("conferences")
 }
