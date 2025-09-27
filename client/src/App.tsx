@@ -15,6 +15,7 @@ import TestButton from "@/TestButton.tsx";
 import MessagesList from "@/MessagesList.tsx";
 import UsersList from "@/UsersList.tsx";
 import { queryCache } from "@/entity/query-cache/QueryCache.ts";
+import StartSession from "@/StartSession.tsx";
 
 let counter = 3;
 
@@ -66,6 +67,7 @@ const App = () => {
       <Button onClick={() => setShow((prev) => !prev)}>Show/Hide</Button>
       <TestButton />
       {show && <MessagesList />}
+      <StartSession />
       {/*<UsersList />*/}
       {/*<Button*/}
       {/*  type="button"*/}

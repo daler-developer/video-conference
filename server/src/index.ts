@@ -6,8 +6,6 @@ import initWebsocket from './websocket/init';
 import redisClient from './redis/client';
 import { PrismaClient } from './generated/prisma';
 
-const client = new PrismaClient();
-
 const app = express();
 const port = process.env.PORT || 3000;
 

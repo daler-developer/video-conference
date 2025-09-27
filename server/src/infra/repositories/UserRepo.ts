@@ -1,4 +1,5 @@
-import { User, IUserRepo } from '@/domain';
+import { User, IUserRepo, CreateUserDto } from '@/domain';
+import dbClient from '@/infra/dbClient';
 
 const page = 1;
 
@@ -7,8 +8,17 @@ function getRandom1to10() {
 }
 
 export class UserRepo implements IUserRepo {
-  async addOne(): Promise<void> {
-    return;
+  async addOne(dto: CreateUserDto): Promise<number> {
+    const { id } = await dbClient.user.create({
+      data: {
+        fullName: dto.fullName,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return id;
   }
 
   async getOneById(): Promise<void> {

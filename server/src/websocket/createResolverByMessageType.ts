@@ -97,11 +97,15 @@ const createResolverByMessageType = <
             })
           );
         } else {
+          // console.log(e);
           client.respondTo(
             message,
             createOutgoingErrorMessage({
               errorType: 'unknown',
               message: 'Unknown error',
+              details: {
+                foo: 'bar',
+              },
             })
           );
         }

@@ -1,10 +1,10 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { UseCase } from '../../UseCase';
 import { ApplicationError } from '../../ApplicationError';
+import { TYPES } from '@/types';
+import { CreateUserDto, IUserRepo } from '@/domain';
 
-type Request = {
-  fullName: string;
-};
+type Request = CreateUserDto;
 
 type Result = {
   accessToken: string;
@@ -12,7 +12,10 @@ type Result = {
 
 @injectable()
 export class StartSessionCommandUseCase extends UseCase<Request, Result> {
-  async execute(value: Request) {
+  @inject(TYPES.UserRepo)
+  private userRepo!: IUserRepo;
+
+  async execute(request: Request) {
     // throw new ApplicationError('not_found', 'User was not found', {
     //   foo: 'bar',
     //   inner: {
@@ -20,8 +23,10 @@ export class StartSessionCommandUseCase extends UseCase<Request, Result> {
     //   },
     // });
 
+    const userId = await this.userRepo.addOne(request);
+
     return {
-      accessToken: 'hello_token',
+      accessToken: `accessToken: ${userId}`,
     };
   }
 }

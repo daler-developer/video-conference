@@ -9,7 +9,7 @@ const GET_MESSAGES = 'GET_MESSAGES';
 type IncomingPayload = {};
 
 type OutgoingPayload = {
-  list: Message[];
+  list: any[];
 };
 
 export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(GET_MESSAGES, {
