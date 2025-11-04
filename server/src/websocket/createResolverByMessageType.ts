@@ -97,7 +97,7 @@ const createResolverByMessageType = <
             })
           );
         } else {
-          // console.log(e);
+          console.log(e);
           client.respondTo(
             message,
             createOutgoingErrorMessage({

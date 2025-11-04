@@ -2,9 +2,9 @@ import { inject, injectable } from 'inversify';
 import { UseCase } from '../../UseCase';
 import { ApplicationError } from '../../ApplicationError';
 import { TYPES } from '@/types';
-import { CreateUserDto, IUserRepo } from '@/domain';
+import { CreateUserDto, CreateConferenceDto, IUserRepo } from '@/domain';
 
-type Request = CreateUserDto;
+type Request = CreateUserDto & CreateConferenceDto;
 
 type Result = {
   accessToken: string;
