@@ -25,6 +25,8 @@ type BaseContext = {
   useCaseManager: typeof useCaseManager;
 };
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const createOutgoingErrorMessage = createOutgoingMessageCreator<{
   message: string;
   errorType: string;
@@ -45,6 +47,8 @@ const createResolverByMessageType = <
     const client = new WebSocketWrapper(ws);
 
     client.onMessage(async (message) => {
+      await sleep(500);
+
       const messageTypeMatch = message.type === messageType;
 
       if (!messageTypeMatch) {

@@ -1,11 +1,7 @@
-import { StrictMode } from "react";
+import "@mantine/core/styles.css";
+import "./main.css";
 import { createRoot } from "react-dom/client";
-import { MantineProvider } from "@mantine/core";
 import "./index.css";
-import App from "./App.tsx";
+import App from "./app/App.tsx";
 
-createRoot(document.getElementById("root")!).render(
-  <MantineProvider>
-    <App />
-  </MantineProvider>,
-);
+createRoot(document.getElementById("root")!).render(<App />);

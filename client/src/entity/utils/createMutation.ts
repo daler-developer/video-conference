@@ -67,9 +67,11 @@ const createMutation = <
         setError(null);
         setData(null);
         setStatus("pending");
+        console.log("start");
         const data = await callback({
           payload,
         });
+        console.log("end");
         update?.({
           entityManager: queryCache.getEntityManager(),
         });
@@ -77,6 +79,7 @@ const createMutation = <
         setStatus("success");
         return data;
       } catch (e) {
+        console.log("catch");
         if (e instanceof MutationError) {
           setStatus("error");
           setError(e);

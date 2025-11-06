@@ -141,7 +141,7 @@ class WebsocketClient {
         ) {
           unsubscribe();
           res(message);
-          // console.log("message", message);
+          console.log("return", message);
         }
 
         if (
