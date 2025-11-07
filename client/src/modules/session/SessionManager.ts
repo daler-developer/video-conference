@@ -8,27 +8,36 @@ export type Session = {
 
 class SessionManager {
   saveSession(session: Session) {
-    localStorage.setItem(
-      LOCAL_STORAGE_KEY,
-      JSON.stringify(
-        [session, ...this.getSavedSessions()].slice(
-          0,
-          MAX_SAVED_SESSIONS_COUNT,
-        ),
-      ),
+    this.set(
+      [session, ...this.getSavedSessions()].slice(0, MAX_SAVED_SESSIONS_COUNT),
     );
   }
 
   getSavedSessions(): Session[] {
-    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    return this.get();
   }
 
   startSession(accessToken: string) {
     sessionStorage.setItem("accessToken", accessToken);
   }
 
+  moveSavedSessionToTop(index: number) {
+    const sessions = this.getSavedSessions();
+    const [session] = sessions.splice(index, 1);
+    const updated = [session, ...sessions];
+    this.set(updated);
+  }
+
   stopSession() {
     sessionStorage.removeItem("token");
+  }
+
+  private get(): Session[] {
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+  }
+
+  private set(sessions: Session[]) {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sessions));
   }
 }
 

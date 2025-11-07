@@ -1,7 +1,15 @@
 import { useCaseManager } from './UseCaseManager';
 import { StartSessionCommandUseCase } from './commands/StartSession/StartSessionCommand';
+import { StartConferenceCommandUseCase } from './commands/StartConference/StartConferenceCommand';
 import { GetUsersQueryUseCase } from './queries/GetUsers/GetUsersQuery';
 import { GetMessagesQueryUseCase } from './queries/GetMessages/GetMessagesQuery';
 import { ApplicationError } from './ApplicationError';
 
-export { useCaseManager, StartSessionCommandUseCase, GetUsersQueryUseCase, GetMessagesQueryUseCase, ApplicationError };
+export {
+  useCaseManager,
+  StartSessionCommandUseCase,
+  StartConferenceCommandUseCase,
+  GetUsersQueryUseCase,
+  GetMessagesQueryUseCase,
+  ApplicationError,
+};

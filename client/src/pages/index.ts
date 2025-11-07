@@ -1,6 +1,7 @@
 import HomePage from "./home/HomePage.tsx";
 import StartVideoConferencePage from "./start-video-conference/StartVideoConferencePage.tsx";
 import JoinVideoConferencePage from "./join-video-conference/JoinVideoConferencePage.tsx";
+import ConferencePage from "./conference/ConferencePage.tsx";
 import { buildRoutePath, ROUTE_PATH } from "./utils";
 
 export {
@@ -9,4 +10,5 @@ export {
   HomePage,
   StartVideoConferencePage,
   JoinVideoConferencePage,
+  ConferencePage,
 };

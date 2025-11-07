@@ -1,5 +1,5 @@
 import { Button, Group } from "@mantine/core";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { buildRoutePath } from "@/pages";
 import {
   StartSessionFormModal,
@@ -8,12 +8,14 @@ import {
 import { useRef } from "react";
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   const startSessionFormModal = useRef<StartSessionFormModalHandle>(null!);
 
   const handleStartVideoConference = async () => {
     await startSessionFormModal.current.open();
 
-    console.log("close");
+    navigate(buildRoutePath.START_VIDEO_CONFERENCE());
   };
 
   return (
@@ -21,10 +23,8 @@ const HomePage = () => {
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <Group className="flex flex-col gap-4">
           <Button
-            // component={Link}
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-white"
-            // to={buildRoutePath.START_VIDEO_CONFERENCE()}
             onClick={handleStartVideoConference}
           >
             Start Conference

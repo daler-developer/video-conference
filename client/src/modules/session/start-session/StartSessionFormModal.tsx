@@ -27,6 +27,8 @@ const StartSessionFormModal = forwardRef<StartSessionFormModalHandle>(
   (_, ref) => {
     const [opened, setOpened] = useState(false);
 
+    const isSavedSessionSelected = useRef(false);
+
     const mutations = {
       startSession: useStartSession(),
     };
@@ -38,28 +40,31 @@ const StartSessionFormModal = forwardRef<StartSessionFormModalHandle>(
     const promiseResolveFunc = useRef<any>(null!);
 
     const mutate = async ({ fullName }: { fullName: string }) => {
-      const data = await mutations.startSession.mutate({
+      return await mutations.startSession.mutate({
         payload: {
           fullName,
         },
-        handleError(e) {
-          console.log("error");
-          console.log(e);
-        },
       });
-
-      return data;
     };
 
     const onSubmit: SubmitHandler<FormValues> = async (values) => {
       const { accessToken } = await mutate({ fullName: values.fullName });
 
       sessionManager.startSession(accessToken);
-      sessionManager.saveSession({
-        fullName: values.fullName,
-      });
+
+      // if (isSavedSessionSelected.current) {
+      //   sessionManager.moveSavedSessionToTop();
+      // }
+
+      if (!isSavedSessionSelected.current) {
+        sessionManager.saveSession({
+          fullName: values.fullName,
+        });
+      }
+
       setOpened(false);
       form.reset();
+      isSavedSessionSelected.current = false;
       promiseResolveFunc.current();
     };
 
@@ -73,10 +78,16 @@ const StartSessionFormModal = forwardRef<StartSessionFormModalHandle>(
       },
     }));
 
-    const handleStartSavedSession = async (session: Session) => {
+    const triggerSubmit = form.handleSubmit(onSubmit);
+
+    const handleStartSavedSession = async (session: Session, index: number) => {
       form.setValue("fullName", session.fullName);
 
-      await mutate({ fullName: session.fullName });
+      isSavedSessionSelected.current = true;
+
+      await triggerSubmit();
+
+      sessionManager.moveSavedSessionToTop(index);
     };
 
     const sessions = sessionManager.getSavedSessions();
@@ -118,7 +129,7 @@ const StartSessionFormModal = forwardRef<StartSessionFormModalHandle>(
               {sessions.map((session, i) => (
                 <button
                   key={i}
-                  onClick={() => handleStartSavedSession(session)}
+                  onClick={() => handleStartSavedSession(session, i)}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   <Avatar
