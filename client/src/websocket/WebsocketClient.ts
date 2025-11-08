@@ -20,7 +20,7 @@ class WebsocketClient {
   }
 
   public async connect() {
-    this.ws = new WebSocket("ws://localhost:3000?token=DalerSaidov");
+    this.ws = new WebSocket("ws://192.168.10.87:3000?token=DalerSaidov");
 
     this.ws.binaryType = "arraybuffer";
 
@@ -141,7 +141,6 @@ class WebsocketClient {
         ) {
           unsubscribe();
           res(message);
-          console.log("return", message);
         }
 
         if (

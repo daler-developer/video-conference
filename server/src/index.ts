@@ -20,7 +20,7 @@ const runApp = async () => {
 
   await initWebsocket(server);
 
-  server.listen(port, () => {
+  server.listen(port as number, () => {
     console.log(`Server running on http://localhost:${port}`);
   });
 };

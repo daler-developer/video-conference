@@ -47,7 +47,7 @@ const createResolverByMessageType = <
     const client = new WebSocketWrapper(ws);
 
     client.onMessage(async (message) => {
-      await sleep(500);
+      await sleep(2000);
 
       const messageTypeMatch = message.type === messageType;
 
