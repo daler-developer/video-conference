@@ -19,8 +19,14 @@ class WebsocketClient {
     return this.ws && this.ws.readyState === WebSocket.OPEN;
   }
 
-  public async connect() {
-    this.ws = new WebSocket("ws://192.168.10.87:3000?token=DalerSaidov");
+  public async connect(accessToken?: string | null) {
+    const url = new URL("ws://192.168.10.87:3000");
+
+    if (accessToken) {
+      url.searchParams.append("accessToken", accessToken);
+    }
+
+    this.ws = new WebSocket(url);
 
     this.ws.binaryType = "arraybuffer";
 

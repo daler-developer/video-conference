@@ -3,6 +3,7 @@ import { MantineProvider } from "@mantine/core";
 import { router } from "@/app/router.tsx";
 import { useEffect, useState } from "react";
 import { websocketClient } from "@/websocket";
+import { getAccessToken } from "@/modules/session";
 import { Conference } from "@/modules/conference";
 
 const App = () => {
@@ -10,7 +11,7 @@ const App = () => {
 
   useEffect(() => {
     const connect = async () => {
-      await websocketClient.connect();
+      await websocketClient.connect(getAccessToken());
       setConnected(true);
     };
 
@@ -23,8 +24,8 @@ const App = () => {
 
   return (
     <MantineProvider>
-      <Conference id={1} />
-      {/*<RouterProvider router={router} />*/}
+      {/*<Conference id={1} />*/}
+      <RouterProvider router={router} />
     </MantineProvider>
   );
 };

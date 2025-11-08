@@ -6,6 +6,7 @@ const ConferenceMainPanel = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const video = useRef<HTMLVideoElement>(null!);
+  const remoteVideo = useRef<HTMLVideoElement>(null!);
   const mediaRecorder = useRef<MediaRecorder>(null);
 
   const mutations = {
@@ -21,8 +22,9 @@ const ConferenceMainPanel = () => {
         type: "video/webm",
       });
       const videoUrl = URL.createObjectURL(blob);
+
       console.log(videoUrl);
-      setVideoUrl(videoUrl);
+      // setVideoUrl(videoUrl);
     },
   });
 
@@ -47,25 +49,31 @@ const ConferenceMainPanel = () => {
 
     let chunks: any[] = [];
 
-    recorder.ondataavailable = (event) => {
+    recorder.ondataavailable = async (event) => {
       if (event.data.size > 0) {
-        chunks.push(event.data);
+        // chunks.push(event.data);
+
+        const videoBlob = new Blob([event.data], { type: "video/webm" });
+
+        const data = await mutations.sendMediaFrame.mutate({
+          payload: {
+            data: await videoBlob.arrayBuffer(),
+          },
+        });
       }
     };
 
     recorder.onstop = async () => {
-      const videoBlob = new Blob(chunks, { type: "video/webm" });
-
+      // const videoBlob = new Blob(chunks, { type: "video/webm" });
       // const videoUrl = URL.createObjectURL(videoBlob);
-
-      const data = await mutations.sendMediaFrame.mutate({
-        payload: {
-          data: await videoBlob.arrayBuffer(),
-        },
-      });
+      // await mutations.sendMediaFrame.mutate({
+      //   payload: {
+      //     data: await videoBlob.arrayBuffer(),
+      //   },
+      // });
     };
 
-    recorder.start(1000);
+    recorder.start(2000);
     video.current.srcObject = stream;
     video.current.autoplay = true;
   };
@@ -86,7 +94,7 @@ const ConferenceMainPanel = () => {
       </div>
       <video ref={video}></video>
       <div>Video</div>
-      {videoUrl && <video autoPlay controls src={videoUrl} />}
+      {videoUrl && <video ref={remoteVideo} autoPlay controls src={videoUrl} />}
     </div>
   );
 };

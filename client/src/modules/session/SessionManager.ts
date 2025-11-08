@@ -2,6 +2,10 @@ const LOCAL_STORAGE_KEY = "sessions";
 
 const MAX_SAVED_SESSIONS_COUNT = 3;
 
+const SESSION_STORAGE_KEY = {
+  ACCESS_TOKEN: "accessToken",
+};
+
 export type Session = {
   fullName: string;
 };
@@ -30,6 +34,10 @@ class SessionManager {
 
   stopSession() {
     sessionStorage.removeItem("token");
+  }
+
+  getAccessToken() {
+    return sessionStorage.getItem(SESSION_STORAGE_KEY.ACCESS_TOKEN) || null;
   }
 
   private get(): Session[] {
