@@ -23,12 +23,65 @@ const ConferenceMainPanel = () => {
       });
       const videoUrl = URL.createObjectURL(blob);
 
-      console.log(videoUrl);
-      // setVideoUrl(videoUrl);
+      // console.log(videoUrl);
+      setVideoUrl(videoUrl);
     },
   });
 
   const start = async () => {
+    const queue: any[] = [];
+    let isAppending = false;
+    const mediaSource = new MediaSource();
+
+    remoteVideo.current.src = URL.createObjectURL(mediaSource);
+
+    mediaSource.addEventListener("sourceopen", async () => {
+      const sourceBuffer = mediaSource.addSourceBuffer(
+        "video/webm;codecs=vp8,opus",
+      );
+
+      sourceBuffer.addEventListener("updateend", () => {
+        isAppending = false;
+
+        if (queue.length > 0) {
+          appendNextChunk();
+        }
+      });
+
+      function appendNextChunk() {
+        if (!sourceBuffer || isAppending || queue.length === 0) return;
+        isAppending = true;
+        const chunk = queue.shift();
+        sourceBuffer.appendBuffer(chunk);
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      const recorder = new MediaRecorder(stream, {
+        mimeType: "video/webm;codecs=vp8,opus",
+      });
+
+      mediaRecorder.current = recorder;
+
+      recorder.ondataavailable = async (event) => {
+        if (event.data.size > 0) {
+          const arrayBuffer = await event.data.arrayBuffer();
+          queue.push(arrayBuffer);
+
+          appendNextChunk();
+        }
+      };
+
+      recorder.start(3000);
+      video.current.srcObject = stream;
+      video.current.autoplay = true;
+    });
+
+    // -------
+
     // const data = await mutations.sendMediaFrame.mutate({
     //   payload: {
     //     data: new ArrayBuffer(2),
@@ -36,46 +89,49 @@ const ConferenceMainPanel = () => {
     // });
     //
     // return;
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
+    // const stream = await navigator.mediaDevices.getUserMedia({
+    //   video: true,
+    //   audio: true,
+    // });
+    //
+    // const recorder = new MediaRecorder(stream, {
+    //   mimeType: "video/webm;codecs=vp9,opus",
+    // });
+    //
+    // mediaRecorder.current = recorder;
+    //
+    // let chunks: any[] = [];
+    //
+    // recorder.ondataavailable = async (event) => {
+    //   if (event.data.size > 0) {
+    //     const url = URL.createObjectURL(event.data);
+    //
+    //     console.log(url);
+    //     setVideoUrl(url);
+    //   }
+    // };
 
-    const recorder = new MediaRecorder(stream, {
-      mimeType: "video/webm;codecs=vp9,opus",
-    });
+    // chunks.push(event.data);
 
-    mediaRecorder.current = recorder;
+    // const data = await mutations.sendMediaFrame.mutate({
+    //   payload: {
+    //     data: await videoBlob.arrayBuffer(),
+    //   },
+    // });
 
-    let chunks: any[] = [];
+    // recorder.onstop = async () => {
+    // const videoBlob = new Blob(chunks, { type: "video/webm" });
+    // const videoUrl = URL.createObjectURL(videoBlob);
+    // await mutations.sendMediaFrame.mutate({
+    //   payload: {
+    //     data: await videoBlob.arrayBuffer(),
+    //   },
+    // });
+    // };
 
-    recorder.ondataavailable = async (event) => {
-      if (event.data.size > 0) {
-        // chunks.push(event.data);
-
-        const videoBlob = new Blob([event.data], { type: "video/webm" });
-
-        const data = await mutations.sendMediaFrame.mutate({
-          payload: {
-            data: await videoBlob.arrayBuffer(),
-          },
-        });
-      }
-    };
-
-    recorder.onstop = async () => {
-      // const videoBlob = new Blob(chunks, { type: "video/webm" });
-      // const videoUrl = URL.createObjectURL(videoBlob);
-      // await mutations.sendMediaFrame.mutate({
-      //   payload: {
-      //     data: await videoBlob.arrayBuffer(),
-      //   },
-      // });
-    };
-
-    recorder.start(2000);
-    video.current.srcObject = stream;
-    video.current.autoplay = true;
+    // recorder.start(2000);
+    // video.current.srcObject = stream;
+    // video.current.autoplay = true;
   };
 
   const handleStop = () => {
@@ -94,7 +150,8 @@ const ConferenceMainPanel = () => {
       </div>
       <video ref={video}></video>
       <div>Video</div>
-      {videoUrl && <video ref={remoteVideo} autoPlay controls src={videoUrl} />}
+      {String(videoUrl)}
+      <video ref={remoteVideo} autoPlay controls />
     </div>
   );
 };
