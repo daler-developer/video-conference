@@ -9,7 +9,7 @@ type IncomingPayload = {
 };
 
 type OutgoingPayload = {
-  conferenceId: number;
+  conferenceId: string;
 };
 
 export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(START_CONFERENCE, {

@@ -20,7 +20,7 @@ class WebsocketClient {
   }
 
   public async connect(accessToken?: string | null) {
-    const url = new URL("ws://192.168.10.87:3000");
+    const url = new URL("ws://localhost:3000");
 
     if (accessToken) {
       url.searchParams.append("accessToken", accessToken);

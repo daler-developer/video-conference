@@ -6,7 +6,7 @@ import { CreateConferenceDto, IConferenceRepo } from '@/domain';
 type Request = CreateConferenceDto;
 
 type Result = {
-  conferenceId: number;
+  conferenceId: string;
 };
 
 @injectable()
