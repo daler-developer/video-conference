@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNewMediaFrameSub, useSendMediaFrameMutation } from "@/entity";
 
 const ConferenceMainPanel = () => {
@@ -7,78 +7,104 @@ const ConferenceMainPanel = () => {
   const [recording, setRecording] = useState(false);
   const video = useRef<HTMLVideoElement>(null!);
   const remoteVideo = useRef<HTMLVideoElement>(null!);
-  const mediaRecorder = useRef<MediaRecorder>(null);
+  const mediaRecorder = useRef<MediaRecorder>(null!);
+  const queue = useRef<any[]>([]);
+  const sourceBuffer = useRef<SourceBuffer>(null);
+  const isAppending = useRef<boolean>(false);
+  const mediaStream = useRef<MediaStream>(null);
 
   const mutations = {
     sendMediaFrame: useSendMediaFrameMutation(),
   };
+
+  useEffect(() => {
+    const mediaSource = new MediaSource();
+
+    remoteVideo.current.src = URL.createObjectURL(mediaSource);
+
+    mediaSource.addEventListener("sourceopen", async () => {
+      sourceBuffer.current = mediaSource.addSourceBuffer(
+        "video/webm;codecs=vp8,opus",
+      );
+
+      sourceBuffer.current.addEventListener("updateend", () => {
+        isAppending.current = false;
+
+        if (queue.current.length > 0) {
+          appendNextChunk();
+        }
+      });
+
+      // recorder.start(3000);
+      // video.current.srcObject = stream;
+      // video.current.autoplay = true;
+    });
+  }, []);
 
   useNewMediaFrameSub({
     params: {
       conferenceId: "hello_world",
     },
     onData({ data }) {
-      const blob = new Blob([data.data], {
-        type: "video/webm",
-      });
-      const videoUrl = URL.createObjectURL(blob);
+      // const blob = new Blob([data.data], {
+      //   type: "video/webm",
+      // });
+      // const videoUrl = URL.createObjectURL(blob);
 
       // console.log(videoUrl);
-      setVideoUrl(videoUrl);
+      // setVideoUrl(videoUrl);
+
+      // const blob = new Blob([data.data], {
+      //   type: "video/webm",
+      // });
+      //
+      // console.log(URL.createObjectURL(blob));
+
+      queue.current.push(data.data);
+
+      appendNextChunk();
     },
   });
 
+  function appendNextChunk() {
+    if (!sourceBuffer || isAppending.current || queue.current.length === 0)
+      return;
+
+    isAppending.current = true;
+    const chunk = queue.current.shift();
+    sourceBuffer.current.appendBuffer(chunk);
+  }
+
   const start = async () => {
-    const queue: any[] = [];
-    let isAppending = false;
-    const mediaSource = new MediaSource();
-
-    remoteVideo.current.src = URL.createObjectURL(mediaSource);
-
-    mediaSource.addEventListener("sourceopen", async () => {
-      const sourceBuffer = mediaSource.addSourceBuffer(
-        "video/webm;codecs=vp8,opus",
-      );
-
-      sourceBuffer.addEventListener("updateend", () => {
-        isAppending = false;
-
-        if (queue.length > 0) {
-          appendNextChunk();
-        }
-      });
-
-      function appendNextChunk() {
-        if (!sourceBuffer || isAppending || queue.length === 0) return;
-        isAppending = true;
-        const chunk = queue.shift();
-        sourceBuffer.appendBuffer(chunk);
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-
-      const recorder = new MediaRecorder(stream, {
-        mimeType: "video/webm;codecs=vp8,opus",
-      });
-
-      mediaRecorder.current = recorder;
-
-      recorder.ondataavailable = async (event) => {
-        if (event.data.size > 0) {
-          const arrayBuffer = await event.data.arrayBuffer();
-          queue.push(arrayBuffer);
-
-          appendNextChunk();
-        }
-      };
-
-      recorder.start(3000);
-      video.current.srcObject = stream;
-      video.current.autoplay = true;
+    mediaStream.current = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
     });
+
+    const recorder = new MediaRecorder(mediaStream.current, {
+      mimeType: "video/webm;codecs=vp8,opus",
+    });
+
+    mediaRecorder.current = recorder;
+
+    recorder.ondataavailable = async (event) => {
+      if (event.data.size > 0) {
+        // const arrayBuffer = await event.data.arrayBuffer();
+
+        const data = await mutations.sendMediaFrame.mutate({
+          payload: {
+            data: await event.data.arrayBuffer(),
+          },
+        });
+        // queue.current.push(arrayBuffer);
+        //
+        // appendNextChunk();
+      }
+    };
+
+    mediaRecorder.current.start(2000);
+    video.current.srcObject = mediaStream.current;
+    video.current.autoplay = true;
 
     // -------
 
@@ -150,8 +176,7 @@ const ConferenceMainPanel = () => {
       </div>
       <video ref={video}></video>
       <div>Video</div>
-      {String(videoUrl)}
-      <video ref={remoteVideo} autoPlay controls />
+      <video ref={remoteVideo} autoPlay />
     </div>
   );
 };
