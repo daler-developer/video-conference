@@ -3,6 +3,6 @@ import { CreateUserDto } from './dto/CreateUserDto';
 
 export interface IUserRepo {
   addOne(dto: CreateUserDto): Promise<number>;
-  getOneById(): Promise<void>;
+  getOneById(id: number): Promise<User | null>;
   getMany(): Promise<User[]>;
 }

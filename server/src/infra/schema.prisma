@@ -8,14 +8,6 @@ generator client {
   output   = "../generated/prisma"
 }
 
-model User {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now()) @map("created_at")
-  fullName   String
-
-  @@map("users")
-}
-
 model Message {
   id         Int      @id @default(autoincrement())
   text       String
@@ -25,10 +17,23 @@ model Message {
   @@map("messages")
 }
 
+model User {
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now()) @map("created_at")
+  fullName     String
+
+  conferenceId String
+  conference   Conference  @relation(fields: [conferenceId], references: [id])
+
+  @@map("users")
+}
+
 model Conference {
-  id        String   @id
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
+  id           String   @id
+  name         String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  participants User[]
 
   @@map("conferences")
 }

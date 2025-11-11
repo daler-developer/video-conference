@@ -1,5 +1,6 @@
 import { User, IUserRepo, CreateUserDto } from '@/domain';
 import dbClient from '@/infra/dbClient';
+import { Conference } from '@/domain/entities/Conference';
 
 export class UserRepo implements IUserRepo {
   async addOne(dto: CreateUserDto): Promise<number> {
@@ -15,22 +16,11 @@ export class UserRepo implements IUserRepo {
     return id;
   }
 
-  async getOneById(): Promise<void> {
-    return;
+  async getOneById(id: number): Promise<User | null> {
+    return dbClient.user.findUnique({ where: { id } });
   }
 
   async getMany(): Promise<User[]> {
-    return [
-      {
-        id: 1,
-        name: 'Daler',
-        age: 11,
-      },
-      {
-        id: 2,
-        name: 'Aziz',
-        age: 22,
-      },
-    ];
+    return [];
   }
 }
