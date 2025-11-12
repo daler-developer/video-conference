@@ -1,7 +1,7 @@
 import createResolverByMessageType from '../../createResolverByMessageType';
 import { z } from 'zod/v4';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
-import { StartSessionCommandUseCase } from '@/application';
+import { createApplicationContext, StartSessionCommandUseCase } from '@/application';
 import { CreateUserDto } from '@/domain';
 
 const START_SESSION = 'START_SESSION';
@@ -22,7 +22,11 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(STA
   async execute({ ctx, payload }) {
     const createUserDto = new CreateUserDto(payload.fullName);
 
-    const result = await ctx.useCaseManager.run(StartSessionCommandUseCase, createUserDto);
+    const result = await ctx.useCaseManager.run(
+      StartSessionCommandUseCase,
+      createUserDto,
+      createApplicationContext({ currentUserId: ctx.userId })
+    );
 
     return {
       accessToken: result.accessToken,

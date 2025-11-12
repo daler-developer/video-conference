@@ -30,14 +30,17 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(GET
   },
   middleware: [],
   async execute({ client, payload, ctx }) {
-    const result = await useCaseManager.run(GetUsersQueryUseCase, {
-      limit: payload.limit,
-      page: payload.page,
-    });
-
     return {
-      list: result,
+      list: [],
     };
+    // const result = await useCaseManager.run(GetUsersQueryUseCase, {
+    //   limit: payload.limit,
+    //   page: payload.page,
+    // });
+    //
+    // return {
+    //   list: result,
+    // };
 
     // const page = message.payload.page;
     // console.log('page', page);

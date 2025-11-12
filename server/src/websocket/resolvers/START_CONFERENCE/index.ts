@@ -1,5 +1,5 @@
 import createResolverByMessageType from '../../createResolverByMessageType';
-import { StartConferenceCommandUseCase, StartSessionCommandUseCase } from '@/application';
+import { StartConferenceCommandUseCase, createApplicationContext } from '@/application';
 import { CreateConferenceDto, CreateUserDto } from '@/domain';
 import { authRequired, AuthContextProps } from '../../middleware/authRequired';
 
@@ -23,7 +23,11 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload, Con
   async execute({ ctx, payload }) {
     const startConferenceDto = new CreateConferenceDto(payload.name);
 
-    const result = await ctx.useCaseManager.run(StartConferenceCommandUseCase, startConferenceDto);
+    const result = await ctx.useCaseManager.run(
+      StartConferenceCommandUseCase,
+      startConferenceDto,
+      createApplicationContext({ currentUserId: ctx.userId })
+    );
 
     return result;
   },

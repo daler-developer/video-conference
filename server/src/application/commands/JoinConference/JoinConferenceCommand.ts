@@ -3,10 +3,10 @@ import { UseCase } from '../../UseCase';
 import { ApplicationError } from '../../ApplicationError';
 import { TYPES } from '@/types';
 import { IConferenceRepo, IUserConferenceRelationManager, IUserRepo } from '@/domain';
+import { ApplicationContext } from '@/application/ApplicationContext';
 
 type Request = {
   conferenceId: string;
-  currentUserId: number;
 };
 
 type Result = {
@@ -19,11 +19,11 @@ export class JoinConferenceCommandUseCase extends UseCase<Request, Result> {
   @inject(TYPES.UserRepo) private userRepo!: IUserRepo;
   @inject(TYPES.UserConferenceRelationManager) private userConferenceRelationManager!: IUserConferenceRelationManager;
 
-  async execute({ conferenceId, currentUserId }: Request) {
+  async execute({ conferenceId }: Request, { currentUserId }: ApplicationContext) {
     const conference = await this.conferenceRepo.getOneById(conferenceId);
-    const user = await this.userRepo.getOneById(currentUserId);
+    const user = await this.userRepo.getOneById(currentUserId!);
 
-    await this.userConferenceRelationManager.addParticipantToConference(currentUserId, conferenceId);
+    await this.userConferenceRelationManager.addParticipantToConference(currentUserId!, conferenceId);
 
     return {
       message: 'You successfully joined the conference',

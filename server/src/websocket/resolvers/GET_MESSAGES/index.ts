@@ -18,10 +18,13 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(GET
   },
   middleware: [],
   async execute({ client, payload, ctx }) {
-    const result = await useCaseManager.run(GetMessagesQueryUseCase, {});
-
     return {
-      list: result,
+      list: [],
     };
+    // const result = await useCaseManager.run(GetMessagesQueryUseCase, {});
+    //
+    // return {
+    //   list: result,
+    // };
   },
 });

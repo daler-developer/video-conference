@@ -1,5 +1,5 @@
 import createResolverByMessageType from '../../createResolverByMessageType';
-import { JoinConferenceCommandUseCase } from '@/application';
+import { createApplicationContext, JoinConferenceCommandUseCase } from '@/application';
 import { authRequired, AuthContextProps } from '../../middleware/authRequired';
 
 const JOIN_CONFERENCE = 'JOIN_CONFERENCE';
@@ -20,10 +20,13 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload, Con
   },
   middleware: [authRequired],
   async execute({ ctx, payload }) {
-    await ctx.useCaseManager.run(JoinConferenceCommandUseCase, {
-      conferenceId: payload.conferenceId,
-      currentUserId: ctx.userId,
-    });
+    await ctx.useCaseManager.run(
+      JoinConferenceCommandUseCase,
+      {
+        conferenceId: payload.conferenceId,
+      },
+      createApplicationContext({ currentUserId: ctx.userId })
+    );
 
     return {
       message: 'Successfully joined the conference',
