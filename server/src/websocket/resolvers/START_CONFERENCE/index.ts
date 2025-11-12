@@ -1,6 +1,7 @@
 import createResolverByMessageType from '../../createResolverByMessageType';
 import { StartConferenceCommandUseCase, StartSessionCommandUseCase } from '@/application';
 import { CreateConferenceDto, CreateUserDto } from '@/domain';
+import { authRequired, AuthContextProps } from '../../middleware/authRequired';
 
 const START_CONFERENCE = 'START_CONFERENCE';
 
@@ -12,11 +13,13 @@ type OutgoingPayload = {
   conferenceId: string;
 };
 
-export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(START_CONFERENCE, {
+type Context = AuthContextProps;
+
+export default createResolverByMessageType<IncomingPayload, OutgoingPayload, Context>(START_CONFERENCE, {
   validator() {
     return true;
   },
-  middleware: [],
+  middleware: [authRequired],
   async execute({ ctx, payload }) {
     const startConferenceDto = new CreateConferenceDto(payload.name);
 

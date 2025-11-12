@@ -3,6 +3,7 @@ import { StartSessionCommandUseCase } from './commands/StartSession/StartSession
 import { StartConferenceCommandUseCase } from './commands/StartConference/StartConferenceCommand';
 import { GetUsersQueryUseCase } from './queries/GetUsers/GetUsersQuery';
 import { GetMessagesQueryUseCase } from './queries/GetMessages/GetMessagesQuery';
+import { JoinConferenceCommandUseCase } from './commands/JoinConference/JoinConferenceCommand';
 import { ApplicationError } from './ApplicationError';
 
 export {
@@ -11,5 +12,6 @@ export {
   StartConferenceCommandUseCase,
   GetUsersQueryUseCase,
   GetMessagesQueryUseCase,
+  JoinConferenceCommandUseCase,
   ApplicationError,
 };

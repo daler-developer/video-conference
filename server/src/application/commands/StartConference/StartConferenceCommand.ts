@@ -1,9 +1,9 @@
 import { inject, injectable } from 'inversify';
 import { UseCase } from '../../UseCase';
 import { TYPES } from '@/types';
-import { CreateConferenceDto, IConferenceRepo } from '@/domain';
+import { StartConferenceDto, IConferenceRepo, IUserConferenceRelationManager } from '@/domain';
 
-type Request = CreateConferenceDto;
+type Request = StartConferenceDto;
 
 type Result = {
   conferenceId: string;
@@ -11,11 +11,14 @@ type Result = {
 
 @injectable()
 export class StartConferenceCommandUseCase extends UseCase<Request, Result> {
-  @inject(TYPES.ConferenceRepo)
-  private conferenceRepo!: IConferenceRepo;
+  @inject(TYPES.ConferenceRepo) private conferenceRepo!: IConferenceRepo;
+  @inject(TYPES.UserConferenceRelationManager) private userConferenceRelationManager!: IUserConferenceRelationManager;
 
   async execute(request: Request) {
     const conferenceId = await this.conferenceRepo.addOne(request);
+    const currentUserId = 1;
+
+    await this.userConferenceRelationManager.addParticipantToConference(currentUserId, conferenceId);
 
     return {
       conferenceId,

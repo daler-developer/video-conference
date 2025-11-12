@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import createMiddleware from './createMiddleware';
 
 export type AuthContextProps = {
-  userId: string;
+  userId: number;
 };
 
 const SECRET_KEY = 'test_secret';

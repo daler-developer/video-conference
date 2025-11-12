@@ -19,12 +19,14 @@ const StartVideoConferencePage = () => {
     startConference: useStartConference(),
   };
 
-  const onSubmit: SubmitHandler<FormValues> = (values) => {
-    mutations.startConference.mutate({
+  const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    const data = await mutations.startConference.mutate({
       payload: {
         name: values.name,
       },
     });
+
+    console.log("startConference", data);
   };
 
   return (

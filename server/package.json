@@ -3,8 +3,9 @@
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/index.js",
-    "migrations:create": "prisma migrate dev --create-only --name init --schema ./src/infra/schema.prisma",
-    "generate": "prisma generate --schema ./src/infra/schema.prisma"
+    "prisma:generate": "prisma generate --schema ./src/infra/schema.prisma",
+    "db:migrate": "prisma migrate dev --create-only --name init --schema ./src/infra/schema.prisma",
+    "db:reset": "npx prisma migrate reset --schema=./src/infra/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.16.1",
