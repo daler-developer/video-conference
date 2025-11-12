@@ -22,8 +22,8 @@ model User {
   createdAt    DateTime    @default(now()) @map("created_at")
   fullName     String
 
-  conferenceId String
-  conference   Conference  @relation(fields: [conferenceId], references: [id])
+  conferenceId String?
+  conference   Conference? @relation(fields: [conferenceId], references: [id])
 
   @@map("users")
 }

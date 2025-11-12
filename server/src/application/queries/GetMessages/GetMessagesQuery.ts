@@ -2,19 +2,12 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types';
 import { IUserRepo } from '@/domain';
 import { UseCase } from '../../UseCase';
-import { User } from '@/application/queries/GetUsers/GetUsersQuery';
+// import { User } from '@/application/queries/GetUsers/GetUsersQuery';
 import dbClient from '@/infra/dbClient';
 
 function getRandom1to10() {
   return Math.floor(Math.random() * 10) + 1;
 }
-
-export type Message = {
-  id: number;
-  text: string;
-  likesCount: number;
-  sender: User;
-};
 
 type Request = {};
 

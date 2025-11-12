@@ -2,6 +2,7 @@ import createResolverByMessageType from '../../createResolverByMessageType';
 import { z } from 'zod/v4';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
 import { GetUsersQueryUseCase, useCaseManager } from '@/application';
+import { User } from '@/domain';
 
 const GET_USERS = 'GET_USERS';
 const OUTGOING_MESSAGE_TYPE = 'GET_USERS_RESULT';
@@ -13,7 +14,7 @@ type IncomingPayload = {
 };
 
 type OutgoingPayload = {
-  list: Array<{ id: number; name: string; age: number }>;
+  list: User[];
 };
 
 function getRandom1to10() {

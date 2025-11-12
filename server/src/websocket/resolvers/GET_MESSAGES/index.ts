@@ -2,7 +2,6 @@ import createResolverByMessageType from '../../createResolverByMessageType';
 import { z } from 'zod/v4';
 import { BaseIncomingMessage, BaseOutgoingMessage } from '../../types';
 import { GetMessagesQueryUseCase, GetUsersQueryUseCase, useCaseManager } from '@/application';
-import { Message } from '@/application/queries/GetMessages/GetMessagesQuery';
 
 const GET_MESSAGES = 'GET_MESSAGES';
 
