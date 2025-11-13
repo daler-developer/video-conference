@@ -3,6 +3,7 @@ import {
   StartSessionError,
 } from "./mutations/startSession.ts";
 import { useStartConference } from "./mutations/startConference.ts";
+import { useJoinConferenceMutation } from "./mutations/joinConference.ts";
 import {
   useSendMediaFrameMutation,
   SendMediaFrameMutationError,
@@ -25,6 +26,7 @@ export {
   useStartSession,
   StartSessionError,
   useStartConference,
+  useJoinConferenceMutation,
   useNewMediaFrameSub,
   useGetUsersQuery,
   useGetMessagesQuery,

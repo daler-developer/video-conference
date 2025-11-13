@@ -4,6 +4,7 @@ import {
   StartVideoConferencePage,
   ROUTE_PATH,
   ConferencePage,
+  ConferencePreviewPage,
 } from "@/pages";
 
 export const router = createBrowserRouter([
@@ -22,5 +23,9 @@ export const router = createBrowserRouter([
   {
     path: ROUTE_PATH.CONFERENCE,
     element: <ConferencePage />,
+  },
+  {
+    path: ROUTE_PATH.CONFERENCE_PREVIEW,
+    element: <ConferencePreviewPage />,
   },
 ]);

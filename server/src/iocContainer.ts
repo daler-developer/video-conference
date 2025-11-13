@@ -4,6 +4,7 @@ import {
   GetUsersQueryUseCase,
   StartConferenceCommandUseCase,
   StartSessionCommandUseCase,
+  JoinConferenceCommandUseCase,
 } from '@/application';
 import { UserRepo } from './infra';
 import { TYPES } from './types';
@@ -17,6 +18,7 @@ container.bind(StartSessionCommandUseCase).toSelf().inTransientScope();
 container.bind(GetUsersQueryUseCase).toSelf().inTransientScope();
 container.bind(GetMessagesQueryUseCase).toSelf().inTransientScope();
 container.bind(StartConferenceCommandUseCase).toSelf().inTransientScope();
+container.bind(JoinConferenceCommandUseCase).toSelf().inTransientScope();
 
 container.bind<IUserRepo>(TYPES.UserRepo).to(UserRepo);
 container.bind<IConferenceRepo>(TYPES.ConferenceRepo).to(ConferenceRepo);

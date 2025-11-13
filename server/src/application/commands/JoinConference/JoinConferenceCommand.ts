@@ -16,17 +16,12 @@ type Result = {
 
 @injectable()
 export class JoinConferenceCommandUseCase extends UseCase<Request, Result> {
-  @inject(TYPES.ConferenceRepo) private conferenceRepo!: IConferenceRepo;
-  @inject(TYPES.UserRepo) private userRepo!: IUserRepo;
-  @inject(TYPES.UserConferenceRelationManager) private userConferenceRelationManager!: IUserConferenceRelationManager;
-
   async execute({ conferenceId }: Request) {
-    const conference = await this.conferenceRepo.getOneById(conferenceId);
-    const user = await this.userRepo.getOneById(this.ctx.currentUserId!);
+    const conference = await this.ctx.conferenceRepo.getOneById(conferenceId);
 
     await this.checkRule(new ConferenceShouldExistRule(conference));
 
-    await this.userConferenceRelationManager.addParticipantToConference(this.ctx.currentUserId!, conferenceId);
+    await this.ctx.userConferenceRelationManager.addParticipantToConference(this.ctx.currentUserId!, conferenceId);
 
     return {
       message: 'You successfully joined the conference',

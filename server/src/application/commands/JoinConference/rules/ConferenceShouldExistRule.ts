@@ -8,7 +8,10 @@ export class ConferenceShouldExistRule extends IRule {
 
   async check() {
     if (!this.conference) {
-      return this.error('NOT_FOUND', 'Conference not found');
+      return this.error('NOT_FOUND', 'Conference not found', {
+        foo: 'bar',
+        testing: [1, false, ['hello']],
+      });
     }
   }
 }
