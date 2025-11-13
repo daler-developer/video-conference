@@ -4,6 +4,7 @@ import { ApplicationError } from '../../ApplicationError';
 import { TYPES } from '@/types';
 import { IConferenceRepo, IUserConferenceRelationManager, IUserRepo } from '@/domain';
 import { ApplicationContext } from '@/application/ApplicationContext';
+import { ConferenceShouldExistRule } from '@/application/commands/JoinConference/rules/ConferenceShouldExistRule';
 
 type Request = {
   conferenceId: string;
@@ -19,11 +20,13 @@ export class JoinConferenceCommandUseCase extends UseCase<Request, Result> {
   @inject(TYPES.UserRepo) private userRepo!: IUserRepo;
   @inject(TYPES.UserConferenceRelationManager) private userConferenceRelationManager!: IUserConferenceRelationManager;
 
-  async execute({ conferenceId }: Request, { currentUserId }: ApplicationContext) {
+  async execute({ conferenceId }: Request) {
     const conference = await this.conferenceRepo.getOneById(conferenceId);
-    const user = await this.userRepo.getOneById(currentUserId!);
+    const user = await this.userRepo.getOneById(this.ctx.currentUserId!);
 
-    await this.userConferenceRelationManager.addParticipantToConference(currentUserId!, conferenceId);
+    await this.checkRule(new ConferenceShouldExistRule(conference));
+
+    await this.userConferenceRelationManager.addParticipantToConference(this.ctx.currentUserId!, conferenceId);
 
     return {
       message: 'You successfully joined the conference',

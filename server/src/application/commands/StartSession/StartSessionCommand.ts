@@ -15,18 +15,8 @@ type Result = {
 
 @injectable()
 export class StartSessionCommandUseCase extends UseCase<Request, Result> {
-  @inject(TYPES.UserRepo)
-  private userRepo!: IUserRepo;
-
   async execute(request: Request) {
-    // throw new ApplicationError('not_found', 'User was not found', {
-    //   foo: 'bar',
-    //   inner: {
-    //     bar: [true, 2, 10, false],
-    //   },
-    // });
-
-    const userId = await this.userRepo.addOne(request);
+    const userId = await this.ctx.userRepo.addOne(request);
 
     const accessToken = jwt.sign(
       {

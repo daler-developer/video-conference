@@ -11,7 +11,8 @@ class UseCaseManager {
     ctx: ApplicationContext
   ) {
     const useCase = container.get(UseCaseClass);
-    return useCase.execute(request, ctx);
+    useCase.setContext(ctx);
+    return useCase.execute(request);
   }
 }
 

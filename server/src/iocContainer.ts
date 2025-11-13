@@ -13,10 +13,10 @@ import { UserConferenceRelationManager } from '@/infra/relation-managers/UserCon
 
 const container = new Container();
 
-container.bind(StartSessionCommandUseCase).toSelf();
-container.bind(GetUsersQueryUseCase).toSelf();
-container.bind(GetMessagesQueryUseCase).toSelf();
-container.bind(StartConferenceCommandUseCase).toSelf();
+container.bind(StartSessionCommandUseCase).toSelf().inTransientScope();
+container.bind(GetUsersQueryUseCase).toSelf().inTransientScope();
+container.bind(GetMessagesQueryUseCase).toSelf().inTransientScope();
+container.bind(StartConferenceCommandUseCase).toSelf().inTransientScope();
 
 container.bind<IUserRepo>(TYPES.UserRepo).to(UserRepo);
 container.bind<IConferenceRepo>(TYPES.ConferenceRepo).to(ConferenceRepo);

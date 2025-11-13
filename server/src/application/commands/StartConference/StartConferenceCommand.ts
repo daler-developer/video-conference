@@ -12,13 +12,10 @@ type Result = {
 
 @injectable()
 export class StartConferenceCommandUseCase extends UseCase<Request, Result> {
-  @inject(TYPES.ConferenceRepo) private conferenceRepo!: IConferenceRepo;
-  @inject(TYPES.UserConferenceRelationManager) private userConferenceRelationManager!: IUserConferenceRelationManager;
+  async execute(request: Request) {
+    const conferenceId = await this.ctx.conferenceRepo.addOne(request);
 
-  async execute(request: Request, { currentUserId }: ApplicationContext) {
-    const conferenceId = await this.conferenceRepo.addOne(request);
-
-    await this.userConferenceRelationManager.addParticipantToConference(currentUserId!, conferenceId);
+    await this.ctx.userConferenceRelationManager.addParticipantToConference(this.ctx.currentUserId!, conferenceId);
 
     return {
       conferenceId,

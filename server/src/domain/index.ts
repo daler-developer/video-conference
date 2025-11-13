@@ -1,4 +1,5 @@
 import { User } from './entities/User';
+import { Conference } from './entities/Conference';
 import { type IUserRepo } from './repos/UserRepo/IUserRepo';
 import { type IConferenceRepo } from './repos/ConferenceRepo/IConferenceRepo';
 import { CreateUserDto } from './repos/UserRepo/dto/CreateUserDto';
@@ -8,6 +9,7 @@ import { IUserConferenceRelationManager } from './relation-managers/UserConferen
 
 export {
   User,
+  Conference,
   IUserRepo,
   IConferenceRepo,
   CreateUserDto,
