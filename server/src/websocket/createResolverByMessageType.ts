@@ -24,7 +24,6 @@ type Options<
 
 type BaseContext = {
   userId?: number;
-  useCaseManager: typeof useCaseManager;
   useCaseRunner: UseCaseRunner;
 };
 
@@ -77,14 +76,13 @@ const createResolverByMessageType = <
         return;
       }
 
-      const ctx: BaseContext & TContext = {
-        useCaseManager,
-        useCaseRunner: new UseCaseRunner({ currentUserId: 1 }),
-      } as BaseContext & TContext;
+      const ctx: BaseContext & TContext = {} as BaseContext & TContext;
 
       const defaultMiddleware = [populateUser];
 
       processMiddleware([...defaultMiddleware, ...options.middleware], { ctx, message, request });
+
+      ctx.useCaseRunner = new UseCaseRunner({ currentUserId: ctx.userId });
 
       try {
         const payload = await options.execute({

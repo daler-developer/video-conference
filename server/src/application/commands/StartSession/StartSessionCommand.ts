@@ -4,6 +4,7 @@ import { UseCase } from '../../UseCase';
 import { ApplicationError } from '../../ApplicationError';
 import { TYPES } from '@/types';
 import { CreateUserDto, CreateConferenceDto, IUserRepo } from '@/domain';
+import { SessionRequiredRule } from '@/application/rules/SessionRequiredRule';
 
 const SECRET_KEY = 'test_secret';
 

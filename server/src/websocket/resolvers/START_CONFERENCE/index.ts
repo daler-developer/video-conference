@@ -19,15 +19,11 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload, Con
   validator() {
     return true;
   },
-  middleware: [authRequired],
+  middleware: [],
   async execute({ ctx, payload }) {
     const startConferenceDto = new StartConferenceDto(payload.name);
 
-    const result = await ctx.useCaseManager.run(
-      StartConferenceCommandUseCase,
-      startConferenceDto,
-      createApplicationContext({ currentUserId: ctx.userId })
-    );
+    const result = await ctx.useCaseRunner.run(StartConferenceCommandUseCase, startConferenceDto);
 
     return result;
   },

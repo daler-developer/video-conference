@@ -6,6 +6,7 @@ import { IConferenceRepo, IUserConferenceRelationManager, IUserRepo } from '@/do
 import { ApplicationContext } from '@/application/ApplicationContext';
 import { ConferenceShouldExistRule } from '@/application/commands/JoinConference/rules/ConferenceShouldExistRule';
 import { applicationPubSub } from '@/application/pubsub';
+import { SessionRequiredRule } from '@/application/rules/SessionRequiredRule';
 
 type Request = {
   conferenceId: string;
@@ -18,6 +19,8 @@ type Result = {
 @injectable()
 export class JoinConferenceCommandUseCase extends UseCase<Request, Result> {
   async execute({ conferenceId }: Request) {
+    await this.checkRule(new SessionRequiredRule());
+
     const conference = await this.ctx.conferenceRepo.getOneById(conferenceId);
 
     await this.checkRule(new ConferenceShouldExistRule(conference));

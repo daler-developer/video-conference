@@ -22,11 +22,7 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload>(STA
   async execute({ ctx, payload }) {
     const createUserDto = new CreateUserDto(payload.fullName);
 
-    const result = await ctx.useCaseManager.run(
-      StartSessionCommandUseCase,
-      createUserDto,
-      createApplicationContext({ currentUserId: ctx.userId })
-    );
+    const result = await ctx.useCaseRunner.run(StartSessionCommandUseCase, createUserDto);
 
     return {
       accessToken: result.accessToken,

@@ -18,15 +18,11 @@ export default createResolverByMessageType<IncomingPayload, OutgoingPayload, Con
   validator() {
     return true;
   },
-  middleware: [authRequired],
+  middleware: [],
   async execute({ ctx, payload }) {
-    await ctx.useCaseManager.run(
-      JoinConferenceCommandUseCase,
-      {
-        conferenceId: payload.conferenceId,
-      },
-      createApplicationContext({ currentUserId: ctx.userId })
-    );
+    await ctx.useCaseRunner.run(JoinConferenceCommandUseCase, {
+      conferenceId: payload.conferenceId,
+    });
 
     return {
       message: 'Successfully joined the conference',

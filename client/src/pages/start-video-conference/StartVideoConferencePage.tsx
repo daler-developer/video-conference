@@ -24,6 +24,9 @@ const StartVideoConferencePage = () => {
       payload: {
         name: values.name,
       },
+      handleError(e) {
+        console.log("error", e);
+      },
     });
 
     console.log("startConference", data);
