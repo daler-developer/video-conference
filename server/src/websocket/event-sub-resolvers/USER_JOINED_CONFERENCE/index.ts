@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import createEventSubResolver, { BaseEventSubDataOutgoingMessage } from '../../createEventSubResolver';
-import { useCaseManager } from '@/application';
+import { GetUserQueryUseCase, useCaseManager } from '@/application';
 
 const CHANNEL_NAME = 'USER_JOINED_CONFERENCE';
 const EVENT_NAME = 'USER_JOINED_CONFERENCE';
@@ -27,7 +27,11 @@ export default createEventSubResolver<typeof CHANNEL_NAME, EventSubDataOutgoingM
     },
   },
   middleware: [],
-  format({ payload, params }) {
-    return payload;
+  async format({ payload, ctx }) {
+    const user = await ctx.useCaseRunner.run(GetUserQueryUseCase, { id: payload.userId });
+    return {
+      ...payload,
+      user,
+    };
   },
 });

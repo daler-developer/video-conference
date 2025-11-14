@@ -36,7 +36,7 @@ export const createWebsocketMutationCallback = <
           e.incomingErrorMessage.payload.details,
         );
       } else {
-        // console.log("e", e);
+        console.log("e", e);
         alert("createWebsocketMutationCallback error");
       }
     }

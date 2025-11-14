@@ -22,7 +22,7 @@ type Options<
   init?: () => void;
 };
 
-type BaseContext = {
+export type BaseContext = {
   userId?: number;
   useCaseRunner: UseCaseRunner;
 };

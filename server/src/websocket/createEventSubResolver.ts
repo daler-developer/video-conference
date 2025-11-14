@@ -4,6 +4,9 @@ import subscriptionManager from './SubscriptionManager';
 import { ZodObject } from 'zod';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
 import { applicationPubSub, type ApplicationEvents, type ApplicationEventName } from '@/application';
+import { BaseContext } from '@/websocket/createResolverByMessageType';
+
+type MaybePromise<T> = T | Promise<T>;
 
 type Options<
   TChannelName extends ApplicationEventName,
@@ -18,7 +21,8 @@ type Options<
   format: (options: {
     payload: ApplicationEvents[TChannelName];
     params: any;
-  }) => TEventSubDataOutgoingMessage['payload']['eventData'];
+    ctx: BaseContext;
+  }) => MaybePromise<TEventSubDataOutgoingMessage['payload']['eventData']>;
 };
 
 export type BaseEventSubDataOutgoingMessage<
@@ -53,9 +57,10 @@ const createEventSubResolver = <
         params: subscriber.params,
       });
       if (activate) {
-        const eventData = options.format({
+        const eventData = await options.format({
           payload,
           params: subscriber.params,
+          ctx: subscriber.ctx,
         });
         subscriber.client.sendMessage(
           createEventSubDataOutgoingMessage({

@@ -11,11 +11,13 @@ import { TYPES } from './types';
 import { IConferenceRepo, IUserRepo, IUserConferenceRelationManager } from '@/domain';
 import { ConferenceRepo } from '@/infra/repositories/ConferenceRepo';
 import { UserConferenceRelationManager } from '@/infra/relation-managers/UserConferenceRelationManager';
+import { GetUserQueryUseCase } from '@/application/queries/GetUser/GetUsersQuery';
 
 const container = new Container();
 
 container.bind(StartSessionCommandUseCase).toSelf().inTransientScope();
 container.bind(GetUsersQueryUseCase).toSelf().inTransientScope();
+container.bind(GetUserQueryUseCase).toSelf().inTransientScope();
 container.bind(GetMessagesQueryUseCase).toSelf().inTransientScope();
 container.bind(StartConferenceCommandUseCase).toSelf().inTransientScope();
 container.bind(JoinConferenceCommandUseCase).toSelf().inTransientScope();

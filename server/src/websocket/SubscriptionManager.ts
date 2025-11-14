@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import WebSocketWrapper from './WebSocketWrapper';
+import { BaseContext } from '@/websocket/createResolverByMessageType';
 
 class SubscriptionManager {
   private eventSubscribersMap = new Map<
@@ -7,7 +8,7 @@ class SubscriptionManager {
     Array<{
       client: WebSocketWrapper;
       params: any;
-      ctx: any;
+      ctx: BaseContext;
     }>
   >();
   private websocketDataMap = new Map<
