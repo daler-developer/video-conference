@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import createEventSubResolver, { BaseEventSubDataOutgoingMessage } from '../../createEventSubResolver';
 
-const CHANNEL_NAME = 'NEW_MEDIA_FRAME';
+const CHANNEL_NAME = 'USER_SENT_NEW_MEDIA_FRAME';
 const EVENT_NAME = 'NEW_MEDIA_FRAME';
 
 type EventSubDataOutgoingMessage = BaseEventSubDataOutgoingMessage<

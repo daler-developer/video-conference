@@ -5,6 +5,7 @@ import { TYPES } from '@/types';
 import { IConferenceRepo, IUserConferenceRelationManager, IUserRepo } from '@/domain';
 import { ApplicationContext } from '@/application/ApplicationContext';
 import { ConferenceShouldExistRule } from '@/application/commands/JoinConference/rules/ConferenceShouldExistRule';
+import { applicationPubSub } from '@/application/pubsub';
 
 type Request = {
   conferenceId: string;
@@ -20,6 +21,11 @@ export class JoinConferenceCommandUseCase extends UseCase<Request, Result> {
     const conference = await this.ctx.conferenceRepo.getOneById(conferenceId);
 
     await this.checkRule(new ConferenceShouldExistRule(conference));
+
+    applicationPubSub.publish('USER_JOINED_CONFERENCE', {
+      conferenceId,
+      userId: this.ctx.currentUserId!,
+    });
 
     await this.ctx.userConferenceRelationManager.addParticipantToConference(this.ctx.currentUserId!, conferenceId);
 

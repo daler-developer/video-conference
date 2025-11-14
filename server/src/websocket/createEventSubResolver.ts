@@ -3,19 +3,20 @@ import { BaseOutgoingMessage } from './types';
 import subscriptionManager from './SubscriptionManager';
 import { ZodObject } from 'zod';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
+import { applicationPubSub, type ApplicationEvents, type ApplicationEventName } from '@/application';
 
 type Options<
-  TChannelName extends CHANNEL_NAME,
+  TChannelName extends ApplicationEventName,
   TEventSubDataOutgoingMessage extends BaseEventSubDataOutgoingMessage,
 > = {
   eventParamsSchema?: ZodObject<any, any, any>;
   subscribe: {
     channelName: TChannelName;
-    filter: (options: { payload: CHANNEL_PAYLOAD_MAP[TChannelName]; params: any }) => boolean;
+    filter: (options: { payload: ApplicationEvents[TChannelName]; params: any }) => boolean;
   };
   middleware?: any[];
   format: (options: {
-    payload: CHANNEL_PAYLOAD_MAP[TChannelName];
+    payload: ApplicationEvents[TChannelName];
     params: any;
   }) => TEventSubDataOutgoingMessage['payload']['eventData'];
 };
@@ -34,13 +35,13 @@ export type BaseEventSubDataOutgoingMessage<
 >;
 
 const createEventSubResolver = <
-  TChannelName extends CHANNEL_NAME,
+  TChannelName extends ApplicationEventName,
   TEventSubDataOutgoingMessage extends BaseEventSubDataOutgoingMessage,
 >(
   eventName: TEventSubDataOutgoingMessage['payload']['eventName'],
   options: Options<TChannelName, TEventSubDataOutgoingMessage>
 ) => {
-  pubsub.subscribe(options.subscribe.channelName, (payload) => {
+  applicationPubSub.subscribe(options.subscribe.channelName, (payload) => {
     const subscribers = subscriptionManager.getSubscribers(eventName);
 
     const createEventSubDataOutgoingMessage =

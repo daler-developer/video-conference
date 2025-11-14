@@ -11,6 +11,10 @@ export type Session = {
 };
 
 class SessionManager {
+  getIsAuthenticated() {
+    return Boolean(this.getAccessToken());
+  }
+
   saveSession(session: Session) {
     this.set(
       [session, ...this.getSavedSessions()].slice(0, MAX_SAVED_SESSIONS_COUNT),

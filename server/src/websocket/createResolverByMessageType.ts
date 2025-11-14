@@ -4,7 +4,8 @@ import { createOutgoingValidationErrorMessage } from './outgoing-message-creator
 import processMiddleware from './middleware/processMiddleware';
 import { wss } from './init';
 import { createOutgoingMessageCreator } from './createOutgoingMessageCreator';
-import { ApplicationError, useCaseManager } from '@/application';
+import { ApplicationError, useCaseManager, UseCaseRunner } from '@/application';
+import { populateUser } from '@/websocket/middleware/populateUser';
 
 type Options<
   TIncomingPayload extends BaseIncomingMessage['payload'],
@@ -22,7 +23,9 @@ type Options<
 };
 
 type BaseContext = {
+  userId?: number;
   useCaseManager: typeof useCaseManager;
+  useCaseRunner: UseCaseRunner;
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -47,7 +50,7 @@ const createResolverByMessageType = <
     const client = new WebSocketWrapper(ws);
 
     client.onMessage(async (message) => {
-      await sleep(2000);
+      await sleep(0);
 
       const messageTypeMatch = message.type === messageType;
 
@@ -76,9 +79,12 @@ const createResolverByMessageType = <
 
       const ctx: BaseContext & TContext = {
         useCaseManager,
+        useCaseRunner: new UseCaseRunner({ currentUserId: 1 }),
       } as BaseContext & TContext;
 
-      processMiddleware(options.middleware, { ctx, message, request });
+      const defaultMiddleware = [populateUser];
+
+      processMiddleware([...defaultMiddleware, ...options.middleware], { ctx, message, request });
 
       try {
         const payload = await options.execute({

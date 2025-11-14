@@ -4,6 +4,7 @@ import { buildRoutePath } from "@/pages";
 import {
   StartSessionFormModal,
   type StartSessionFormModalHandle,
+  getIsAuthenticated,
 } from "@/modules/session";
 import { useRef } from "react";
 
@@ -13,7 +14,9 @@ const HomePage = () => {
   const startSessionFormModal = useRef<StartSessionFormModalHandle>(null!);
 
   const handleStartVideoConference = async () => {
-    await startSessionFormModal.current.open();
+    if (!getIsAuthenticated()) {
+      await startSessionFormModal.current.open();
+    }
 
     navigate(buildRoutePath.START_VIDEO_CONFERENCE());
   };

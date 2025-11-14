@@ -9,6 +9,7 @@ import {
   SendMediaFrameMutationError,
 } from "./mutations/sendMediaFrame.ts";
 import { useNewMediaFrameSub } from "./event-subs/newMediaFrameSub.ts";
+import { useUserJoinedConferenceSub } from "./event-subs/userJoinedConferenceSub.ts";
 import { useGetUsersQuery, useGetUsersLazyQuery } from "./queries/getUsers.ts";
 import {
   useGetMessagesQuery,
@@ -28,6 +29,7 @@ export {
   useStartConference,
   useJoinConferenceMutation,
   useNewMediaFrameSub,
+  useUserJoinedConferenceSub,
   useGetUsersQuery,
   useGetMessagesQuery,
   useGetMessagesLazyQuery,
