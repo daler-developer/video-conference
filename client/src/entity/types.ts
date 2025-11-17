@@ -1,7 +1,8 @@
 export type UserEntity = {
   id: number;
-  name: string;
-  age: number;
+  fullName: string;
+  conferenceId: string;
+  createdAt: string;
 };
 
 export type MessageEntity = {

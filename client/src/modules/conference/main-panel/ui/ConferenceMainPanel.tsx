@@ -1,8 +1,16 @@
 import { Button } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
-import { useNewMediaFrameSub, useSendMediaFrameMutation } from "@/entity";
+import {
+  useNewMediaFrameSub,
+  useSendMediaFrameMutation,
+  useGetConferenceParticipantsQuery,
+} from "@/entity";
 
-const ConferenceMainPanel = () => {
+type Props = {
+  conferenceId: string;
+};
+
+const ConferenceMainPanel = ({ conferenceId }: Props) => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const video = useRef<HTMLVideoElement>(null!);
@@ -13,9 +21,17 @@ const ConferenceMainPanel = () => {
   const isAppending = useRef<boolean>(false);
   const mediaStream = useRef<MediaStream>(null);
 
+  const queries = {
+    conferenceParticipants: useGetConferenceParticipantsQuery({
+      params: { conferenceId },
+    }),
+  };
+
   const mutations = {
     sendMediaFrame: useSendMediaFrameMutation(),
   };
+
+  // console.log(queries.conferenceParticipants.data);
 
   useEffect(() => {
     const mediaSource = new MediaSource();
@@ -164,6 +180,10 @@ const ConferenceMainPanel = () => {
     mediaRecorder.current!.stop();
   };
 
+  const handleViewParticipants = () => {
+    console.log(queries.conferenceParticipants.data);
+  };
+
   return (
     <div>
       <div className="flex gap-2">
@@ -172,6 +192,9 @@ const ConferenceMainPanel = () => {
         </Button>
         <Button type="button" onClick={handleStop}>
           Stop
+        </Button>
+        <Button type="button" onClick={handleViewParticipants}>
+          See participants
         </Button>
       </div>
       <video ref={video}></video>

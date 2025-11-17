@@ -9,14 +9,12 @@ const ConferencePage = () => {
     params: {
       conferenceId: conferenceId!,
     },
-    onData({ data }) {
-      console.log("data", data);
-    },
+    onData({ data }) {},
   });
 
   return (
     <div>
-      <Conference id={1} />
+      <Conference conferenceId={conferenceId!} />
     </div>
   );
 };

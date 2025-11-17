@@ -5,6 +5,10 @@ import { StartConferenceCommandUseCase } from './commands/StartConference/StartC
 import { GetUsersQueryUseCase } from './queries/GetUsers/GetUsersQuery';
 import { GetUserQueryUseCase } from './queries/GetUser/GetUsersQuery';
 import { GetMessagesQueryUseCase } from './queries/GetMessages/GetMessagesQuery';
+import {
+  GetConferenceParticipantsQueryUseCase,
+  ConferenceParticipantsQueryResult,
+} from './queries/GetConferenceParticipants/GetConferenceParticipantsQuery';
 import { JoinConferenceCommandUseCase } from './commands/JoinConference/JoinConferenceCommand';
 import { ApplicationError } from './ApplicationError';
 import { createApplicationContext } from './ApplicationContext';
@@ -18,6 +22,8 @@ export {
   GetUsersQueryUseCase,
   GetUserQueryUseCase,
   GetMessagesQueryUseCase,
+  GetConferenceParticipantsQueryUseCase,
+  ConferenceParticipantsQueryResult,
   JoinConferenceCommandUseCase,
   ApplicationError,
   createApplicationContext,

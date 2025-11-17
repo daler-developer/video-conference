@@ -15,12 +15,16 @@ type Options<
   eventParamsSchema?: ZodObject<any, any, any>;
   subscribe: {
     channelName: TChannelName;
-    filter: (options: { payload: ApplicationEvents[TChannelName]; params: any }) => boolean;
+    filter: (options: {
+      payload: ApplicationEvents[TChannelName];
+      params: TEventSubDataOutgoingMessage['payload']['eventParams'];
+      ctx: BaseContext;
+    }) => boolean;
   };
   middleware?: any[];
   format: (options: {
     payload: ApplicationEvents[TChannelName];
-    params: any;
+    params: TEventSubDataOutgoingMessage['payload']['eventParams'];
     ctx: BaseContext;
   }) => MaybePromise<TEventSubDataOutgoingMessage['payload']['eventData']>;
 };
@@ -55,6 +59,7 @@ const createEventSubResolver = <
       const activate = options.subscribe.filter({
         payload,
         params: subscriber.params,
+        ctx: subscriber.ctx,
       });
       if (activate) {
         const eventData = await options.format({

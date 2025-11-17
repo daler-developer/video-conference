@@ -12,6 +12,11 @@ import { useNewMediaFrameSub } from "./event-subs/newMediaFrameSub.ts";
 import { useUserJoinedConferenceSub } from "./event-subs/userJoinedConferenceSub.ts";
 import { useGetUsersQuery, useGetUsersLazyQuery } from "./queries/getUsers.ts";
 import {
+  useGetConferenceParticipantsLazyQuery,
+  GetConferenceParticipantsQueryError,
+  useGetConferenceParticipantsQuery,
+} from "./queries/getConferenceParticipants.ts";
+import {
   useGetMessagesQuery,
   useGetMessagesLazyQuery,
 } from "./queries/getMessages.ts";
@@ -20,8 +25,11 @@ import {
   useGetUsersInfiniteLazyQuery,
 } from "./queries/getUsersInfinite.ts";
 import { GetUsersQueryError } from "./queries/getUsers.ts";
+import { type UserEntity, type MessageEntity } from "./types";
 
 export {
+  type UserEntity,
+  type MessageEntity,
   useSendMediaFrameMutation,
   SendMediaFrameMutationError,
   useStartSession,
@@ -33,6 +41,9 @@ export {
   useGetUsersQuery,
   useGetMessagesQuery,
   useGetMessagesLazyQuery,
+  useGetConferenceParticipantsLazyQuery,
+  GetConferenceParticipantsQueryError,
+  useGetConferenceParticipantsQuery,
   useGetUsersInfiniteQuery,
   useGetUsersInfiniteLazyQuery,
   useGetUsersLazyQuery,

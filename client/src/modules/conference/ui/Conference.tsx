@@ -1,13 +1,13 @@
 import ConferenceMainPanel from "../main-panel/ui/ConferenceMainPanel";
 
 type Props = {
-  id: number;
+  conferenceId: string;
 };
 
-const Conference = ({ id }: Props) => {
+const Conference = ({ conferenceId }: Props) => {
   return (
     <div className="p-[20px]">
-      <ConferenceMainPanel />
+      <ConferenceMainPanel conferenceId={conferenceId} />
     </div>
   );
 };

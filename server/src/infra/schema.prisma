@@ -20,9 +20,9 @@ model Message {
 model User {
   id           Int         @id @default(autoincrement())
   createdAt    DateTime    @default(now()) @map("created_at")
-  fullName     String
+  fullName     String      @map("full_name")
 
-  conferenceId String?
+  conferenceId String?     @map("conference_id")
   conference   Conference? @relation(fields: [conferenceId], references: [id])
 
   @@map("users")
