@@ -3,22 +3,23 @@ import { MantineProvider } from "@mantine/core";
 import { router } from "@/app/router.tsx";
 import { useEffect, useState } from "react";
 import { websocketClient } from "@/websocket";
-import { getAccessToken } from "@/modules/session";
+import { init as initSessionModule } from "@/modules/session";
 import { Conference } from "@/modules/conference";
 
 const App = () => {
-  const [connected, setConnected] = useState(false);
+  const [initted, setInitted] = useState(false);
 
   useEffect(() => {
-    const connect = async () => {
-      await websocketClient.connect(getAccessToken());
-      setConnected(true);
+    const initAll = async () => {
+      await initSessionModule();
+
+      setInitted(true);
     };
 
-    connect();
+    initAll();
   }, []);
 
-  if (!connected) {
+  if (!initted) {
     return null;
   }
 

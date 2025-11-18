@@ -26,6 +26,10 @@ class WebsocketClient {
       url.searchParams.append("accessToken", accessToken);
     }
 
+    if (this.ws) {
+      this.ws.close(1000);
+    }
+
     this.ws = new WebSocket(url);
 
     this.ws.binaryType = "arraybuffer";
@@ -41,6 +45,12 @@ class WebsocketClient {
         res("Connected");
       });
     });
+  }
+
+  public disconnect() {
+    if (this.ws) {
+      this.ws.close(1000);
+    }
   }
 
   private async parseMessage(event: MessageEvent) {

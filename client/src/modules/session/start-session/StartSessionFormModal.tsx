@@ -8,6 +8,7 @@ import {
   type Session,
   sessionManager,
 } from "@/modules/session/SessionManager.ts";
+import { websocketClient } from "@/websocket";
 
 const schema = yup
   .object({
@@ -49,6 +50,9 @@ const StartSessionFormModal = forwardRef<StartSessionFormModalHandle>(
 
     const onSubmit: SubmitHandler<FormValues> = async (values) => {
       const { accessToken } = await mutate({ fullName: values.fullName });
+
+      websocketClient.disconnect();
+      await websocketClient.connect(accessToken);
 
       sessionManager.startSession(accessToken);
 
@@ -110,11 +114,7 @@ const StartSessionFormModal = forwardRef<StartSessionFormModalHandle>(
             {...form.register("fullName")}
           />
 
-          <Button
-            loading={mutations.startSession.isPending}
-            type="submit"
-            color="blue"
-          >
+          <Button loading={form.formState.isLoading} type="submit" color="blue">
             Start
           </Button>
         </form>
