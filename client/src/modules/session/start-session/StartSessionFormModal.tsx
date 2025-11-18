@@ -56,10 +56,6 @@ const StartSessionFormModal = forwardRef<StartSessionFormModalHandle>(
 
       sessionManager.startSession(accessToken);
 
-      // if (isSavedSessionSelected.current) {
-      //   sessionManager.moveSavedSessionToTop();
-      // }
-
       if (!isSavedSessionSelected.current) {
         sessionManager.saveSession({
           fullName: values.fullName,
