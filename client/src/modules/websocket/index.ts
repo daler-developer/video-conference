@@ -7,7 +7,7 @@ import {
   type OutgoingMessageExtractPayload,
   type IncomingMessageExtractType,
   type IncomingMessageExtractPayload,
-} from "./types";
+} from "./types.ts";
 import {
   createOutgoingMessageCreator,
   type OutgoingMessageCreator,

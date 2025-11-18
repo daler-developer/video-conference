@@ -2,7 +2,7 @@ import { RouterProvider } from "react-router/dom";
 import { MantineProvider } from "@mantine/core";
 import { router } from "@/app/router.tsx";
 import { useEffect, useState } from "react";
-import { websocketClient } from "@/websocket";
+import { websocketClient } from "@/modules/websocket";
 import { init as initSessionModule } from "@/modules/session";
 import { Conference } from "@/modules/conference";
 

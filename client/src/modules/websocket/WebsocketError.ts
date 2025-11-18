@@ -1,4 +1,4 @@
-import { type BaseIncomingErrorMessage } from "./types";
+import { type BaseIncomingErrorMessage } from "./types.ts";
 
 export class WebsocketError extends Error {
   incomingErrorMessage: BaseIncomingErrorMessage;

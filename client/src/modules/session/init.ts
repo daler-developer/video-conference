@@ -1,4 +1,4 @@
-import { websocketClient } from "@/websocket";
+import { websocketClient } from "@/modules/websocket";
 import { sessionManager } from "./SessionManager";
 
 const init = async () => {

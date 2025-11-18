@@ -8,7 +8,7 @@ import {
   type Session,
   sessionManager,
 } from "@/modules/session/SessionManager.ts";
-import { websocketClient } from "@/websocket";
+import { websocketClient } from "@/modules/websocket";
 
 const schema = yup
   .object({

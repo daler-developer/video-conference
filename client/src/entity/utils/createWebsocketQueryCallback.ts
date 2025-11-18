@@ -3,7 +3,7 @@ import {
   createOutgoingMessageCreator,
   websocketClient,
   WebsocketError,
-} from "@/websocket";
+} from "@/modules/websocket";
 import {
   type BaseQueryData,
   type BaseQueryParams,

@@ -2,7 +2,7 @@ import {
   type BaseIncomingMessage,
   createOutgoingMessageCreator,
   websocketClient,
-} from "@/websocket";
+} from "@/modules/websocket";
 import _ from "lodash";
 import { type EventSubCallback } from "../utils/createEventSub";
 

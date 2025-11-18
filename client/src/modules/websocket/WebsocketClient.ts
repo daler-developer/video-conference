@@ -6,7 +6,7 @@ import {
   isString,
   isSlotForBinary,
   parseSlotForBinary,
-} from "./utils";
+} from "./utils.ts";
 import { WebsocketError } from "./WebsocketError.ts";
 
 type Callback = (event: MessageEvent) => void;

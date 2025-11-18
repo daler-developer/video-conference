@@ -2,7 +2,7 @@ import {
   createOutgoingMessageCreator,
   websocketClient,
   WebsocketError,
-} from "@/websocket";
+} from "@/modules/websocket";
 import { type MutationCallback } from "./createMutation.ts";
 import { MutationError } from "@/entity/MutationError.ts";
 

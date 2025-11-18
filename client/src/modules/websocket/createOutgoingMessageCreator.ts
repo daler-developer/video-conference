@@ -1,7 +1,7 @@
 import {
   type BaseOutgoingMessage,
   type BaseOutgoingMessagePayload,
-} from "./types";
+} from "./types.ts";
 import { prepareMeta } from "./utils.ts";
 
 type Options<TMessageType extends string> = {
